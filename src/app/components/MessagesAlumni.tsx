@@ -185,11 +185,16 @@ export function MessagesAlumni({ onBack, onNavigateToProject }: MessagesAlumniPr
   ]);
 
   const handleVote = (pollId: number, optionId: number) => {
-    // Update local vote state
-    setVotedPolls({ ...votedPolls, [pollId]: optionId });
+    // Prevent multiple votes on same poll
+    if (votedPolls[pollId] !== undefined) {
+      return;
+    }
+
+    // Update local vote state immediately
+    setVotedPolls(prev => ({ ...prev, [pollId]: optionId }));
     
-    // Update poll data
-    setPollsData(pollsData.map(poll => {
+    // Update poll data immediately
+    setPollsData(prev => prev.map(poll => {
       if (poll.id === pollId) {
         return {
           ...poll,
@@ -297,6 +302,37 @@ export function MessagesAlumni({ onBack, onNavigateToProject }: MessagesAlumniPr
           {/* Tabs */}
           <div className="flex border-b border-[#E5E7EB] px-4 md:px-6 lg:px-8">
             <button
+              onClick={() => setActiveTab('voting')}
+              className={`px-4 py-3 font-semibold text-sm transition-colors relative ${
+                activeTab === 'voting'
+                  ? 'text-[#243D68]'
+                  : 'text-[#6B7280] hover:text-[#243D68]'
+              }`}
+            >
+              Voting
+              {activeTab === 'voting' && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#243D68]"></div>
+              )}
+            </button>
+            <button
+              onClick={() => setActiveTab('tasks')}
+              className={`px-4 py-3 font-semibold text-sm transition-colors relative ${
+                activeTab === 'tasks'
+                  ? 'text-[#243D68]'
+                  : 'text-[#6B7280] hover:text-[#243D68]'
+              }`}
+            >
+              Tasks
+              {tasks.filter(t => t.priority === 'high').length > 0 && (
+                <span className="ml-2 bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
+                  {tasks.filter(t => t.priority === 'high').length}
+                </span>
+              )}
+              {activeTab === 'tasks' && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#243D68]"></div>
+              )}
+            </button>
+            <button
               onClick={() => setActiveTab('chats')}
               className={`px-4 py-3 font-semibold text-sm transition-colors relative ${
                 activeTab === 'chats'
@@ -324,37 +360,6 @@ export function MessagesAlumni({ onBack, onNavigateToProject }: MessagesAlumniPr
             >
               Teams
               {activeTab === 'teams' && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#243D68]"></div>
-              )}
-            </button>
-            <button
-              onClick={() => setActiveTab('tasks')}
-              className={`px-4 py-3 font-semibold text-sm transition-colors relative ${
-                activeTab === 'tasks'
-                  ? 'text-[#243D68]'
-                  : 'text-[#6B7280] hover:text-[#243D68]'
-              }`}
-            >
-              Tasks
-              {tasks.filter(t => t.priority === 'high').length > 0 && (
-                <span className="ml-2 bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
-                  {tasks.filter(t => t.priority === 'high').length}
-                </span>
-              )}
-              {activeTab === 'tasks' && (
-                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#243D68]"></div>
-              )}
-            </button>
-            <button
-              onClick={() => setActiveTab('voting')}
-              className={`px-4 py-3 font-semibold text-sm transition-colors relative ${
-                activeTab === 'voting'
-                  ? 'text-[#243D68]'
-                  : 'text-[#6B7280] hover:text-[#243D68]'
-              }`}
-            >
-              Voting
-              {activeTab === 'voting' && (
                 <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#243D68]"></div>
               )}
             </button>

@@ -194,8 +194,8 @@ export function ProjectDetail({ onBack }: ProjectDetailProps) {
                 {/* Description & Goals */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="bg-[#F8F9FA] rounded-xl p-5 border border-[#E5E7EB]">
-                    <h3 className="text-base font-bold text-[#333333] mb-3 flex items-center gap-2">
-                      <span className="material-symbols-outlined text-[#243D68]">description</span>
+                    <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2 bg-[#FAC06E] rounded-lg px-3 py-2 shadow-sm">
+                      <span className="material-symbols-outlined text-white">description</span>
                       Deskripsi Proyek
                     </h3>
                     <ul className="list-disc list-inside space-y-2 text-[#6B7280] text-sm leading-relaxed">
@@ -205,8 +205,8 @@ export function ProjectDetail({ onBack }: ProjectDetailProps) {
                     </ul>
                   </div>
                   <div className="bg-[#F8F9FA] rounded-xl p-5 border border-[#E5E7EB]">
-                    <h3 className="text-base font-bold text-[#333333] mb-3 flex items-center gap-2">
-                      <span className="material-symbols-outlined text-[#243D68]">flag</span>
+                    <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2 bg-[#FAC06E] rounded-lg px-3 py-2 shadow-sm">
+                      <span className="material-symbols-outlined text-white">flag</span>
                       Tujuan Proyek
                     </h3>
                     <ul className="space-y-3 text-[#6B7280] text-sm leading-relaxed">
@@ -235,8 +235,8 @@ export function ProjectDetail({ onBack }: ProjectDetailProps) {
                 {/* Benefits & Location */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="bg-[#F8F9FA] rounded-xl p-5 border border-[#E5E7EB]">
-                    <h3 className="text-base font-bold text-[#333333] mb-3 flex items-center gap-2">
-                      <span className="material-symbols-outlined text-[#243D68]">workspace_premium</span>
+                    <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2 bg-[#FAC06E] rounded-lg px-3 py-2 shadow-sm">
+                      <span className="material-symbols-outlined text-white">workspace_premium</span>
                       Benefit
                     </h3>
                     <ul className="space-y-3 text-[#6B7280] text-sm leading-relaxed">
@@ -261,8 +261,8 @@ export function ProjectDetail({ onBack }: ProjectDetailProps) {
                     </ul>
                   </div>
                   <div className="bg-[#F8F9FA] rounded-xl p-5 border border-[#E5E7EB]">
-                    <h3 className="text-base font-bold text-[#333333] mb-3 flex items-center gap-2">
-                      <span className="material-symbols-outlined text-[#243D68]">location_on</span>
+                    <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2 bg-[#FAC06E] rounded-lg px-3 py-2 shadow-sm">
+                      <span className="material-symbols-outlined text-white">location_on</span>
                       Lokasi / Fokus Kegiatan
                     </h3>
                     <div className="flex items-center gap-2">
@@ -273,13 +273,13 @@ export function ProjectDetail({ onBack }: ProjectDetailProps) {
                 </div>
 
                 {/* Team Needs */}
-                <div className="space-y-4">
-                  <h3 className="text-base font-bold text-[#333333] flex items-center gap-2">
-                    <span className="material-symbols-outlined text-[#243D68]">groups</span>
+                <div className="bg-[#F8F9FA] rounded-xl p-5 border border-[#E5E7EB]">
+                  <h3 className="text-sm font-bold text-white flex items-center gap-2 bg-[#FAC06E] rounded-lg px-3 py-2 shadow-sm w-fit mb-4">
+                    <span className="material-symbols-outlined text-white">groups</span>
                     Kebutuhan Tim
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="bg-[#F8F9FA] rounded-xl border border-[#E5E7EB] p-5">
+                    <div className="bg-white rounded-xl border border-[#E5E7EB] p-5">
                       <h4 className="font-bold text-[#333333] mb-1">UI/UX Designer</h4>
                       <p className="text-xs text-[#6B7280] mb-3">1 Posisi Dibutuhkan</p>
                       <ul className="list-disc list-inside space-y-1 text-[#6B7280] text-sm leading-relaxed mb-4">
@@ -290,7 +290,7 @@ export function ProjectDetail({ onBack }: ProjectDetailProps) {
                         <p className="text-[#4CAF50] text-sm font-semibold leading-normal">Posisi Tersedia</p>
                       </button>
                     </div>
-                    <div className="bg-[#F8F9FA] rounded-xl border border-[#E5E7EB] p-5">
+                    <div className="bg-white rounded-xl border border-[#E5E7EB] p-5">
                       <h4 className="font-bold text-[#333333] mb-1">Mobile Developer (React Native)</h4>
                       <p className="text-xs text-[#6B7280] mb-3">2 Posisi Dibutuhkan</p>
                       <ul className="list-disc list-inside space-y-1 text-[#6B7280] text-sm leading-relaxed mb-4">
@@ -310,8 +310,11 @@ export function ProjectDetail({ onBack }: ProjectDetailProps) {
               <>
                 {/* Progress Bar */}
                 <div className="bg-[#F8F9FA] rounded-xl p-5 border border-[#E5E7EB]">
+                  <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2 bg-[#FAC06E] rounded-lg px-3 py-2 shadow-sm w-fit">
+                    <span className="material-symbols-outlined text-white">trending_up</span>
+                    Progress Proyek
+                  </h3>
                   <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-base font-bold text-[#333333]">Progress Proyek</h3>
                     <span className="text-2xl font-bold text-[#4A90E2]">60%</span>
                   </div>
                   <div className="w-full bg-[#E5E7EB] rounded-full h-3 overflow-hidden">
@@ -322,7 +325,10 @@ export function ProjectDetail({ onBack }: ProjectDetailProps) {
 
                 {/* Milestones */}
                 <div className="bg-[#F8F9FA] rounded-xl p-5 border border-[#E5E7EB]">
-                  <h3 className="text-base font-bold text-[#333333] mb-4">Tahapan Proyek</h3>
+                  <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2 bg-[#FAC06E] rounded-lg px-3 py-2 shadow-sm w-fit">
+                    <span className="material-symbols-outlined text-white">timeline</span>
+                    Tahapan Proyek
+                  </h3>
                   <div className="space-y-4">
                     <div className="flex items-start gap-3">
                       <span className="material-symbols-outlined text-[#4CAF50] text-2xl" style={{ fontVariationSettings: "'FILL' 1" }}>
@@ -374,7 +380,10 @@ export function ProjectDetail({ onBack }: ProjectDetailProps) {
 
                 {/* Recent Updates */}
                 <div className="bg-[#F8F9FA] rounded-xl p-5 border border-[#E5E7EB]">
-                  <h3 className="text-base font-bold text-[#333333] mb-4">Update Terbaru</h3>
+                  <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2 bg-[#FAC06E] rounded-lg px-3 py-2 shadow-sm w-fit">
+                    <span className="material-symbols-outlined text-white">notifications</span>
+                    Update Terbaru
+                  </h3>
                   <div className="space-y-4">
                     <div className="flex gap-3 pb-4 border-b border-[#E5E7EB] last:border-0 last:pb-0">
                       <div className="flex flex-col items-center">
@@ -417,7 +426,10 @@ export function ProjectDetail({ onBack }: ProjectDetailProps) {
               <>
                 {/* Project-in-Charge */}
                 <div className="bg-[#F8F9FA] rounded-xl p-5 border border-[#E5E7EB]">
-                  <h3 className="text-base font-bold text-[#333333] mb-4">Project-in-Charge</h3>
+                  <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2 bg-[#FAC06E] rounded-lg px-3 py-2 shadow-sm w-fit">
+                    <span className="material-symbols-outlined text-white">person</span>
+                    Project-in-Charge
+                  </h3>
                   <div className="flex items-center gap-4">
                     <div
                       className="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-14 w-14 shrink-0"
@@ -438,7 +450,10 @@ export function ProjectDetail({ onBack }: ProjectDetailProps) {
 
                 {/* Tim Inti */}
                 <div className="bg-[#F8F9FA] rounded-xl p-5 border border-[#E5E7EB]">
-                  <h3 className="text-base font-bold text-[#333333] mb-4">Tim Inti</h3>
+                  <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2 bg-[#FAC06E] rounded-lg px-3 py-2 shadow-sm w-fit">
+                    <span className="material-symbols-outlined text-white">groups</span>
+                    Tim Inti
+                  </h3>
                   <div className="space-y-4">
                     <div className="flex items-center gap-4 pb-4 border-b border-[#D6DCE8]">
                       <div
@@ -473,8 +488,11 @@ export function ProjectDetail({ onBack }: ProjectDetailProps) {
 
                 {/* Volunteer */}
                 <div className="bg-[#F8F9FA] rounded-xl p-5 border border-[#E5E7EB]">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-base font-bold text-[#333333]">Volunteer</h3>
+                  <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2 bg-[#FAC06E] rounded-lg px-3 py-2 shadow-sm w-fit">
+                    <span className="material-symbols-outlined text-white">volunteer_activism</span>
+                    Volunteer
+                  </h3>
+                  <div className="flex items-center justify-between">
                     <span className="text-sm font-medium text-[#4A90E2]">8 Orang</span>
                   </div>
                   <div className="flex -space-x-2">
