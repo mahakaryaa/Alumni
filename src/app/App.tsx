@@ -7,12 +7,14 @@ import { Login } from '@/app/components/Login';
 import { EventDetail } from '@/app/components/EventDetail';
 import { MessagePage } from '@/app/components/MessagePage';
 import { SettingsPage } from '@/app/components/SettingsPage';
+import { MessagesAlumni } from '@/app/components/MessagesAlumni';
 import heroImage from 'figma:asset/e58bcf57f4d8cba056148583d179c170bd719908.png';
 
 export default function App() {
   const [activeNav, setActiveNav] = useState('home');
   const [currentView, setCurrentView] = useState<'home' | 'project-detail' | 'explore' | 'alumni-story' | 'login' | 'event-detail' | 'messages' | 'settings'>('home');
   const [exploreInitialTab, setExploreInitialTab] = useState<'open' | 'galeri'>('open');
+  const [projectDetailInitialTab, setProjectDetailInitialTab] = useState<'overview' | 'progress' | 'members' | 'discussion' | 'wallet'>('overview');
   const [userRole, setUserRole] = useState<'donatur' | 'alumni' | null>(null);
 
   if (currentView === 'login') {
@@ -32,13 +34,13 @@ export default function App() {
       return <ProjectDetailAlumni onBack={() => {
         setCurrentView('home');
         setActiveNav('home');
-      }} />;
+      }} initialTab={projectDetailInitialTab} />;
     }
     
     return <ProjectDetail onBack={() => {
       setCurrentView('home');
       setActiveNav('home');
-    }} />;
+    }} initialTab={projectDetailInitialTab} />;
   }
 
   if (currentView === 'explore') {
@@ -63,6 +65,20 @@ export default function App() {
   }
 
   if (currentView === 'messages') {
+    // Show different messages page based on user role
+    if (userRole === 'alumni') {
+      return <MessagesAlumni 
+        onBack={() => {
+          setCurrentView('home');
+          setActiveNav('home');
+        }}
+        onNavigateToProject={() => {
+          setProjectDetailInitialTab('overview');
+          setCurrentView('project-detail');
+        }}
+      />;
+    }
+    
     return <MessagePage 
       onBack={() => {
         setCurrentView('home');

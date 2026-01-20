@@ -2,10 +2,11 @@ import { useState } from 'react';
 
 interface ProjectDetailAlumniProps {
   onBack: () => void;
+  initialTab?: 'overview' | 'progress' | 'members' | 'discussion' | 'wallet';
 }
 
-export function ProjectDetailAlumni({ onBack }: ProjectDetailAlumniProps) {
-  const [activeTab, setActiveTab] = useState<'overview' | 'progress' | 'members' | 'discussion' | 'wallet'>('discussion');
+export function ProjectDetailAlumni({ onBack, initialTab = 'discussion' }: ProjectDetailAlumniProps) {
+  const [activeTab, setActiveTab] = useState<'overview' | 'progress' | 'members' | 'discussion' | 'wallet'>(initialTab);
   const [showSearch, setShowSearch] = useState(false);
   const [message, setMessage] = useState('');
   const [expandedMessages, setExpandedMessages] = useState<number[]>([]);

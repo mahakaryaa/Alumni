@@ -2,10 +2,207 @@ import { useState } from 'react';
 
 interface MessagesAlumniProps {
   onBack: () => void;
+  onNavigateToProject?: () => void;
 }
 
-export function MessagesAlumni({ onBack }: MessagesAlumniProps) {
-  const [activeFilter, setActiveFilter] = useState<'all' | 'unread' | 'important'>('all');
+export function MessagesAlumni({ onBack, onNavigateToProject }: MessagesAlumniProps) {
+  const [activeTab, setActiveTab] = useState<'chats' | 'teams' | 'tasks' | 'voting'>('chats');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [votedPolls, setVotedPolls] = useState<{ [key: number]: number }>({}); // Store poll id and selected option id
+
+  // Mock data for conversations
+  const conversations = [
+    {
+      id: 1,
+      name: 'Tim Digitalisasi Arsip',
+      lastMessage: 'Budi: Mockup sudah ready untuk review',
+      time: '2 mnt',
+      unread: 3,
+      avatar: '👥',
+      type: 'team',
+      online: true
+    },
+    {
+      id: 2,
+      name: 'AlumniMentorship',
+      lastMessage: 'Siti: Meeting pukul 2 siang ya!',
+      time: '15 mnt',
+      unread: 1,
+      avatar: '👥',
+      type: 'team',
+      online: true
+    },
+    {
+      id: 3,
+      name: 'Budi Hartono',
+      lastMessage: 'Oke, nanti saya cek dulu',
+      time: '1 jam',
+      unread: 0,
+      avatar: 'BH',
+      type: 'personal',
+      online: true
+    },
+    {
+      id: 4,
+      name: 'Design Team',
+      lastMessage: 'Kamu: Terima kasih feedbacknya!',
+      time: '3 jam',
+      unread: 0,
+      avatar: '🎨',
+      type: 'team',
+      online: false
+    },
+    {
+      id: 5,
+      name: 'Siti Aminah',
+      lastMessage: 'File presentasinya sudah di-upload',
+      time: 'Kemarin',
+      unread: 0,
+      avatar: 'SA',
+      type: 'personal',
+      online: false
+    }
+  ];
+
+  // Mock data for teams
+  const teams = [
+    {
+      id: 1,
+      name: 'Digitalisasi Arsip',
+      members: 8,
+      progress: 75,
+      icon: 'folder',
+      color: 'blue'
+    },
+    {
+      id: 2,
+      name: 'AlumniMentorship',
+      members: 12,
+      progress: 60,
+      icon: 'groups',
+      color: 'green'
+    },
+    {
+      id: 3,
+      name: 'Design Team',
+      members: 5,
+      progress: 45,
+      icon: 'palette',
+      color: 'purple'
+    }
+  ];
+
+  // Mock data for tasks
+  const tasks = [
+    {
+      id: 1,
+      title: 'Pengkajian Desain UI/UX',
+      project: 'Digitalisasi Arsip',
+      dueDate: 'Hari ini',
+      priority: 'high',
+      assignedBy: 'DevTeam'
+    },
+    {
+      id: 2,
+      title: 'Briefing Tim Dev',
+      project: 'AlumniMentorship',
+      dueDate: 'Besok',
+      priority: 'high',
+      assignedBy: 'Management'
+    },
+    {
+      id: 3,
+      title: 'Review Mockup Design',
+      project: 'Design Team',
+      dueDate: '2 hari lagi',
+      priority: 'medium',
+      assignedBy: 'Siti A.'
+    }
+  ];
+
+  // Mock data for polls
+  const [pollsData, setPollsData] = useState([
+    {
+      id: 1,
+      question: 'Waktu meeting bulanan yang paling cocok?',
+      creator: 'Budi Hartono',
+      project: 'Digitalisasi Arsip',
+      createdAt: '2 jam lalu',
+      deadline: 'Besok, 17:00',
+      status: 'active',
+      totalVotes: 15,
+      options: [
+        { id: 1, text: 'Senin pagi (09:00-11:00)', votes: 5 },
+        { id: 2, text: 'Rabu sore (14:00-16:00)', votes: 8 },
+        { id: 3, text: 'Jumat sore (15:00-17:00)', votes: 2 }
+      ]
+    },
+    {
+      id: 2,
+      question: 'Pilih topik diskusi minggu ini:',
+      creator: 'Siti Aminah',
+      project: 'AlumniMentorship',
+      createdAt: '5 jam lalu',
+      deadline: '2 hari lagi',
+      status: 'active',
+      totalVotes: 23,
+      options: [
+        { id: 1, text: 'Pengembangan Produk', votes: 12 },
+        { id: 2, text: 'Strategi Pemasaran Digital', votes: 7 },
+        { id: 3, text: 'Pengembangan Tim & Leadership', votes: 4 }
+      ]
+    },
+    {
+      id: 3,
+      question: 'Budget prioritas untuk Q2 2026?',
+      creator: 'Ahmad Fauzi',
+      project: 'Design Team',
+      createdAt: 'Kemarin',
+      deadline: '3 hari lagi',
+      status: 'active',
+      totalVotes: 18,
+      options: [
+        { id: 1, text: 'Infrastruktur & Tools', votes: 9 },
+        { id: 2, text: 'Marketing & Branding', votes: 5 },
+        { id: 3, text: 'Training & Development', votes: 4 }
+      ]
+    },
+    {
+      id: 4,
+      question: 'Platform komunikasi utama tim?',
+      creator: 'Design Team',
+      project: 'General',
+      createdAt: '3 hari lalu',
+      deadline: 'Sudah ditutup',
+      status: 'closed',
+      totalVotes: 45,
+      options: [
+        { id: 1, text: 'Slack', votes: 28 },
+        { id: 2, text: 'Discord', votes: 12 },
+        { id: 3, text: 'Microsoft Teams', votes: 5 }
+      ]
+    }
+  ]);
+
+  const handleVote = (pollId: number, optionId: number) => {
+    // Update local vote state
+    setVotedPolls({ ...votedPolls, [pollId]: optionId });
+    
+    // Update poll data
+    setPollsData(pollsData.map(poll => {
+      if (poll.id === pollId) {
+        return {
+          ...poll,
+          totalVotes: poll.totalVotes + 1,
+          options: poll.options.map(option => ({
+            ...option,
+            votes: option.id === optionId ? option.votes + 1 : option.votes
+          }))
+        };
+      }
+      return poll;
+    }));
+  };
 
   return (
     <div className="flex min-h-screen bg-[#F8F9FA] overflow-x-hidden w-full max-w-full">
@@ -47,7 +244,11 @@ export function MessagesAlumni({ onBack }: MessagesAlumniProps) {
               <button className="flex items-center gap-3 px-4 py-3.5 rounded-xl font-medium transition-all bg-white/10 text-white w-full relative">
                 <span className="material-symbols-outlined text-xl">chat_bubble</span>
                 <span className="tracking-wide text-sm">Pesan</span>
-                <span className="absolute top-3 left-11 w-2 h-2 bg-red-500 rounded-full border border-[#2B4468]"></span>
+                {tasks.filter(t => t.priority === 'high').length > 0 && (
+                  <span className="ml-auto bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+                    {tasks.filter(t => t.priority === 'high').length}
+                  </span>
+                )}
               </button>
 
               <button className="flex items-center gap-3 px-4 py-3.5 rounded-xl font-medium transition-all text-white/60 hover:bg-white/5 hover:text-white w-full">
@@ -73,182 +274,425 @@ export function MessagesAlumni({ onBack }: MessagesAlumniProps) {
       {/* Main Content */}
       <div className="flex-1 lg:ml-64 flex flex-col min-h-screen overflow-x-hidden max-w-full">
         {/* Header */}
-        <div className="sticky top-0 z-20 flex items-center bg-white px-4 md:px-6 lg:px-8 py-4 justify-between border-b border-[#E5E7EB] shadow-sm">
-          <div className="flex items-center justify-start">
-            <button onClick={onBack} className="cursor-pointer hover:bg-[#F8F9FA] rounded-lg p-1.5 transition-colors flex items-center justify-center lg:hidden">
-              <span className="material-symbols-outlined text-[#243D68] text-[24px]">arrow_back</span>
-            </button>
+        <div className="sticky top-0 z-20 bg-white border-b border-[#E5E7EB] shadow-sm">
+          <div className="flex items-center px-4 md:px-6 lg:px-8 py-4 justify-between">
+            <div className="flex items-center gap-3">
+              <button onClick={onBack} className="cursor-pointer hover:bg-[#F8F9FA] rounded-lg p-1.5 transition-colors flex items-center justify-center lg:hidden">
+                <span className="material-symbols-outlined text-[#243D68] text-[24px]">arrow_back</span>
+              </button>
+              <div>
+                <h2 className="text-[#0E1B33] text-lg font-bold leading-tight tracking-tight">
+                  Pesan
+                </h2>
+                <p className="text-[#6B7280] text-xs">Hai, Rania 👋</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <button className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg text-[#243D68] hover:bg-[#F8F9FA] transition-colors">
+                <span className="material-symbols-outlined">add</span>
+              </button>
+            </div>
           </div>
-          <h2 className="text-[#0E1B33] text-base md:text-lg font-bold leading-tight tracking-tight flex-1 text-center uppercase px-2">
-            Pesan
-          </h2>
-          <div className="flex items-center justify-end gap-2">
-            <button className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg text-[#243D68] hover:bg-[#F8F9FA] transition-colors">
-              <span className="material-symbols-outlined">search</span>
+
+          {/* Tabs */}
+          <div className="flex border-b border-[#E5E7EB] px-4 md:px-6 lg:px-8">
+            <button
+              onClick={() => setActiveTab('chats')}
+              className={`px-4 py-3 font-semibold text-sm transition-colors relative ${
+                activeTab === 'chats'
+                  ? 'text-[#243D68]'
+                  : 'text-[#6B7280] hover:text-[#243D68]'
+              }`}
+            >
+              Chats
+              {conversations.filter(c => c.unread > 0).length > 0 && (
+                <span className="ml-2 bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
+                  {conversations.filter(c => c.unread > 0).length}
+                </span>
+              )}
+              {activeTab === 'chats' && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#243D68]"></div>
+              )}
             </button>
-            <button className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg text-[#243D68] hover:bg-[#F8F9FA] transition-colors">
-              <span className="material-symbols-outlined">more_vert</span>
+            <button
+              onClick={() => setActiveTab('teams')}
+              className={`px-4 py-3 font-semibold text-sm transition-colors relative ${
+                activeTab === 'teams'
+                  ? 'text-[#243D68]'
+                  : 'text-[#6B7280] hover:text-[#243D68]'
+              }`}
+            >
+              Teams
+              {activeTab === 'teams' && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#243D68]"></div>
+              )}
+            </button>
+            <button
+              onClick={() => setActiveTab('tasks')}
+              className={`px-4 py-3 font-semibold text-sm transition-colors relative ${
+                activeTab === 'tasks'
+                  ? 'text-[#243D68]'
+                  : 'text-[#6B7280] hover:text-[#243D68]'
+              }`}
+            >
+              Tasks
+              {tasks.filter(t => t.priority === 'high').length > 0 && (
+                <span className="ml-2 bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
+                  {tasks.filter(t => t.priority === 'high').length}
+                </span>
+              )}
+              {activeTab === 'tasks' && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#243D68]"></div>
+              )}
+            </button>
+            <button
+              onClick={() => setActiveTab('voting')}
+              className={`px-4 py-3 font-semibold text-sm transition-colors relative ${
+                activeTab === 'voting'
+                  ? 'text-[#243D68]'
+                  : 'text-[#6B7280] hover:text-[#243D68]'
+              }`}
+            >
+              Voting
+              {activeTab === 'voting' && (
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#243D68]"></div>
+              )}
             </button>
           </div>
         </div>
 
         {/* Content */}
-        <div className="flex-1 pb-24 overflow-x-hidden max-w-full">
-          {/* Welcome Section */}
-          <div className="px-4 md:px-6 lg:px-8 pt-6 pb-4">
-            <div className="flex items-start gap-3">
-              <div>
-                <h1 className="text-[#333333] text-2xl md:text-3xl font-['Archivo_Black'] leading-tight mb-1">
-                  Hai, Rania! 👋
-                </h1>
-                <p className="text-[#6B7280] text-sm md:text-base">Siap berkolaborasi hari ini?</p>
-              </div>
+        <div className="flex-1 pb-24 overflow-y-auto">
+          {/* Search Bar */}
+          <div className="px-4 md:px-6 lg:px-8 pt-4 pb-4 bg-[#F8F9FA]">
+            <div className="relative">
+              <span className="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#6B7280] text-xl">
+                search
+              </span>
+              <input
+                type="text"
+                placeholder={`Cari ${activeTab === 'chats' ? 'percakapan' : activeTab === 'teams' ? 'tim' : 'tugas'}...`}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full h-11 pl-11 pr-4 rounded-lg border border-[#E5E7EB] bg-white text-[#0E1B33] placeholder-[#6B7280] focus:ring-2 focus:ring-[#243D68] focus:border-[#243D68] transition-all outline-none text-sm"
+              />
             </div>
           </div>
 
-          {/* Tugas Hari Ini */}
+          {/* Tab Content */}
           <div className="px-4 md:px-6 lg:px-8 pb-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-[#243D68] text-xl">flag</span>
-                <h3 className="text-[#333333] text-base md:text-lg font-bold">Tugas Hari Ini</h3>
-                <span className="bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">2</span>
-              </div>
-            </div>
+            {/* Chats Tab */}
+            {activeTab === 'chats' && (
+              <div className="space-y-1">
+                {conversations.map((conv) => (
+                  <div
+                    key={conv.id}
+                    className="bg-white rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer border border-[#E5E7EB] hover:border-[#243D68]/20"
+                  >
+                    <div className="flex items-start gap-3">
+                      {/* Avatar */}
+                      <div className="relative shrink-0">
+                        <div className={`w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold ${
+                          conv.type === 'team' 
+                            ? 'bg-blue-100 text-blue-600' 
+                            : 'bg-[#FAC06E] text-[#243D68]'
+                        }`}>
+                          {conv.avatar}
+                        </div>
+                        {conv.online && (
+                          <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
+                        )}
+                      </div>
 
-            <div className="space-y-3">
-              {/* Task Card 1 - Blue */}
-              <div className="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-xl p-4 relative overflow-hidden">
-                <div className="absolute top-2 right-2">
-                  <span className="material-symbols-outlined text-blue-300 text-4xl opacity-20">description</span>
-                </div>
-                <div className="relative z-10">
-                  <span className="text-xs font-semibold text-blue-600 mb-2 block">@DevTeam • 20 mnt lalu</span>
-                  <h4 className="text-base font-black text-[#243D68] mb-2">Pengkajian Desain UI/UX</h4>
-                  <p className="text-sm text-[#6B7280] mb-3">Perlu review mockup baru dari DesignLab.</p>
-                  <button className="bg-[#243D68] text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-[#1a2d4d] transition-colors">
-                    Laporkann
-                  </button>
-                </div>
-              </div>
-
-              {/* Task Card 2 - Yellow */}
-              <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 border border-yellow-200 rounded-xl p-4 relative overflow-hidden">
-                <div className="absolute top-2 right-2">
-                  <span className="bg-orange-500 text-white text-xs font-black px-2 py-1 rounded">High</span>
-                </div>
-                <div className="relative z-10">
-                  <span className="text-xs font-semibold text-yellow-700 mb-2 block">@Management • 2 jam lalu</span>
-                  <h4 className="text-base font-black text-[#243D68] mb-2">Briefing Tim Dev</h4>
-                  <p className="text-sm text-[#6B7280] mb-3">Tim butuh arahan untuk sprint berikutnya.</p>
-                  <button className="bg-[#FAC06E] text-[#243D68] px-4 py-2 rounded-lg text-sm font-bold hover:bg-[#e8b05e] transition-colors">
-                    Mulai
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Project Saya */}
-          <div className="px-4 md:px-6 lg:px-8 pb-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-[#243D68] text-xl">work</span>
-                <h3 className="text-[#333333] text-base md:text-lg font-bold">Project Saya</h3>
-              </div>
-              <button className="text-[#243D68] text-sm font-bold hover:underline">Lihat Semua</button>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Project Card 1 */}
-              <div className="bg-white border border-[#E5E7EB] rounded-xl p-5 hover:shadow-lg transition-shadow">
-                <div className="flex items-start justify-between mb-3">
-                  <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-                    <span className="material-symbols-outlined text-blue-600 text-2xl">folder</span>
+                      {/* Content */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-2 mb-1">
+                          <h3 className="font-bold text-[#0E1B33] text-sm truncate">{conv.name}</h3>
+                          <span className="text-xs text-[#6B7280] shrink-0">{conv.time}</span>
+                        </div>
+                        <div className="flex items-center justify-between gap-2">
+                          <p className="text-sm text-[#6B7280] truncate">{conv.lastMessage}</p>
+                          {conv.unread > 0 && (
+                            <span className="bg-[#243D68] text-white text-xs font-bold px-2 py-0.5 rounded-full shrink-0">
+                              {conv.unread}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <span className="bg-blue-100 text-blue-700 text-xs font-bold px-2 py-1 rounded">75%</span>
-                </div>
-                <h4 className="text-base font-bold text-[#333333] mb-2">Digitalisasi Arsip</h4>
-                <p className="text-sm text-[#6B7280] mb-4">Sistem manajemen dokumen digital</p>
-                <button className="w-full bg-blue-50 text-blue-700 py-2 rounded-lg text-sm font-bold hover:bg-blue-100 transition-colors">
-                  Masuk Project
-                </button>
+                ))}
               </div>
+            )}
 
-              {/* Project Card 2 */}
-              <div className="bg-white border border-[#E5E7EB] rounded-xl p-5 hover:shadow-lg transition-shadow">
-                <div className="flex items-start justify-between mb-3">
-                  <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
-                    <span className="material-symbols-outlined text-green-600 text-2xl">groups</span>
+            {/* Teams Tab */}
+            {activeTab === 'teams' && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {teams.map((team) => (
+                  <div
+                    key={team.id}
+                    onClick={onNavigateToProject}
+                    className="bg-white rounded-lg p-5 hover:shadow-lg transition-all cursor-pointer border border-[#E5E7EB] hover:border-[#243D68]/20"
+                  >
+                    <div className="flex items-start justify-between mb-4">
+                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                        team.color === 'blue' ? 'bg-blue-100' :
+                        team.color === 'green' ? 'bg-green-100' :
+                        'bg-purple-100'
+                      }`}>
+                        <span className={`material-symbols-outlined text-2xl ${
+                          team.color === 'blue' ? 'text-blue-600' :
+                          team.color === 'green' ? 'text-green-600' :
+                          'text-purple-600'
+                        }`}>{team.icon}</span>
+                      </div>
+                      <span className={`px-2 py-1 rounded text-xs font-bold ${
+                        team.color === 'blue' ? 'bg-blue-100 text-blue-700' :
+                        team.color === 'green' ? 'bg-green-100 text-green-700' :
+                        'bg-purple-100 text-purple-700'
+                      }`}>
+                        {team.progress}%
+                      </span>
+                    </div>
+                    <h3 className="font-bold text-[#0E1B33] text-base mb-2">{team.name}</h3>
+                    <div className="flex items-center gap-2 text-sm text-[#6B7280] mb-3">
+                      <span className="material-symbols-outlined text-lg">group</span>
+                      <span>{team.members} anggota</span>
+                    </div>
+                    <div className="w-full bg-[#E5E7EB] rounded-full h-2">
+                      <div 
+                        className={`h-2 rounded-full transition-all ${
+                          team.color === 'blue' ? 'bg-blue-600' :
+                          team.color === 'green' ? 'bg-green-600' :
+                          'bg-purple-600'
+                        }`}
+                        style={{ width: `${team.progress}%` }}
+                      ></div>
+                    </div>
                   </div>
-                  <span className="bg-green-100 text-green-700 text-xs font-bold px-2 py-1 rounded">Active</span>
-                </div>
-                <h4 className="text-base font-bold text-[#333333] mb-2">AlumniMentorship</h4>
-                <p className="text-sm text-[#6B7280] mb-4">Platform mentoring alumni UB</p>
-                <button className="w-full bg-green-50 text-green-700 py-2 rounded-lg text-sm font-bold hover:bg-green-100 transition-colors">
-                  Masuk Project
-                </button>
+                ))}
               </div>
-            </div>
-          </div>
+            )}
 
-          {/* Aktivitas Terbaru */}
-          <div className="px-4 md:px-6 lg:px-8 pb-6">
-            <div className="flex items-center gap-2 mb-4">
-              <span className="material-symbols-outlined text-[#243D68] text-xl">history</span>
-              <h3 className="text-[#333333] text-base md:text-lg font-bold">Aktivitas Terbaru</h3>
-            </div>
+            {/* Tasks Tab */}
+            {activeTab === 'tasks' && (
+              <div className="space-y-3">
+                {tasks.map((task) => (
+                  <div
+                    key={task.id}
+                    className={`rounded-lg p-4 border-l-4 ${
+                      task.priority === 'high' 
+                        ? 'bg-red-50 border-red-500' 
+                        : 'bg-yellow-50 border-yellow-500'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-3 mb-2">
+                      <h3 className="font-bold text-[#0E1B33] text-sm">{task.title}</h3>
+                      <span className={`px-2 py-1 rounded-full text-xs font-bold shrink-0 ${
+                        task.priority === 'high'
+                          ? 'bg-red-500 text-white'
+                          : 'bg-yellow-500 text-white'
+                      }`}>
+                        {task.priority === 'high' ? 'High' : 'Medium'}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-4 text-xs text-[#6B7280] mb-3">
+                      <div className="flex items-center gap-1">
+                        <span className="material-symbols-outlined text-sm">folder</span>
+                        <span>{task.project}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <span className="material-symbols-outlined text-sm">schedule</span>
+                        <span>{task.dueDate}</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button className="flex-1 bg-[#243D68] text-white py-2 px-4 rounded-lg text-sm font-bold hover:bg-[#1a2d4d] transition-colors">
+                        Kerjakan
+                      </button>
+                      <button className="px-4 py-2 border border-[#E5E7EB] text-[#243D68] rounded-lg text-sm font-semibold hover:bg-[#F8F9FA] transition-colors">
+                        Detail
+                      </button>
+                    </div>
+                  </div>
+                ))}
 
-            <div className="bg-white border border-[#E5E7EB] rounded-xl p-5">
+                {/* Empty state if no tasks */}
+                {tasks.length === 0 && (
+                  <div className="text-center py-12">
+                    <span className="material-symbols-outlined text-6xl text-[#E5E7EB] mb-3">task_alt</span>
+                    <p className="text-[#6B7280] text-sm">Tidak ada tugas saat ini</p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Voting Tab */}
+            {activeTab === 'voting' && (
               <div className="space-y-4">
-                {/* Activity 1 */}
-                <div className="flex gap-3 pb-4 border-b border-[#E5E7EB] last:border-0 last:pb-0">
-                  <div className="flex flex-col items-center">
-                    <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center shrink-0">
-                      <span className="material-symbols-outlined text-purple-600 text-sm">check_circle</span>
-                    </div>
-                    <div className="w-0.5 h-full bg-[#E5E7EB] mt-2"></div>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-[#333333] mb-1">
-                      Milestone Tercapai! "Task-list selesai untuk Digitalisasi Arsip"
-                    </p>
-                    <p className="text-xs text-[#6B7280]">Kemarin, 16:30</p>
-                  </div>
-                </div>
+                {pollsData.map((poll) => {
+                  const hasVoted = votedPolls[poll.id] !== undefined;
+                  const isActive = poll.status === 'active';
+                  
+                  return (
+                    <div
+                      key={poll.id}
+                      className="bg-white rounded-lg p-5 border border-[#E5E7EB]"
+                    >
+                      {/* Poll Header */}
+                      <div className="flex items-start justify-between gap-3 mb-3">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="material-symbols-outlined text-[#243D68] text-lg">
+                              {poll.status === 'active' ? 'poll' : 'check_circle'}
+                            </span>
+                            <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                              poll.status === 'active' 
+                                ? 'bg-green-100 text-green-700' 
+                                : 'bg-gray-100 text-gray-700'
+                            }`}>
+                              {poll.status === 'active' ? 'Aktif' : 'Ditutup'}
+                            </span>
+                          </div>
+                          <h3 className="font-bold text-[#0E1B33] text-base mb-2">{poll.question}</h3>
+                          <div className="flex items-center gap-4 text-xs text-[#6B7280]">
+                            <div className="flex items-center gap-1">
+                              <span className="material-symbols-outlined text-sm">person</span>
+                              <span>{poll.creator}</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <span className="material-symbols-outlined text-sm">folder</span>
+                              <span>{poll.project}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
 
-                {/* Activity 2 */}
-                <div className="flex gap-3 pb-4 border-b border-[#E5E7EB] last:border-0 last:pb-0">
-                  <div className="flex flex-col items-center">
-                    <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center shrink-0">
-                      <span className="material-symbols-outlined text-green-600 text-sm">celebration</span>
-                    </div>
-                    <div className="w-0.5 h-full bg-[#E5E7EB] mt-2"></div>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-[#333333] mb-1">
-                      <span className="font-black">Budi H.</span> menyelesaikan "Build WebPanel" di AlumniMentorship.
-                    </p>
-                    <p className="text-xs text-[#6B7280]">2 hari yang lalu</p>
-                  </div>
-                </div>
+                      {/* Poll Stats */}
+                      <div className="flex items-center gap-4 mb-4 pb-3 border-b border-[#E5E7EB]">
+                        <div className="flex items-center gap-1 text-sm">
+                          <span className="material-symbols-outlined text-[#6B7280] text-lg">how_to_vote</span>
+                          <span className="text-[#0E1B33] font-semibold">{poll.totalVotes}</span>
+                          <span className="text-[#6B7280]">suara</span>
+                        </div>
+                        <div className="flex items-center gap-1 text-sm">
+                          <span className="material-symbols-outlined text-[#6B7280] text-lg">schedule</span>
+                          <span className="text-[#6B7280]">{poll.deadline}</span>
+                        </div>
+                      </div>
 
-                {/* Activity 3 */}
-                <div className="flex gap-3">
-                  <div className="flex flex-col items-center">
-                    <div className="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center shrink-0">
-                      <span className="material-symbols-outlined text-yellow-600 text-sm">person_add</span>
+                      {/* Poll Options */}
+                      <div className="space-y-3">
+                        {poll.options.map((option) => {
+                          const percentage = poll.totalVotes > 0 
+                            ? Math.round((option.votes / poll.totalVotes) * 100) 
+                            : 0;
+                          const isSelected = votedPolls[poll.id] === option.id;
+
+                          return (
+                            <div key={option.id} className="space-y-2">
+                              {/* Option Button/Display */}
+                              {!hasVoted && isActive ? (
+                                // Voting mode - clickable button
+                                <button
+                                  onClick={() => handleVote(poll.id, option.id)}
+                                  className="w-full text-left px-4 py-3 rounded-lg border-2 border-[#E5E7EB] bg-white hover:border-[#243D68] hover:bg-[#F8F9FA] transition-all group"
+                                >
+                                  <div className="flex items-center justify-between">
+                                    <span className="font-semibold text-[#0E1B33] text-sm group-hover:text-[#243D68]">
+                                      {option.text}
+                                    </span>
+                                    <span className="material-symbols-outlined text-[#6B7280] group-hover:text-[#243D68]">
+                                      radio_button_unchecked
+                                    </span>
+                                  </div>
+                                </button>
+                              ) : (
+                                // Results mode - show results
+                                <div className={`px-4 py-3 rounded-lg ${
+                                  isSelected 
+                                    ? 'bg-[#243D68]/5 border-2 border-[#243D68]' 
+                                    : 'bg-[#F8F9FA] border-2 border-transparent'
+                                }`}>
+                                  <div className="flex items-center justify-between mb-2">
+                                    <div className="flex items-center gap-2">
+                                      <span className={`font-semibold text-sm ${
+                                        isSelected ? 'text-[#243D68]' : 'text-[#0E1B33]'
+                                      }`}>
+                                        {option.text}
+                                      </span>
+                                      {isSelected && (
+                                        <span className="material-symbols-outlined text-[#243D68] text-lg">
+                                          check_circle
+                                        </span>
+                                      )}
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                      <span className="text-sm font-bold text-[#243D68]">
+                                        {percentage}%
+                                      </span>
+                                      <span className="text-xs text-[#6B7280]">
+                                        ({option.votes} suara)
+                                      </span>
+                                    </div>
+                                  </div>
+                                  {/* Progress Bar */}
+                                  <div className="w-full bg-[#E5E7EB] rounded-full h-2">
+                                    <div 
+                                      className={`h-2 rounded-full transition-all duration-500 ${
+                                        isSelected ? 'bg-[#243D68]' : 'bg-[#FAC06E]'
+                                      }`}
+                                      style={{ width: `${percentage}%` }}
+                                    ></div>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      {/* Submit Info */}
+                      {!hasVoted && isActive && (
+                        <div className="mt-4 pt-3 border-t border-[#E5E7EB]">
+                          <p className="text-xs text-[#6B7280] text-center">
+                            Klik salah satu pilihan untuk memberikan suara
+                          </p>
+                        </div>
+                      )}
+
+                      {/* Already Voted Info */}
+                      {hasVoted && isActive && (
+                        <div className="mt-4 pt-3 border-t border-[#E5E7EB]">
+                          <div className="flex items-center justify-center gap-2 text-green-600">
+                            <span className="material-symbols-outlined text-lg">check_circle</span>
+                            <p className="text-xs font-semibold">Suara Anda telah tercatat</p>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Poll Closed Info */}
+                      {!isActive && (
+                        <div className="mt-4 pt-3 border-t border-[#E5E7EB]">
+                          <div className="flex items-center justify-center gap-2 text-[#6B7280]">
+                            <span className="material-symbols-outlined text-lg">lock</span>
+                            <p className="text-xs font-semibold">Polling ini sudah ditutup</p>
+                          </div>
+                        </div>
+                      )}
                     </div>
+                  );
+                })}
+
+                {/* Empty state if no polls */}
+                {pollsData.length === 0 && (
+                  <div className="text-center py-12">
+                    <span className="material-symbols-outlined text-6xl text-[#E5E7EB] mb-3">poll</span>
+                    <p className="text-[#6B7280] text-sm">Tidak ada polling saat ini</p>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-[#333333] mb-1">
-                      <span className="font-black">Siti A.</span> bergabung sebagai UI Designer.
-                    </p>
-                    <p className="text-xs text-[#6B7280]">3 hari yang lalu</p>
-                  </div>
-                </div>
+                )}
               </div>
-            </div>
+            )}
           </div>
         </div>
       </div>
