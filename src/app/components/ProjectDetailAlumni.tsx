@@ -689,6 +689,22 @@ export function ProjectDetailAlumni({ onBack, initialTab = 'discussion' }: Proje
                   </div>
                 </div>
               </div>
+
+              {/* Join Project CTA Button */}
+              <div className="bg-gradient-to-br from-[#243D68]/5 to-[#243D68]/10 rounded-2xl p-6 border-2 border-[#243D68]/20">
+                <div className="text-center mb-4">
+                  <h3 className="text-xl font-black text-[#243D68] mb-2">
+                    Tertarik Bergabung?
+                  </h3>
+                  <p className="text-sm text-[#6B7280] leading-relaxed">
+                    Jadilah bagian dari tim dan berkontribusi langsung dalam proyek ini. Pilih posisi yang sesuai dengan keahlian Anda!
+                  </p>
+                </div>
+                <button className="w-full flex items-center justify-center gap-3 rounded-xl h-14 bg-gradient-to-r from-[#243D68] to-[#30518B] text-white text-base font-bold leading-normal tracking-widest shadow-[6px_6px_0px_0px_rgba(250,192,110,1)] hover:shadow-[8px_8px_0px_0px_rgba(250,192,110,1)] active:shadow-none active:translate-x-1 active:translate-y-1 transition-all uppercase">
+                  <span className="material-symbols-outlined text-2xl">group_add</span>
+                  <span>Join Project</span>
+                </button>
+              </div>
             </div>
           )}
           

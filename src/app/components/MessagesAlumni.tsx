@@ -48,7 +48,7 @@ export function MessagesAlumni({ onBack, onNavigateToProject }: MessagesAlumniPr
       lastMessage: 'Kamu: Terima kasih feedbacknya!',
       time: '3 jam',
       unread: 0,
-      avatar: '🎨',
+      avatar: '��',
       type: 'team',
       online: false
     },
@@ -481,52 +481,80 @@ export function MessagesAlumni({ onBack, onNavigateToProject }: MessagesAlumniPr
 
             {/* Tasks Tab */}
             {activeTab === 'tasks' && (
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {tasks.map((task) => (
                   <div
                     key={task.id}
-                    className={`rounded-lg p-4 border-l-4 ${
-                      task.priority === 'high' 
-                        ? 'bg-red-50 border-red-500' 
-                        : 'bg-yellow-50 border-yellow-500'
-                    }`}
+                    className="bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden border border-[#E5E7EB] hover:border-[#243D68]/20"
                   >
-                    <div className="flex items-start justify-between gap-3 mb-2">
-                      <h3 className="font-bold text-[#0E1B33] text-sm">{task.title}</h3>
-                      <span className={`px-2 py-1 rounded-full text-xs font-bold shrink-0 ${
-                        task.priority === 'high'
-                          ? 'bg-red-500 text-white'
-                          : 'bg-yellow-500 text-white'
+                    {/* Priority Indicator Bar */}
+                    <div className={`h-1.5 ${
+                      task.priority === 'high' 
+                        ? 'bg-gradient-to-r from-red-500 to-red-600' 
+                        : 'bg-gradient-to-r from-amber-400 to-amber-500'
+                    }`}></div>
+                    
+                    <div className="p-5">
+                      {/* Header Section */}
+                      <div className="flex items-start justify-between gap-3 mb-4">
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-bold text-[#0E1B33] text-base mb-1 leading-tight">{task.title}</h3>
+                          <div className="flex items-center gap-2 text-xs text-[#6B7280]">
+                            <span className="material-symbols-outlined text-sm">folder</span>
+                            <span className="font-medium">{task.project}</span>
+                          </div>
+                        </div>
+                        <span className={`px-3 py-1.5 rounded-full text-xs font-bold shrink-0 shadow-sm ${
+                          task.priority === 'high'
+                            ? 'bg-red-500 text-white'
+                            : 'bg-amber-500 text-white'
+                        }`}>
+                          {task.priority === 'high' ? 'High' : 'Medium'}
+                        </span>
+                      </div>
+                      
+                      {/* Due Date Section */}
+                      <div className={`flex items-center gap-2 px-3 py-2 rounded-lg mb-4 ${
+                        task.priority === 'high' 
+                          ? 'bg-red-50' 
+                          : 'bg-amber-50'
                       }`}>
-                        {task.priority === 'high' ? 'High' : 'Medium'}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-4 text-xs text-[#6B7280] mb-3">
-                      <div className="flex items-center gap-1">
-                        <span className="material-symbols-outlined text-sm">folder</span>
-                        <span>{task.project}</span>
+                        <span className={`material-symbols-outlined text-lg ${
+                          task.priority === 'high' 
+                            ? 'text-red-600' 
+                            : 'text-amber-600'
+                        }`}>schedule</span>
+                        <span className={`text-sm font-semibold ${
+                          task.priority === 'high' 
+                            ? 'text-red-700' 
+                            : 'text-amber-700'
+                        }`}>
+                          {task.dueDate}
+                        </span>
                       </div>
-                      <div className="flex items-center gap-1">
-                        <span className="material-symbols-outlined text-sm">schedule</span>
-                        <span>{task.dueDate}</span>
+                      
+                      {/* Action Buttons */}
+                      <div className="flex items-center gap-3">
+                        <button className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-[#243D68] to-[#1a2d4d] text-white py-2.5 px-4 rounded-lg text-sm font-bold hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all">
+                          <span className="material-symbols-outlined text-lg">play_circle</span>
+                          <span>Kerjakan</span>
+                        </button>
+                        <button className="px-5 py-2.5 border-2 border-[#243D68] text-[#243D68] rounded-lg text-sm font-bold hover:bg-[#243D68] hover:text-white transition-all">
+                          Detail
+                        </button>
                       </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <button className="flex-1 bg-[#243D68] text-white py-2 px-4 rounded-lg text-sm font-bold hover:bg-[#1a2d4d] transition-colors">
-                        Kerjakan
-                      </button>
-                      <button className="px-4 py-2 border border-[#E5E7EB] text-[#243D68] rounded-lg text-sm font-semibold hover:bg-[#F8F9FA] transition-colors">
-                        Detail
-                      </button>
                     </div>
                   </div>
                 ))}
 
                 {/* Empty state if no tasks */}
                 {tasks.length === 0 && (
-                  <div className="text-center py-12">
-                    <span className="material-symbols-outlined text-6xl text-[#E5E7EB] mb-3">task_alt</span>
-                    <p className="text-[#6B7280] text-sm">Tidak ada tugas saat ini</p>
+                  <div className="text-center py-16 bg-white rounded-xl border border-[#E5E7EB]">
+                    <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-[#F8F9FA] flex items-center justify-center">
+                      <span className="material-symbols-outlined text-5xl text-[#D1D5DB]">task_alt</span>
+                    </div>
+                    <h3 className="font-bold text-[#0E1B33] text-base mb-1">Tidak Ada Tugas</h3>
+                    <p className="text-[#6B7280] text-sm">Semua tugas sudah selesai. Bagus!</p>
                   </div>
                 )}
               </div>
