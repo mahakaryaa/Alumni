@@ -109,8 +109,6 @@ export function ExploreProject({
       category: 'semua',
       status: 'Sedang Berlangsung',
       statusColor: 'bg-teal-100 text-teal-800',
-      date: '10 Jan 2026',
-      participants: '128',
       location: 'Bandung',
     },
     {
@@ -121,9 +119,7 @@ export function ExploreProject({
       category: 'semua',
       status: 'Sudah Berlalu',
       statusColor: 'bg-slate-200 text-slate-700',
-      date: '15 Des 2025',
-      participants: '89',
-      location: 'Yogyakarta',
+      location: 'Online',
     },
   ];
 
@@ -366,23 +362,11 @@ export function ExploreProject({
                   </p>
 
                   {/* Meta Information */}
-                  <div className="pt-2 border-t border-[#E8ECF0] space-y-2">
-                    <div className="flex items-center gap-4 text-[12px] text-[#61728F]">
-                      <div className="flex items-center gap-1.5">
-                        <span className="material-symbols-outlined text-[16px]">calendar_today</span>
-                        <span>{project.date}</span>
-                      </div>
-                      <div className="flex items-center gap-1.5">
+                  <div className="pt-2 border-t border-[#E8ECF0]">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1.5 text-[12px] text-[#61728F]">
                         <span className="material-symbols-outlined text-[16px]">location_on</span>
                         <span>{project.location}</span>
-                      </div>
-                    </div>
-                    
-                    <div className="flex items-center justify-between pt-1">
-                      <div className="flex items-center gap-1.5 text-[12px] text-[#61728F]">
-                        <span className="material-symbols-outlined text-[16px]">group</span>
-                        <span className="font-semibold text-[#243D68]">{project.participants}</span>
-                        <span>partisipan</span>
                       </div>
                       
                       <div className="flex items-center gap-1 text-[#243D68] text-[13px] font-semibold group-hover:gap-2 transition-all">

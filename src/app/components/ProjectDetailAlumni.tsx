@@ -703,6 +703,117 @@ export function ProjectDetailAlumni({ onBack, initialTab = 'discussion' }: Proje
                 </div>
               </div>
 
+              {/* Social Media & Website */}
+              <div className="bg-[#F8F9FA] rounded-xl p-5 border border-[#E5E7EB]">
+                <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2 bg-[#FAC06E] rounded-lg px-3 py-2 shadow-sm w-fit">
+                  <span className="material-symbols-outlined text-white">link</span>
+                  Sosial Media & Website
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Instagram */}
+                  <a 
+                    href="https://instagram.com/alumniconnect" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-3 bg-white rounded-xl border border-[#E5E7EB] p-4 hover:border-[#243D68] hover:shadow-md transition-all group"
+                  >
+                    <div className="w-10 h-10 bg-gradient-to-br from-[#833AB4] via-[#FD1D1D] to-[#F77737] rounded-lg flex items-center justify-center flex-shrink-0">
+                      <span className="material-symbols-outlined text-white text-xl">photo_camera</span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs text-[#6B7280] font-medium">Instagram</p>
+                      <p className="text-sm font-semibold text-[#243D68] truncate group-hover:text-[#1a2e52]">@alumniconnect</p>
+                    </div>
+                    <span className="material-symbols-outlined text-[#6B7280] group-hover:text-[#243D68]">arrow_outward</span>
+                  </a>
+
+                  {/* Twitter/X */}
+                  <a 
+                    href="https://twitter.com/alumniconnect" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-3 bg-white rounded-xl border border-[#E5E7EB] p-4 hover:border-[#243D68] hover:shadow-md transition-all group"
+                  >
+                    <div className="w-10 h-10 bg-black rounded-lg flex items-center justify-center flex-shrink-0">
+                      <span className="material-symbols-outlined text-white text-xl">tag</span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs text-[#6B7280] font-medium">Twitter / X</p>
+                      <p className="text-sm font-semibold text-[#243D68] truncate group-hover:text-[#1a2e52]">@alumniconnect</p>
+                    </div>
+                    <span className="material-symbols-outlined text-[#6B7280] group-hover:text-[#243D68]">arrow_outward</span>
+                  </a>
+
+                  {/* Facebook */}
+                  <a 
+                    href="https://facebook.com/alumniconnect" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-3 bg-white rounded-xl border border-[#E5E7EB] p-4 hover:border-[#243D68] hover:shadow-md transition-all group"
+                  >
+                    <div className="w-10 h-10 bg-[#1877F2] rounded-lg flex items-center justify-center flex-shrink-0">
+                      <span className="material-symbols-outlined text-white text-xl">thumb_up</span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs text-[#6B7280] font-medium">Facebook</p>
+                      <p className="text-sm font-semibold text-[#243D68] truncate group-hover:text-[#1a2e52]">AlumniConnect Official</p>
+                    </div>
+                    <span className="material-symbols-outlined text-[#6B7280] group-hover:text-[#243D68]">arrow_outward</span>
+                  </a>
+
+                  {/* LinkedIn */}
+                  <a 
+                    href="https://linkedin.com/company/alumniconnect" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-3 bg-white rounded-xl border border-[#E5E7EB] p-4 hover:border-[#243D68] hover:shadow-md transition-all group"
+                  >
+                    <div className="w-10 h-10 bg-[#0A66C2] rounded-lg flex items-center justify-center flex-shrink-0">
+                      <span className="material-symbols-outlined text-white text-xl">work</span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs text-[#6B7280] font-medium">LinkedIn</p>
+                      <p className="text-sm font-semibold text-[#243D68] truncate group-hover:text-[#1a2e52]">AlumniConnect</p>
+                    </div>
+                    <span className="material-symbols-outlined text-[#6B7280] group-hover:text-[#243D68]">arrow_outward</span>
+                  </a>
+
+                  {/* YouTube (Optional) */}
+                  <a 
+                    href="https://youtube.com/@alumniconnect" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-3 bg-white rounded-xl border border-[#E5E7EB] p-4 hover:border-[#243D68] hover:shadow-md transition-all group"
+                  >
+                    <div className="w-10 h-10 bg-[#FF0000] rounded-lg flex items-center justify-center flex-shrink-0">
+                      <span className="material-symbols-outlined text-white text-xl">play_arrow</span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs text-[#6B7280] font-medium">YouTube</p>
+                      <p className="text-sm font-semibold text-[#243D68] truncate group-hover:text-[#1a2e52]">AlumniConnect Channel</p>
+                    </div>
+                    <span className="material-symbols-outlined text-[#6B7280] group-hover:text-[#243D68]">arrow_outward</span>
+                  </a>
+
+                  {/* Website */}
+                  <a 
+                    href="https://alumniconnect.id" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-3 bg-white rounded-xl border border-[#E5E7EB] p-4 hover:border-[#243D68] hover:shadow-md transition-all group"
+                  >
+                    <div className="w-10 h-10 bg-[#243D68] rounded-lg flex items-center justify-center flex-shrink-0">
+                      <span className="material-symbols-outlined text-white text-xl">language</span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs text-[#6B7280] font-medium">Website</p>
+                      <p className="text-sm font-semibold text-[#243D68] truncate group-hover:text-[#1a2e52]">alumniconnect.id</p>
+                    </div>
+                    <span className="material-symbols-outlined text-[#6B7280] group-hover:text-[#243D68]">arrow_outward</span>
+                  </a>
+                </div>
+              </div>
+
               {/* Team Needs */}
               <div className="bg-[#F8F9FA] rounded-xl p-5 border border-[#E5E7EB]">
                 <h3 className="text-sm font-bold text-white flex items-center gap-2 bg-[#FAC06E] rounded-lg px-3 py-2 shadow-sm w-fit mb-4">
