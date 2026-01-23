@@ -3,10 +3,11 @@ interface MessagePageProps {
   onNavigateHome?: () => void;
   onNavigateExplore?: () => void;
   onNavigateSettings?: () => void;
+  onNavigateMessages?: () => void;
   activeNav?: string;
 }
 
-export function MessagePage({ onBack, onNavigateHome, onNavigateExplore, onNavigateSettings, activeNav = 'pesan' }: MessagePageProps) {
+export function MessagePage({ onBack, onNavigateHome, onNavigateExplore, onNavigateSettings, onNavigateMessages, activeNav = 'pesan' }: MessagePageProps) {
   // Mock data - laporan donasi
   const donations = [
     {
@@ -324,6 +325,7 @@ export function MessagePage({ onBack, onNavigateHome, onNavigateExplore, onNavig
             <span className="text-xs font-medium">Explore</span>
           </button>
           <button
+            onClick={onNavigateMessages}
             className={`flex flex-col items-center justify-center flex-1 gap-1 py-2 transition-colors relative ${
               activeNav === 'pesan' ? 'text-[#243D68]' : 'text-[#61728F]'
             }`}

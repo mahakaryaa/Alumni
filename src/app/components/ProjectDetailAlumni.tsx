@@ -11,12 +11,33 @@ export function ProjectDetailAlumni({ onBack, initialTab = 'discussion' }: Proje
   const [message, setMessage] = useState('');
   const [expandedMessages, setExpandedMessages] = useState<number[]>([]);
   const [walletFilter, setWalletFilter] = useState<'all' | 'internal' | 'donation' | 'expense'>('all');
+  
+  // Voting states
+  const [showVotingModal, setShowVotingModal] = useState(false);
+  const [selectedVote, setSelectedVote] = useState<'senin' | 'selasa' | null>(null);
+  const [hasVoted, setHasVoted] = useState(false);
+  const [voteResults, setVoteResults] = useState({
+    senin: 7,
+    selasa: 3
+  });
 
   const toggleExpand = (id: number) => {
     if (expandedMessages.includes(id)) {
       setExpandedMessages(expandedMessages.filter(msgId => msgId !== id));
     } else {
       setExpandedMessages([...expandedMessages, id]);
+    }
+  };
+
+  const handleVoteSubmit = () => {
+    if (selectedVote) {
+      // Update vote count
+      setVoteResults(prev => ({
+        ...prev,
+        [selectedVote]: prev[selectedVote] + 1
+      }));
+      setHasVoted(true);
+      setShowVotingModal(false);
     }
   };
 
@@ -322,7 +343,7 @@ export function ProjectDetailAlumni({ onBack, initialTab = 'discussion' }: Proje
                     <div className="hidden md:block bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
                       <span className="text-sm text-white/70 font-semibold block mb-2">Total Partisipasi</span>
                       <div className="flex items-baseline gap-2">
-                        <span className="text-4xl lg:text-5xl font-black text-white">10</span>
+                        <span className="text-4xl lg:text-5xl font-black text-white">{voteResults.senin + voteResults.selasa}</span>
                         <span className="text-base text-white/90 font-bold">VOTES</span>
                       </div>
                     </div>
@@ -338,11 +359,20 @@ export function ProjectDetailAlumni({ onBack, initialTab = 'discussion' }: Proje
                   </div>
                   
                   {/* CTA Button */}
-                  <button className="w-full bg-gradient-to-r from-[#FAC06E] to-[#e8b05e] text-[#243D68] py-3 md:py-4 lg:py-5 rounded-lg md:rounded-xl font-black text-sm md:text-base lg:text-lg hover:shadow-2xl hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 shadow-xl border-2 border-[#FAC06E]/50">
+                  <button 
+                    onClick={() => hasVoted ? null : setShowVotingModal(true)}
+                    className={`w-full py-3 md:py-4 lg:py-5 rounded-lg md:rounded-xl font-black text-sm md:text-base lg:text-lg hover:shadow-2xl transition-all duration-200 shadow-xl border-2 ${
+                      hasVoted 
+                        ? 'bg-gradient-to-r from-green-500 to-green-600 text-white border-green-400/50 cursor-default' 
+                        : 'bg-gradient-to-r from-[#FAC06E] to-[#e8b05e] text-[#243D68] border-[#FAC06E]/50 hover:scale-[1.02] active:scale-[0.98]'
+                    }`}
+                  >
                     <div className="flex items-center justify-center gap-2 md:gap-3">
-                      <span className="material-symbols-outlined text-xl md:text-2xl">how_to_vote</span>
-                      <span>Vote Sekarang</span>
-                      <span className="material-symbols-outlined text-xl md:text-2xl">arrow_forward</span>
+                      <span className="material-symbols-outlined text-xl md:text-2xl">
+                        {hasVoted ? 'check_circle' : 'how_to_vote'}
+                      </span>
+                      <span>{hasVoted ? 'Vote Berhasil!' : 'Vote Sekarang'}</span>
+                      {!hasVoted && <span className="material-symbols-outlined text-xl md:text-2xl">arrow_forward</span>}
                     </div>
                   </button>
                 </div>
@@ -479,32 +509,47 @@ export function ProjectDetailAlumni({ onBack, initialTab = 'discussion' }: Proje
                     </div>
                     
                     <div className="space-y-2 mb-3">
-                      <div className="relative h-11 bg-[#F1F5F9] rounded-lg overflow-hidden border border-indigo-300">
-                        <div className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-indigo-400" style={{ width: '70%' }}></div>
+                      <div className={`relative h-11 bg-[#F1F5F9] rounded-lg overflow-hidden border ${selectedVote === 'senin' ? 'border-indigo-500 ring-2 ring-indigo-300' : 'border-indigo-300'}`}>
+                        <div 
+                          className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-indigo-400" 
+                          style={{ width: `${(voteResults.senin / (voteResults.senin + voteResults.selasa)) * 100}%` }}
+                        ></div>
                         <div className="absolute inset-0 flex items-center justify-between px-2.5">
                           <div className="flex items-center gap-1.5 z-10">
-                            <span className="material-symbols-outlined text-white text-base">check_circle</span>
+                            <span className={`material-symbols-outlined text-base ${selectedVote === 'senin' ? 'text-white' : 'text-white'}`}>
+                              {selectedVote === 'senin' ? 'check_circle' : 'check_circle'}
+                            </span>
                             <span className="text-sm font-bold text-white whitespace-nowrap">Senin, 10:00 WIB</span>
                           </div>
-                          <span className="text-sm font-black text-white z-10 whitespace-nowrap">7 votes</span>
+                          <span className="text-sm font-black text-white z-10 whitespace-nowrap">{voteResults.senin} votes</span>
                         </div>
                       </div>
                       
-                      <div className="relative h-11 bg-[#F1F5F9] rounded-lg overflow-hidden border border-gray-200">
-                        <div className="absolute inset-0 bg-gradient-to-r from-gray-300 to-gray-200" style={{ width: '30%' }}></div>
+                      <div className={`relative h-11 bg-[#F1F5F9] rounded-lg overflow-hidden border ${selectedVote === 'selasa' ? 'border-indigo-500 ring-2 ring-indigo-300' : 'border-gray-200'}`}>
+                        <div 
+                          className="absolute inset-0 bg-gradient-to-r from-gray-300 to-gray-200" 
+                          style={{ width: `${(voteResults.selasa / (voteResults.senin + voteResults.selasa)) * 100}%` }}
+                        ></div>
                         <div className="absolute inset-0 flex items-center justify-between px-2.5">
                           <div className="flex items-center gap-1.5 z-10">
-                            <span className="material-symbols-outlined text-gray-400 text-base">radio_button_unchecked</span>
+                            <span className={`material-symbols-outlined text-base ${selectedVote === 'selasa' ? 'text-gray-700' : 'text-gray-400'}`}>
+                              {selectedVote === 'selasa' ? 'check_circle' : 'radio_button_unchecked'}
+                            </span>
                             <span className="text-sm font-semibold text-gray-700 whitespace-nowrap">Selasa, 13:00 WIB</span>
                           </div>
-                          <span className="text-sm font-bold text-gray-600 z-10 whitespace-nowrap">3 votes</span>
+                          <span className="text-sm font-bold text-gray-600 z-10 whitespace-nowrap">{voteResults.selasa} votes</span>
                         </div>
                       </div>
                     </div>
                     
                     <div className="flex justify-between items-center pt-2 border-t border-indigo-100 gap-2">
-                      <span className="text-xs text-[#6B7280] whitespace-nowrap">10 votes • 5 jam lagi</span>
-                      <button className="text-xs font-bold text-indigo-600 hover:underline whitespace-nowrap">Detail</button>
+                      <span className="text-xs text-[#6B7280] whitespace-nowrap">{voteResults.senin + voteResults.selasa} votes • 5 jam lagi</span>
+                      <button 
+                        onClick={() => setShowVotingModal(true)}
+                        className="text-xs font-bold text-indigo-600 hover:underline whitespace-nowrap"
+                      >
+                        {hasVoted ? 'Lihat Hasil' : 'Vote'}
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -1092,6 +1137,200 @@ export function ProjectDetailAlumni({ onBack, initialTab = 'discussion' }: Proje
           </div>
         )}
       </div>
+
+      {/* Voting Modal */}
+      {showVotingModal && (
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl transform transition-all">
+            {/* Modal Header */}
+            <div className="bg-gradient-to-r from-[#243D68] to-[#2B4468] px-6 py-4 rounded-t-2xl">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-[#FAC06E] rounded-lg flex items-center justify-center">
+                    <span className="material-symbols-outlined text-[#243D68] text-xl">how_to_vote</span>
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-black text-white">Vote Waktu Meeting</h3>
+                    <p className="text-xs text-white/80">Pilih waktu yang paling cocok</p>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => setShowVotingModal(false)}
+                  className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+                >
+                  <span className="material-symbols-outlined text-white text-xl">close</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6">
+              {hasVoted ? (
+                <div className="text-center py-8">
+                  <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span className="material-symbols-outlined text-green-600 text-4xl">check_circle</span>
+                  </div>
+                  <h4 className="text-xl font-bold text-[#0E1B33] mb-2">Vote Berhasil!</h4>
+                  <p className="text-sm text-[#6B7280] mb-6">
+                    Terima kasih atas partisipasi Anda. Hasil akan diumumkan setelah voting ditutup.
+                  </p>
+                  <div className="space-y-3">
+                    <div className={`p-4 rounded-xl border-2 ${selectedVote === 'senin' ? 'bg-indigo-50 border-indigo-500' : 'bg-gray-50 border-gray-200'}`}>
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <span className={`material-symbols-outlined ${selectedVote === 'senin' ? 'text-indigo-600' : 'text-gray-400'}`}>
+                            {selectedVote === 'senin' ? 'check_circle' : 'schedule'}
+                          </span>
+                          <span className={`font-bold ${selectedVote === 'senin' ? 'text-indigo-900' : 'text-gray-700'}`}>
+                            Senin, 10:00 WIB
+                          </span>
+                        </div>
+                        <span className={`text-sm font-black ${selectedVote === 'senin' ? 'text-indigo-600' : 'text-gray-500'}`}>
+                          {voteResults.senin} votes
+                        </span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div 
+                          className={`h-2 rounded-full ${selectedVote === 'senin' ? 'bg-indigo-500' : 'bg-gray-400'}`}
+                          style={{ width: `${(voteResults.senin / (voteResults.senin + voteResults.selasa)) * 100}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                    <div className={`p-4 rounded-xl border-2 ${selectedVote === 'selasa' ? 'bg-indigo-50 border-indigo-500' : 'bg-gray-50 border-gray-200'}`}>
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <span className={`material-symbols-outlined ${selectedVote === 'selasa' ? 'text-indigo-600' : 'text-gray-400'}`}>
+                            {selectedVote === 'selasa' ? 'check_circle' : 'schedule'}
+                          </span>
+                          <span className={`font-bold ${selectedVote === 'selasa' ? 'text-indigo-900' : 'text-gray-700'}`}>
+                            Selasa, 13:00 WIB
+                          </span>
+                        </div>
+                        <span className={`text-sm font-black ${selectedVote === 'selasa' ? 'text-indigo-600' : 'text-gray-500'}`}>
+                          {voteResults.selasa} votes
+                        </span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div 
+                          className={`h-2 rounded-full ${selectedVote === 'selasa' ? 'bg-indigo-500' : 'bg-gray-400'}`}
+                          style={{ width: `${(voteResults.selasa / (voteResults.senin + voteResults.selasa)) * 100}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setShowVotingModal(false)}
+                    className="w-full mt-6 bg-[#243D68] text-white py-3 rounded-xl font-bold hover:bg-[#1a2f54] transition-colors"
+                  >
+                    Tutup
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <div className="mb-6">
+                    <div className="flex items-center justify-between mb-4">
+                      <span className="text-sm font-semibold text-[#6B7280]">Pilih Waktu Meeting</span>
+                      <div className="flex items-center gap-1 text-orange-600 text-xs font-bold bg-orange-100 px-2 py-1 rounded-full">
+                        <span className="material-symbols-outlined text-xs">schedule</span>
+                        <span>5 jam lagi</span>
+                      </div>
+                    </div>
+                    <div className="space-y-3">
+                      <button
+                        onClick={() => setSelectedVote('senin')}
+                        className={`w-full p-4 rounded-xl border-2 transition-all text-left ${
+                          selectedVote === 'senin'
+                            ? 'bg-indigo-50 border-indigo-500 shadow-md'
+                            : 'bg-white border-gray-200 hover:border-indigo-300'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <span className={`material-symbols-outlined text-2xl ${
+                              selectedVote === 'senin' ? 'text-indigo-600' : 'text-gray-400'
+                            }`}>
+                              {selectedVote === 'senin' ? 'check_circle' : 'radio_button_unchecked'}
+                            </span>
+                            <div>
+                              <p className={`font-bold ${selectedVote === 'senin' ? 'text-indigo-900' : 'text-[#0E1B33]'}`}>
+                                Senin, 10:00 WIB
+                              </p>
+                              <p className="text-xs text-[#6B7280]">Morning session</p>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <p className={`text-sm font-black ${selectedVote === 'senin' ? 'text-indigo-600' : 'text-gray-500'}`}>
+                              {voteResults.senin} votes
+                            </p>
+                            <p className="text-xs text-[#6B7280]">
+                              {Math.round((voteResults.senin / (voteResults.senin + voteResults.selasa)) * 100)}%
+                            </p>
+                          </div>
+                        </div>
+                      </button>
+                      <button
+                        onClick={() => setSelectedVote('selasa')}
+                        className={`w-full p-4 rounded-xl border-2 transition-all text-left ${
+                          selectedVote === 'selasa'
+                            ? 'bg-indigo-50 border-indigo-500 shadow-md'
+                            : 'bg-white border-gray-200 hover:border-indigo-300'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <span className={`material-symbols-outlined text-2xl ${
+                              selectedVote === 'selasa' ? 'text-indigo-600' : 'text-gray-400'
+                            }`}>
+                              {selectedVote === 'selasa' ? 'check_circle' : 'radio_button_unchecked'}
+                            </span>
+                            <div>
+                              <p className={`font-bold ${selectedVote === 'selasa' ? 'text-indigo-900' : 'text-[#0E1B33]'}`}>
+                                Selasa, 13:00 WIB
+                              </p>
+                              <p className="text-xs text-[#6B7280]">Afternoon session</p>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <p className={`text-sm font-black ${selectedVote === 'selasa' ? 'text-indigo-600' : 'text-gray-500'}`}>
+                              {voteResults.selasa} votes
+                            </p>
+                            <p className="text-xs text-[#6B7280]">
+                              {Math.round((voteResults.selasa / (voteResults.senin + voteResults.selasa)) * 100)}%
+                            </p>
+                          </div>
+                        </div>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => {
+                        setShowVotingModal(false);
+                        setSelectedVote(null);
+                      }}
+                      className="flex-1 py-3 rounded-xl font-bold text-[#6B7280] bg-gray-100 hover:bg-gray-200 transition-colors"
+                    >
+                      Batal
+                    </button>
+                    <button
+                      onClick={handleVoteSubmit}
+                      disabled={!selectedVote}
+                      className={`flex-1 py-3 rounded-xl font-bold text-white transition-all ${
+                        selectedVote
+                          ? 'bg-gradient-to-r from-[#243D68] to-[#2B4468] hover:shadow-lg'
+                          : 'bg-gray-300 cursor-not-allowed'
+                      }`}
+                    >
+                      Submit Vote
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

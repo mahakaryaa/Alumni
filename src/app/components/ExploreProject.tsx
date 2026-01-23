@@ -4,9 +4,23 @@ interface ExploreProjectProps {
   onBack?: () => void;
   initialTab?: 'open' | 'galeri';
   onNavigateToDetail?: () => void;
+  onNavigateHome?: () => void;
+  onNavigateExplore?: () => void;
+  onNavigateMessages?: () => void;
+  onNavigateSettings?: () => void;
+  activeNav?: string;
 }
 
-export function ExploreProject({ onBack, initialTab = 'open', onNavigateToDetail }: ExploreProjectProps) {
+export function ExploreProject({ 
+  onBack, 
+  initialTab = 'open', 
+  onNavigateToDetail, 
+  onNavigateHome, 
+  onNavigateExplore,
+  onNavigateMessages,
+  onNavigateSettings,
+  activeNav = 'explore'
+}: ExploreProjectProps) {
   const [selectedCategory, setSelectedCategory] = useState('semua');
   const [selectedTab, setSelectedTab] = useState<'open' | 'galeri'>(initialTab);
   const [showHeader, setShowHeader] = useState(true);
@@ -154,18 +168,24 @@ export function ExploreProject({ onBack, initialTab = 'open', onNavigateToDetail
                 <span className="tracking-wide text-sm">Home</span>
               </button>
 
-              <button className="flex items-center gap-3 px-4 py-3.5 rounded-xl font-medium transition-all text-white bg-white/10 shadow-sm w-full">
+              <button className={`flex items-center gap-3 px-4 py-3.5 rounded-xl font-medium transition-all text-white ${activeNav === 'explore' ? 'bg-white/10 shadow-sm' : 'bg-white/5 hover:bg-white/10 hover:shadow-sm'} w-full`}
+                onClick={onNavigateExplore}
+              >
                 <span className="material-symbols-outlined text-xl">explore</span>
                 <span className="tracking-wide text-sm font-semibold">Explore</span>
               </button>
 
-              <button className="flex items-center gap-3 px-4 py-3.5 rounded-xl font-medium transition-all text-white/60 hover:bg-white/5 hover:text-white w-full relative">
+              <button className="flex items-center gap-3 px-4 py-3.5 rounded-xl font-medium transition-all text-white/60 hover:bg-white/5 hover:text-white w-full relative"
+                onClick={onNavigateMessages}
+              >
                 <span className="material-symbols-outlined text-xl">chat_bubble</span>
                 <span className="tracking-wide text-sm">Pesan</span>
                 <span className="absolute top-3 left-11 w-2 h-2 bg-red-500 rounded-full border border-[#2B4468]"></span>
               </button>
 
-              <button className="flex items-center gap-3 px-4 py-3.5 rounded-xl font-medium transition-all text-white/60 hover:bg-white/5 hover:text-white w-full">
+              <button className="flex items-center gap-3 px-4 py-3.5 rounded-xl font-medium transition-all text-white/60 hover:bg-white/5 hover:text-white w-full"
+                onClick={onNavigateSettings}
+              >
                 <span className="material-symbols-outlined text-xl">settings</span>
                 <span className="tracking-wide text-sm">Settings</span>
               </button>
@@ -382,35 +402,46 @@ export function ExploreProject({ onBack, initialTab = 'open', onNavigateToDetail
       <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#D6DCE8] lg:hidden z-50 safe-area-bottom">
         <div className="flex items-center justify-around h-16 px-2">
           <button
-            onClick={onBack}
-            className="flex flex-col items-center justify-center flex-1 gap-1 py-2 transition-colors text-[#61728F]"
+            onClick={onNavigateHome}
+            className={`flex flex-col items-center justify-center flex-1 gap-1 py-2 transition-colors ${
+              activeNav === 'home' ? 'text-[#243D68]' : 'text-[#61728F]'
+            }`}
           >
-            <span className="material-symbols-outlined text-2xl">
+            <span className={`material-symbols-outlined text-2xl ${activeNav === 'home' ? 'filled' : ''}`}>
               home
             </span>
             <span className="text-xs font-medium">Home</span>
           </button>
           <button
-            className="flex flex-col items-center justify-center flex-1 gap-1 py-2 transition-colors text-[#243D68]"
+            onClick={onNavigateExplore}
+            className={`flex flex-col items-center justify-center flex-1 gap-1 py-2 transition-colors ${
+              activeNav === 'explore' ? 'text-[#243D68]' : 'text-[#61728F]'
+            }`}
           >
-            <span className="material-symbols-outlined text-2xl filled">
+            <span className={`material-symbols-outlined text-2xl ${activeNav === 'explore' ? 'filled' : ''}`}>
               explore
             </span>
             <span className="text-xs font-medium">Explore</span>
           </button>
           <button
-            className="flex flex-col items-center justify-center flex-1 gap-1 py-2 transition-colors relative text-[#61728F]"
+            onClick={onNavigateMessages}
+            className={`flex flex-col items-center justify-center flex-1 gap-1 py-2 transition-colors relative ${
+              activeNav === 'pesan' ? 'text-[#243D68]' : 'text-[#61728F]'
+            }`}
           >
-            <span className="material-symbols-outlined text-2xl">
+            <span className={`material-symbols-outlined text-2xl ${activeNav === 'pesan' ? 'filled' : ''}`}>
               chat_bubble
             </span>
             <span className="text-xs font-medium">Pesan</span>
             <span className="absolute top-1.5 right-1/4 w-2 h-2 bg-red-500 rounded-full border border-white"></span>
           </button>
           <button
-            className="flex flex-col items-center justify-center flex-1 gap-1 py-2 transition-colors text-[#61728F]"
+            onClick={onNavigateSettings}
+            className={`flex flex-col items-center justify-center flex-1 gap-1 py-2 transition-colors ${
+              activeNav === 'settings' ? 'text-[#243D68]' : 'text-[#61728F]'
+            }`}
           >
-            <span className="material-symbols-outlined text-2xl">
+            <span className={`material-symbols-outlined text-2xl ${activeNav === 'settings' ? 'filled' : ''}`}>
               settings
             </span>
             <span className="text-xs font-medium">Setting</span>

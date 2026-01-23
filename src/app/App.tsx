@@ -44,10 +44,31 @@ export default function App() {
   }
 
   if (currentView === 'explore') {
-    return <ExploreProject onBack={() => {
-      setCurrentView('home');
-      setActiveNav('home');
-    }} initialTab={exploreInitialTab} onNavigateToDetail={() => setCurrentView('project-detail')} />;
+    return <ExploreProject 
+      onBack={() => {
+        setCurrentView('home');
+        setActiveNav('home');
+      }} 
+      initialTab={exploreInitialTab} 
+      onNavigateToDetail={() => setCurrentView('project-detail')}
+      onNavigateHome={() => {
+        setCurrentView('home');
+        setActiveNav('home');
+      }}
+      onNavigateExplore={() => {
+        setCurrentView('explore');
+        setActiveNav('explore');
+      }}
+      onNavigateMessages={() => {
+        setCurrentView('messages');
+        setActiveNav('pesan');
+      }}
+      onNavigateSettings={() => {
+        setCurrentView('settings');
+        setActiveNav('settings');
+      }}
+      activeNav={activeNav}
+    />;
   }
 
   if (currentView === 'alumni-story') {
@@ -92,6 +113,10 @@ export default function App() {
         setCurrentView('explore');
         setActiveNav('explore');
       }}
+      onNavigateMessages={() => {
+        setCurrentView('messages');
+        setActiveNav('pesan');
+      }}
       onNavigateSettings={() => {
         setCurrentView('settings');
         setActiveNav('settings');
@@ -117,6 +142,10 @@ export default function App() {
       onNavigateMessages={() => {
         setCurrentView('messages');
         setActiveNav('pesan');
+      }}
+      onNavigateSettings={() => {
+        setCurrentView('settings');
+        setActiveNav('settings');
       }}
       activeNav={activeNav}
     />;
@@ -240,13 +269,13 @@ export default function App() {
           </div>
           
           <div className="flex items-center gap-3">
-            <button className="text-[#6B7280] hover:text-[#243D68] transition-colors relative p-2">
+            <button className="text-[#6B7280] hover:text-[#243D68] transition-colors relative w-11 h-11 flex items-center justify-center rounded-lg hover:bg-[#F8F9FA]">
               <span className="material-symbols-outlined text-2xl">notifications</span>
               <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
             </button>
             <button
               onClick={() => setCurrentView('login')}
-              className="bg-gradient-to-r from-[#243D68] to-[#30518B] text-white font-bold py-2 px-5 rounded-lg text-sm hover:shadow-lg transition shadow-md uppercase tracking-wide"
+              className="bg-gradient-to-r from-[#243D68] to-[#30518B] text-white font-bold py-2.5 px-5 rounded-lg text-sm hover:shadow-lg transition shadow-md uppercase tracking-wide min-h-[44px]"
             >
               Login
             </button>
@@ -331,7 +360,7 @@ export default function App() {
               search
             </span>
             <input
-              className="w-full h-12 md:h-14 lg:h-16 pl-12 md:pl-14 lg:pl-16 pr-12 md:pr-14 lg:pr-16 rounded-[12px] md:rounded-[14px] lg:rounded-[16px] border border-[#D6DCE8] bg-white text-[#0E1B33] placeholder-[#919EB2] focus:ring-2 focus:ring-[#243D68] focus:border-[#243D68] shadow-sm transition-all outline-none text-sm md:text-base lg:text-lg"
+              className="w-full h-12 md:h-14 lg:h-16 pl-12 md:pl-14 lg:pl-16 pr-12 md:pr-14 lg:pr-16 rounded-2xl border border-[#D6DCE8] bg-white text-[#0E1B33] placeholder-[#919EB2] focus:ring-2 focus:ring-[#243D68] focus:border-[#243D68] shadow-sm transition-all outline-none text-sm md:text-base lg:text-lg"
               placeholder="Cari proyek impianmu..."
               type="text"
             />
@@ -434,9 +463,9 @@ export default function App() {
 
           {/* Quote Section */}
           <section>
-            <div className="bg-[rgba(250,192,110,0.6)] border border-[#D6DCE8] rounded-[20px] p-8 lg:p-12 text-center relative overflow-hidden shadow-sm">
-              <blockquote className="font-['Lora'] italic text-base lg:text-lg text-[#61728F] max-w-2xl mx-auto leading-relaxed">
-                <span className="text-[10rem] leading-none float-left mr-2 mt-[-2rem] font-[Gabarito]">"</span>Setiap langkah kecil yang kita ambil hari ini adalah fondasi untuk pembebasan Baitul Maqdis
+            <div className="bg-[rgba(250,192,110,0.6)] border border-[#D6DCE8] rounded-2xl p-8 lg:p-12 text-center relative overflow-hidden shadow-sm">
+              <blockquote className="font-['Lora'] italic text-base lg:text-lg text-[#1F2937] max-w-2xl mx-auto leading-relaxed">
+                <span className="text-[10rem] leading-none float-left mr-2 mt-[-2rem] text-[#243D68] opacity-20" style={{ fontFamily: 'Archivo Black' }}>\"</span>Setiap langkah kecil yang kita ambil hari ini adalah fondasi untuk pembebasan Baitul Maqdis
                 esok hari."
               </blockquote>
               <cite className="block mt-4 text-[#0E1B33] font-semibold text-sm not-italic">
