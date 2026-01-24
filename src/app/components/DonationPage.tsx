@@ -1,9 +1,17 @@
 import { useState } from 'react';
+import { validateDonationAmount, validateFile } from '@/utils/validation';
+import { showToast, toastMessages } from '@/utils/toast';
+import { DONATION } from '@/constants';
 
 interface DonationPageProps {
   onBack: () => void;
-  projectTitle: string;
-  projectCategory: string;
+  projectTitle?: string;
+  projectCategory?: string;
+  onNavigateHome?: () => void;
+  onNavigateExplore?: () => void;
+  onNavigateMessages?: () => void;
+  onNavigateSettings?: () => void;
+  activeNav?: string;
 }
 
 type PaymentMethod = 'bca' | 'mandiri' | 'bni' | 'gopay' | 'ovo' | 'dana' | 'qris';
@@ -22,10 +30,19 @@ const quickAmounts = [50000, 100000, 250000, 500000, 1000000, 2500000];
 
 // Generate unique code (3 digits)
 const generateUniqueCode = () => {
-  return Math.floor(100 + Math.random() * 900);
+  return Math.floor(DONATION.UNIQUE_CODE_MIN + Math.random() * (DONATION.UNIQUE_CODE_MAX - DONATION.UNIQUE_CODE_MIN + 1));
 };
 
-export function DonationPage({ onBack, projectTitle, projectCategory }: DonationPageProps) {
+export function DonationPage({ 
+  onBack, 
+  projectTitle = 'Pengembangan Aplikasi AlumniConnect', 
+  projectCategory = 'Pendidikan',
+  onNavigateHome,
+  onNavigateExplore,
+  onNavigateMessages,
+  onNavigateSettings,
+  activeNav = 'home'
+}: DonationPageProps) {
   const [amount, setAmount] = useState('');
   const [customAmount, setCustomAmount] = useState('');
   const [selectedPayment, setSelectedPayment] = useState<PaymentMethod>('bca');
@@ -68,6 +85,8 @@ export function DonationPage({ onBack, projectTitle, projectCategory }: Donation
 
   const copyToClipboard = (text: string, type: 'account' | 'total') => {
     navigator.clipboard.writeText(text);
+    toastMessages.copy.success();
+    
     if (type === 'account') {
       setCopiedAccount(true);
       setTimeout(() => setCopiedAccount(false), 2000);
@@ -80,15 +99,11 @@ export function DonationPage({ onBack, projectTitle, projectCategory }: Donation
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      // Check file size (max 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        alert('Ukuran file maksimal 5MB');
-        return;
-      }
-
-      // Check file type
-      if (!file.type.startsWith('image/')) {
-        alert('File harus berupa gambar');
+      // Validate file using utility
+      const validation = validateFile(file);
+      
+      if (!validation.isValid) {
+        toastMessages.upload.error();
         return;
       }
 
@@ -100,6 +115,8 @@ export function DonationPage({ onBack, projectTitle, projectCategory }: Donation
         setProofPreview(reader.result as string);
       };
       reader.readAsDataURL(file);
+      
+      toastMessages.upload.success();
     }
   };
 
@@ -109,20 +126,35 @@ export function DonationPage({ onBack, projectTitle, projectCategory }: Donation
   };
 
   const handleConfirmDonation = () => {
-    if (!amount || parseInt(amount) < 10000) {
-      alert('Minimal donasi adalah Rp 10.000');
+    const validation = validateDonationAmount(amount || customAmount);
+    
+    if (!validation.isValid) {
+      showToast.error(validation.error || 'Jumlah donasi tidak valid');
       return;
     }
+    
     setShowConfirmation(true);
   };
 
   const handleSubmitProof = () => {
     if (!proofFile) {
-      alert('Silakan upload bukti transfer terlebih dahulu');
+      showToast.error('Upload bukti transfer diperlukan', {
+        description: 'Silakan upload bukti transfer terlebih dahulu',
+      });
       return;
     }
-    // Here you would typically upload the file to your server
-    setShowThankYou(true);
+    
+    // Simulate upload with loading toast
+    showToast.promise(
+      new Promise((resolve) => setTimeout(resolve, 1500)),
+      {
+        loading: 'Memproses donasi Anda...',
+        success: 'Donasi berhasil! Terima kasih atas kontribusi Anda',
+        error: 'Gagal memproses donasi',
+      }
+    ).then(() => {
+      setShowThankYou(true);
+    });
   };
 
   const selectedMethod = paymentMethods.find(m => m.id === selectedPayment);
@@ -157,22 +189,51 @@ export function DonationPage({ onBack, projectTitle, projectCategory }: Donation
             {/* Menu Navigation */}
             <nav className="flex-1 px-5 pt-8">
               <div className="space-y-2">
-                <button className="flex items-center gap-3 px-4 py-3.5 rounded-xl font-medium transition-all text-white/60 hover:bg-white/5 hover:text-white w-full">
+                <button 
+                  className={`flex items-center gap-3 px-4 py-3.5 rounded-xl font-medium transition-all w-full ${
+                    activeNav === 'home'
+                      ? 'text-white bg-white/10 shadow-sm'
+                      : 'text-white/60 hover:bg-white/5 hover:text-white'
+                  }`}
+                  onClick={onNavigateHome || onBack}
+                >
                   <span className="material-symbols-outlined text-xl">home</span>
                   <span className="tracking-wide text-sm">Home</span>
                 </button>
 
-                <button className="flex items-center gap-3 px-4 py-3.5 rounded-xl font-medium transition-all text-white/60 hover:bg-white/5 hover:text-white w-full">
+                <button 
+                  className={`flex items-center gap-3 px-4 py-3.5 rounded-xl font-medium transition-all w-full ${
+                    activeNav === 'explore'
+                      ? 'text-white bg-white/10 shadow-sm'
+                      : 'text-white/60 hover:bg-white/5 hover:text-white'
+                  }`}
+                  onClick={onNavigateExplore}
+                >
                   <span className="material-symbols-outlined text-xl">explore</span>
                   <span className="tracking-wide text-sm">Explore</span>
                 </button>
 
-                <button className="flex items-center gap-3 px-4 py-3.5 rounded-xl font-medium transition-all text-white/60 hover:bg-white/5 hover:text-white w-full relative">
+                <button 
+                  className={`flex items-center gap-3 px-4 py-3.5 rounded-xl font-medium transition-all w-full relative ${
+                    activeNav === 'pesan' || activeNav === 'messages'
+                      ? 'text-white bg-white/10 shadow-sm'
+                      : 'text-white/60 hover:bg-white/5 hover:text-white'
+                  }`}
+                  onClick={onNavigateMessages}
+                >
                   <span className="material-symbols-outlined text-xl">chat_bubble</span>
                   <span className="tracking-wide text-sm">Pesan</span>
+                  <span className="absolute top-3 left-11 w-2 h-2 bg-red-500 rounded-full border border-[#2B4468]"></span>
                 </button>
 
-                <button className="flex items-center gap-3 px-4 py-3.5 rounded-xl font-medium transition-all text-white/60 hover:bg-white/5 hover:text-white w-full">
+                <button 
+                  className={`flex items-center gap-3 px-4 py-3.5 rounded-xl font-medium transition-all w-full ${
+                    activeNav === 'settings'
+                      ? 'text-white bg-white/10 shadow-sm'
+                      : 'text-white/60 hover:bg-white/5 hover:text-white'
+                  }`}
+                  onClick={onNavigateSettings}
+                >
                   <span className="material-symbols-outlined text-xl">settings</span>
                   <span className="tracking-wide text-sm">Settings</span>
                 </button>
@@ -181,7 +242,10 @@ export function DonationPage({ onBack, projectTitle, projectCategory }: Donation
 
             {/* Logout */}
             <div className="p-5 pb-6">
-              <button className="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all text-white/60 hover:bg-white/5 hover:text-white w-full">
+              <button 
+                onClick={onBack}
+                className="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all text-white/60 hover:bg-white/5 hover:text-white w-full"
+              >
                 <span className="material-symbols-outlined text-xl">logout</span>
                 <span className="tracking-wide text-sm">Logout</span>
               </button>
@@ -366,22 +430,51 @@ export function DonationPage({ onBack, projectTitle, projectCategory }: Donation
             {/* Menu Navigation */}
             <nav className="flex-1 px-5 pt-8">
               <div className="space-y-2">
-                <button className="flex items-center gap-3 px-4 py-3.5 rounded-xl font-medium transition-all text-white/60 hover:bg-white/5 hover:text-white w-full">
+                <button 
+                  className={`flex items-center gap-3 px-4 py-3.5 rounded-xl font-medium transition-all w-full ${
+                    activeNav === 'home'
+                      ? 'text-white bg-white/10 shadow-sm'
+                      : 'text-white/60 hover:bg-white/5 hover:text-white'
+                  }`}
+                  onClick={onNavigateHome || onBack}
+                >
                   <span className="material-symbols-outlined text-xl">home</span>
                   <span className="tracking-wide text-sm">Home</span>
                 </button>
 
-                <button className="flex items-center gap-3 px-4 py-3.5 rounded-xl font-medium transition-all text-white/60 hover:bg-white/5 hover:text-white w-full">
+                <button 
+                  className={`flex items-center gap-3 px-4 py-3.5 rounded-xl font-medium transition-all w-full ${
+                    activeNav === 'explore'
+                      ? 'text-white bg-white/10 shadow-sm'
+                      : 'text-white/60 hover:bg-white/5 hover:text-white'
+                  }`}
+                  onClick={onNavigateExplore}
+                >
                   <span className="material-symbols-outlined text-xl">explore</span>
                   <span className="tracking-wide text-sm">Explore</span>
                 </button>
 
-                <button className="flex items-center gap-3 px-4 py-3.5 rounded-xl font-medium transition-all text-white/60 hover:bg-white/5 hover:text-white w-full relative">
+                <button 
+                  className={`flex items-center gap-3 px-4 py-3.5 rounded-xl font-medium transition-all w-full relative ${
+                    activeNav === 'pesan' || activeNav === 'messages'
+                      ? 'text-white bg-white/10 shadow-sm'
+                      : 'text-white/60 hover:bg-white/5 hover:text-white'
+                  }`}
+                  onClick={onNavigateMessages}
+                >
                   <span className="material-symbols-outlined text-xl">chat_bubble</span>
                   <span className="tracking-wide text-sm">Pesan</span>
+                  <span className="absolute top-3 left-11 w-2 h-2 bg-red-500 rounded-full border border-[#2B4468]"></span>
                 </button>
 
-                <button className="flex items-center gap-3 px-4 py-3.5 rounded-xl font-medium transition-all text-white/60 hover:bg-white/5 hover:text-white w-full">
+                <button 
+                  className={`flex items-center gap-3 px-4 py-3.5 rounded-xl font-medium transition-all w-full ${
+                    activeNav === 'settings'
+                      ? 'text-white bg-white/10 shadow-sm'
+                      : 'text-white/60 hover:bg-white/5 hover:text-white'
+                  }`}
+                  onClick={onNavigateSettings}
+                >
                   <span className="material-symbols-outlined text-xl">settings</span>
                   <span className="tracking-wide text-sm">Settings</span>
                 </button>
@@ -390,7 +483,10 @@ export function DonationPage({ onBack, projectTitle, projectCategory }: Donation
 
             {/* Logout */}
             <div className="p-5 pb-6">
-              <button className="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all text-white/60 hover:bg-white/5 hover:text-white w-full">
+              <button 
+                onClick={onBack}
+                className="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all text-white/60 hover:bg-white/5 hover:text-white w-full"
+              >
                 <span className="material-symbols-outlined text-xl">logout</span>
                 <span className="tracking-wide text-sm">Logout</span>
               </button>

@@ -1,8 +1,15 @@
 import { useState } from 'react';
+import { validateLoginForm } from '@/utils/validation';
+import { toastMessages } from '@/utils/toast';
 
 interface LoginProps {
   onBack: () => void;
   onLoginSuccess?: (role: 'donatur' | 'alumni') => void;
+}
+
+interface FormErrors {
+  email?: string;
+  password?: string;
 }
 
 export function Login({ onBack, onLoginSuccess }: LoginProps) {
@@ -10,13 +17,36 @@ export function Login({ onBack, onLoginSuccess }: LoginProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [mode, setMode] = useState<'login' | 'register'>('login');
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [errors, setErrors] = useState<FormErrors>({});
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Simulate successful login
-    if (onLoginSuccess) {
-      onLoginSuccess(role);
+    setErrors({});
+
+    // Validate form
+    const validation = validateLoginForm({ email, password });
+    
+    if (!validation.isValid) {
+      setErrors(validation.errors);
+      toastMessages.form.error();
+      return;
     }
+
+    // Simulate loading
+    setIsLoading(true);
+
+    // Simulate API call
+    setTimeout(() => {
+      setIsLoading(false);
+      toastMessages.login.success();
+      
+      if (onLoginSuccess) {
+        onLoginSuccess(role);
+      }
+    }, 800);
   };
 
   return (
@@ -182,9 +212,16 @@ export function Login({ onBack, onLoginSuccess }: LoginProps) {
                       type="text"
                       id="email"
                       name="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
                       placeholder="EMAIL ATAU USERNAME"
-                      className="block w-full px-4 py-4 bg-[#F8F9FA] border-2 border-[#E5E7EB] text-[#243D68] focus:ring-0 focus:border-[#243D68] transition-all placeholder:text-[#6B7280]/50 placeholder:text-xs placeholder:tracking-wider placeholder:font-semibold"
+                      className={`block w-full px-4 py-4 bg-[#F8F9FA] border-2 ${
+                        errors.email ? 'border-red-500' : 'border-[#E5E7EB]'
+                      } text-[#243D68] focus:ring-0 focus:border-[#243D68] transition-all placeholder:text-[#6B7280]/50 placeholder:text-xs placeholder:tracking-wider placeholder:font-semibold`}
                     />
+                    {errors.email && (
+                      <p className="mt-1 text-xs text-red-600 font-medium">{errors.email}</p>
+                    )}
                   </div>
 
                   {/* Password Input */}
@@ -193,8 +230,12 @@ export function Login({ onBack, onLoginSuccess }: LoginProps) {
                       type={showPassword ? 'text' : 'password'}
                       id="password"
                       name="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
                       placeholder="PASSWORD"
-                      className="block w-full px-4 py-4 bg-[#F8F9FA] border-2 border-[#E5E7EB] text-[#243D68] focus:ring-0 focus:border-[#243D68] transition-all pr-12 placeholder:text-[#6B7280]/50 placeholder:text-xs placeholder:tracking-wider placeholder:font-semibold"
+                      className={`block w-full px-4 py-4 bg-[#F8F9FA] border-2 ${
+                        errors.password ? 'border-red-500' : 'border-[#E5E7EB]'
+                      } text-[#243D68] focus:ring-0 focus:border-[#243D68] transition-all pr-12 placeholder:text-[#6B7280]/50 placeholder:text-xs placeholder:tracking-wider placeholder:font-semibold`}
                     />
                     <button
                       type="button"
@@ -205,6 +246,9 @@ export function Login({ onBack, onLoginSuccess }: LoginProps) {
                         {showPassword ? 'visibility_off' : 'visibility'}
                       </span>
                     </button>
+                    {errors.password && (
+                      <p className="mt-1 text-xs text-red-600 font-medium">{errors.password}</p>
+                    )}
                   </div>
 
                   {/* Forgot Password */}
@@ -325,10 +369,22 @@ export function Login({ onBack, onLoginSuccess }: LoginProps) {
               <div className="pt-2">
                 <button
                   type="submit"
-                  className="w-full bg-[#243D68] text-white font-['Archivo_Black'] uppercase text-base md:text-lg py-4 tracking-widest shadow-[6px_6px_0px_0px_rgba(250,192,110,1)] hover:shadow-[8px_8px_0px_0px_rgba(250,192,110,1)] active:shadow-none active:translate-x-1 active:translate-y-1 transition-all flex items-center justify-center gap-2 group"
+                  disabled={isLoading}
+                  className={`w-full bg-[#243D68] text-white font-['Archivo_Black'] uppercase text-base md:text-lg py-4 tracking-widest shadow-[6px_6px_0px_0px_rgba(250,192,110,1)] hover:shadow-[8px_8px_0px_0px_rgba(250,192,110,1)] active:shadow-none active:translate-x-1 active:translate-y-1 transition-all flex items-center justify-center gap-2 group ${
+                    isLoading ? 'opacity-75 cursor-not-allowed' : ''
+                  }`}
                 >
-                  <span>{mode === 'login' ? 'Lanjutkan Misi' : 'Daftar Sekarang'}</span>
-                  <span className="material-symbols-outlined text-xl group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                  {isLoading ? (
+                    <>
+                      <span className="material-symbols-outlined animate-spin">progress_activity</span>
+                      <span>Memproses...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span>{mode === 'login' ? 'Lanjutkan Misi' : 'Daftar Sekarang'}</span>
+                      <span className="material-symbols-outlined text-xl group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                    </>
+                  )}
                 </button>
               </div>
             </form>

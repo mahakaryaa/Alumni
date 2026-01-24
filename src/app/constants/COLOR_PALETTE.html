@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProjekKita - Color Palette</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #F8F9FA;
+            padding: 40px 20px;
+            color: #0E1B33;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            font-size: 36px;
+            font-weight: 900;
+            margin-bottom: 10px;
+            color: #243D68;
+        }
+        
+        .subtitle {
+            color: #6B7280;
+            margin-bottom: 40px;
+            font-size: 16px;
+        }
+        
+        .section {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 32px;
+            box-shadow: 0 1px 3px rgba(36, 61, 104, 0.1);
+        }
+        
+        .section-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            color: #0E1B33;
+        }
+        
+        .color-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        
+        .color-card {
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+        
+        .color-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .color-swatch {
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .color-info {
+            padding: 16px;
+            background: white;
+        }
+        
+        .color-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: #0E1B33;
+        }
+        
+        .color-value {
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            color: #6B7280;
+        }
+        
+        .color-usage {
+            font-size: 12px;
+            color: #919EB2;
+            margin-top: 8px;
+            font-style: italic;
+        }
+        
+        .brand-colors {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+        
+        .brand-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+        }
+        
+        .brand-swatch {
+            height: 180px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+        }
+        
+        .brand-info {
+            padding: 24px;
+        }
+        
+        .brand-name {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+        
+        .brand-description {
+            color: #6B7280;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        .examples {
+            display: grid;
+            gap: 16px;
+            margin-top: 24px;
+        }
+        
+        .example-button {
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+        }
+        
+        .btn-primary {
+            background: #243D68;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #183A74;
+        }
+        
+        .btn-accent {
+            background: #FAC06E;
+            color: #243D68;
+        }
+        
+        .btn-accent:hover {
+            background: #F9B05D;
+        }
+        
+        .badge {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            margin-right: 8px;
+            margin-bottom: 8px;
+        }
+        
+        .badge-open {
+            background: #D1FAE5;
+            color: #047857;
+        }
+        
+        .badge-team {
+            background: #D9EDF8;
+            color: #243D68;
+        }
+        
+        .badge-urgent {
+            background: #FEE2E2;
+            color: #991B1B;
+        }
+        
+        .copy-btn {
+            background: #F8F9FA;
+            border: 1px solid #D6DCE8;
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+            margin-left: 8px;
+            transition: all 0.2s;
+        }
+        
+        .copy-btn:hover {
+            background: #E5E7EB;
+        }
+        
+        .footer {
+            text-align: center;
+            padding: 40px 20px;
+            color: #6B7280;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 ProjekKita Color Palette</h1>
+        <p class="subtitle">Official brand color system - Standardized & Consistent</p>
+        
+        <!-- Brand Colors -->
+        <div class="brand-colors">
+            <div class="brand-card">
+                <div class="brand-swatch" style="background: #243D68; color: white;">
+                    🏛️
+                </div>
+                <div class="brand-info">
+                    <div class="brand-name" style="color: #243D68;">Primary - Navy Blue</div>
+                    <div class="brand-description">
+                        <strong>#243D68</strong><br>
+                        Warna utama brand. Digunakan untuk branding, navigasi, buttons, dan links.
+                        Melambangkan profesionalisme, trust, dan stabilitas.
+                    </div>
+                </div>
+            </div>
+            
+            <div class="brand-card">
+                <div class="brand-swatch" style="background: #FAC06E; color: #243D68;">
+                    ⭐
+                </div>
+                <div class="brand-info">
+                    <div class="brand-name" style="color: #FAC06E;">Accent - Golden Yellow</div>
+                    <div class="brand-description">
+                        <strong>#FAC06E</strong><br>
+                        Warna aksen untuk highlights. Digunakan untuk badges, hover effects, dan emphasis.
+                        Melambangkan energi, optimisme, dan action.
+                    </div>
+                </div>
+            </div>
+            
+            <div class="brand-card">
+                <div class="brand-swatch" style="background: #F8F9FA; color: #243D68;">
+                    ✨
+                </div>
+                <div class="brand-info">
+                    <div class="brand-name" style="color: #0E1B33;">Background - Off White</div>
+                    <div class="brand-description">
+                        <strong>#F8F9FA</strong><br>
+                        Background utama aplikasi. Memberikan kontras lembut dengan elemen putih.
+                        Melambangkan kesederhanaan dan clarity.
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Primary Variants -->
+        <div class="section">
+            <h2 class="section-title">Primary Colors (Navy Blue)</h2>
+            <div class="color-grid">
+                <div class="color-card">
+                    <div class="color-swatch" style="background: #EEF1F6; color: #243D68;">Lightest</div>
+                    <div class="color-info">
+                        <div class="color-name">PRIMARY[50]</div>
+                        <div class="color-value">#EEF1F6</div>
+                        <div class="color-usage">Light backgrounds, hover states</div>
+                    </div>
+                </div>
+                <div class="color-card">
+                    <div class="color-swatch" style="background: #D6DCE8; color: #243D68;">Lighter</div>
+                    <div class="color-info">
+                        <div class="color-name">PRIMARY[100]</div>
+                        <div class="color-value">#D6DCE8</div>
+                        <div class="color-usage">Borders, dividers, progress bars</div>
+                    </div>
+                </div>
+                <div class="color-card">
+                    <div class="color-swatch" style="background: #243D68; color: white;">Default</div>
+                    <div class="color-info">
+                        <div class="color-name">PRIMARY.DEFAULT</div>
+                        <div class="color-value">#243D68</div>
+                        <div class="color-usage">Buttons, links, branding</div>
+                    </div>
+                </div>
+                <div class="color-card">
+                    <div class="color-swatch" style="background: #183A74; color: white;">Hover</div>
+                    <div class="color-info">
+                        <div class="color-name">PRIMARY.HOVER</div>
+                        <div class="color-value">#183A74</div>
+                        <div class="color-usage">Hover states for buttons</div>
+                    </div>
+                </div>
+                <div class="color-card">
+                    <div class="color-swatch" style="background: #2B4468; color: white;">Sidebar</div>
+                    <div class="color-info">
+                        <div class="color-name">PRIMARY.SIDEBAR</div>
+                        <div class="color-value">#2B4468</div>
+                        <div class="color-usage">Sidebar background</div>
+                    </div>
+                </div>
+                <div class="color-card">
+                    <div class="color-swatch" style="background: #0E1B33; color: white;">Darkest</div>
+                    <div class="color-info">
+                        <div class="color-name">PRIMARY[900]</div>
+                        <div class="color-value">#0E1B33</div>
+                        <div class="color-usage">Heading text, main content</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Accent Variants -->
+        <div class="section">
+            <h2 class="section-title">Accent Colors (Golden Yellow)</h2>
+            <div class="color-grid">
+                <div class="color-card">
+                    <div class="color-swatch" style="background: #FFF8ED; color: #243D68;">Lightest</div>
+                    <div class="color-info">
+                        <div class="color-name">ACCENT[50]</div>
+                        <div class="color-value">#FFF8ED</div>
+                        <div class="color-usage">Light backgrounds, highlights</div>
+                    </div>
+                </div>
+                <div class="color-card">
+                    <div class="color-swatch" style="background: #FDE3B3; color: #243D68;">Light</div>
+                    <div class="color-info">
+                        <div class="color-name">ACCENT[200]</div>
+                        <div class="color-value">#FDE3B3</div>
+                        <div class="color-usage">Subtle emphasis, decorations</div>
+                    </div>
+                </div>
+                <div class="color-card">
+                    <div class="color-swatch" style="background: #FAC06E; color: #243D68;">Default</div>
+                    <div class="color-info">
+                        <div class="color-name">ACCENT.DEFAULT</div>
+                        <div class="color-value">#FAC06E</div>
+                        <div class="color-usage">Badges, highlights, CTAs</div>
+                    </div>
+                </div>
+                <div class="color-card">
+                    <div class="color-swatch" style="background: #F9B05D; color: #243D68;">Hover</div>
+                    <div class="color-info">
+                        <div class="color-name">ACCENT[600]</div>
+                        <div class="color-value">#F9B05D</div>
+                        <div class="color-usage">Hover states for accent elements</div>
+                    </div>
+                </div>
+                <div class="color-card">
+                    <div class="color-swatch" style="background: #F29F3F; color: white;">Dark</div>
+                    <div class="color-info">
+                        <div class="color-name">ACCENT[700]</div>
+                        <div class="color-value">#F29F3F</div>
+                        <div class="color-usage">Active states, emphasis</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Neutral Colors -->
+        <div class="section">
+            <h2 class="section-title">Neutral Colors (Grays)</h2>
+            <div class="color-grid">
+                <div class="color-card">
+                    <div class="color-swatch" style="background: #FFFFFF; color: #0E1B33; border: 1px solid #E5E7EB;">White</div>
+                    <div class="color-info">
+                        <div class="color-name">NEUTRAL.WHITE</div>
+                        <div class="color-value">#FFFFFF</div>
+                        <div class="color-usage">Cards, containers, backgrounds</div>
+                    </div>
+                </div>
+                <div class="color-card">
+                    <div class="color-swatch" style="background: #F8F9FA; color: #0E1B33;">Background</div>
+                    <div class="color-info">
+                        <div class="color-name">NEUTRAL.BACKGROUND</div>
+                        <div class="color-value">#F8F9FA</div>
+                        <div class="color-usage">App background, page background</div>
+                    </div>
+                </div>
+                <div class="color-card">
+                    <div class="color-swatch" style="background: #D6DCE8; color: #0E1B33;">Border</div>
+                    <div class="color-info">
+                        <div class="color-name">NEUTRAL[400]</div>
+                        <div class="color-value">#D6DCE8</div>
+                        <div class="color-usage">Default borders, dividers</div>
+                    </div>
+                </div>
+                <div class="color-card">
+                    <div class="color-swatch" style="background: #919EB2; color: white;">Placeholder</div>
+                    <div class="color-info">
+                        <div class="color-name">NEUTRAL[600]</div>
+                        <div class="color-value">#919EB2</div>
+                        <div class="color-usage">Placeholder text, subtle text</div>
+                    </div>
+                </div>
+                <div class="color-card">
+                    <div class="color-swatch" style="background: #6B7280; color: white;">Secondary</div>
+                    <div class="color-info">
+                        <div class="color-name">NEUTRAL[700]</div>
+                        <div class="color-value">#6B7280</div>
+                        <div class="color-usage">Secondary text, captions</div>
+                    </div>
+                </div>
+                <div class="color-card">
+                    <div class="color-swatch" style="background: #0E1B33; color: white;">Black</div>
+                    <div class="color-info">
+                        <div class="color-name">NEUTRAL.BLACK</div>
+                        <div class="color-value">#0E1B33</div>
+                        <div class="color-usage">Headings, primary text</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Functional Colors -->
+        <div class="section">
+            <h2 class="section-title">Functional Colors (Semantic States)</h2>
+            <div class="color-grid">
+                <div class="color-card">
+                    <div class="color-swatch" style="background: #10B981; color: white;">Success</div>
+                    <div class="color-info">
+                        <div class="color-name">SUCCESS.DEFAULT</div>
+                        <div class="color-value">#10B981</div>
+                        <div class="color-usage">Success states, confirmations</div>
+                    </div>
+                </div>
+                <div class="color-card">
+                    <div class="color-swatch" style="background: #D1FAE5; color: #047857;">Success Light</div>
+                    <div class="color-info">
+                        <div class="color-name">SUCCESS.LIGHT</div>
+                        <div class="color-value">#D1FAE5</div>
+                        <div class="color-usage">Success backgrounds, badges</div>
+                    </div>
+                </div>
+                <div class="color-card">
+                    <div class="color-swatch" style="background: #EF4444; color: white;">Error</div>
+                    <div class="color-info">
+                        <div class="color-name">ERROR.DEFAULT</div>
+                        <div class="color-value">#EF4444</div>
+                        <div class="color-usage">Error states, danger actions</div>
+                    </div>
+                </div>
+                <div class="color-card">
+                    <div class="color-swatch" style="background: #FEE2E2; color: #991B1B;">Error Light</div>
+                    <div class="color-info">
+                        <div class="color-name">ERROR.LIGHT</div>
+                        <div class="color-value">#FEE2E2</div>
+                        <div class="color-usage">Error backgrounds, alerts</div>
+                    </div>
+                </div>
+                <div class="color-card">
+                    <div class="color-swatch" style="background: #F59E0B; color: white;">Warning</div>
+                    <div class="color-info">
+                        <div class="color-name">WARNING.DEFAULT</div>
+                        <div class="color-value">#F59E0B</div>
+                        <div class="color-usage">Warning states, caution</div>
+                    </div>
+                </div>
+                <div class="color-card">
+                    <div class="color-swatch" style="background: #3B82F6; color: white;">Info</div>
+                    <div class="color-info">
+                        <div class="color-name">INFO.DEFAULT</div>
+                        <div class="color-value">#3B82F6</div>
+                        <div class="color-usage">Info messages, tips</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Examples Section -->
+        <div class="section">
+            <h2 class="section-title">Component Examples</h2>
+            
+            <h3 style="margin-bottom: 16px; color: #0E1B33;">Buttons</h3>
+            <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 32px;">
+                <button class="example-button btn-primary">Primary Button</button>
+                <button class="example-button btn-accent">Accent Button</button>
+                <button class="example-button" style="background: white; border: 2px solid #243D68; color: #243D68;">Secondary Button</button>
+            </div>
+            
+            <h3 style="margin-bottom: 16px; color: #0E1B33;">Badges</h3>
+            <div style="margin-bottom: 32px;">
+                <span class="badge badge-open">Open Volunteer</span>
+                <span class="badge badge-team">Project Tim</span>
+                <span class="badge badge-urgent">Urgent</span>
+                <span class="badge" style="background: #10B981; color: white;">Success</span>
+            </div>
+            
+            <h3 style="margin-bottom: 16px; color: #0E1B33;">Alert Messages</h3>
+            <div style="display: grid; gap: 12px;">
+                <div style="background: #D1FAE5; border: 1px solid #10B981; color: #065F46; padding: 16px; border-radius: 8px;">
+                    ✓ Operasi berhasil dilakukan!
+                </div>
+                <div style="background: #FEE2E2; border: 1px solid #EF4444; color: #991B1B; padding: 16px; border-radius: 8px;">
+                    ✗ Terjadi kesalahan. Silakan coba lagi.
+                </div>
+                <div style="background: #FEF3C7; border: 1px solid #F59E0B; color: #92400E; padding: 16px; border-radius: 8px;">
+                    ⚠ Perhatian: Data belum tersimpan.
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <p><strong>ProjekKita Color System</strong></p>
+        <p>Untuk dokumentasi lengkap, lihat COLOR_GUIDE.md</p>
+    </div>
+</body>
+</html>

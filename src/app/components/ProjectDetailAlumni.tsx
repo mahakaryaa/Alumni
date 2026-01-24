@@ -1,11 +1,30 @@
 import { useState } from 'react';
+import { toast } from 'sonner';
 
 interface ProjectDetailAlumniProps {
   onBack: () => void;
   initialTab?: 'overview' | 'progress' | 'members' | 'discussion' | 'wallet';
+  onNavigateHome?: () => void;
+  onNavigateExplore?: () => void;
+  onNavigateMessages?: () => void;
+  onNavigateSettings?: () => void;
+  onLogout?: () => void;
+  activeNav?: string;
 }
 
-export function ProjectDetailAlumni({ onBack, initialTab = 'discussion' }: ProjectDetailAlumniProps) {
+export function ProjectDetailAlumni({ 
+  onBack, 
+  initialTab = 'overview',
+  onNavigateHome,
+  onNavigateExplore,
+  onNavigateMessages,
+  onNavigateSettings,
+  onLogout,
+  activeNav = 'home'
+}: ProjectDetailAlumniProps) {
+  // Project membership state - true jika user sudah diterima PIC ke project
+  const [isProjectMember, setIsProjectMember] = useState(false);
+  
   const [activeTab, setActiveTab] = useState<'overview' | 'progress' | 'members' | 'discussion' | 'wallet'>(initialTab);
   const [showSearch, setShowSearch] = useState(false);
   const [message, setMessage] = useState('');
@@ -129,25 +148,50 @@ export function ProjectDetailAlumni({ onBack, initialTab = 'discussion' }: Proje
           <nav className="flex-1 px-5 pt-8">
             <div className="space-y-2">
               <button
-                className="flex items-center gap-3 px-4 py-3.5 rounded-xl font-medium transition-all text-white/60 hover:bg-white/5 hover:text-white w-full"
-                onClick={onBack}
+                className={`flex items-center gap-3 px-4 py-3.5 rounded-xl font-medium transition-all w-full ${
+                  activeNav === 'home'
+                    ? 'text-white bg-white/10 shadow-sm'
+                    : 'text-white/60 hover:bg-white/5 hover:text-white'
+                }`}
+                onClick={onNavigateHome || onBack}
               >
                 <span className="material-symbols-outlined text-xl">home</span>
                 <span className="tracking-wide text-sm">Home</span>
               </button>
 
-              <button className="flex items-center gap-3 px-4 py-3.5 rounded-xl font-medium transition-all text-white/60 hover:bg-white/5 hover:text-white w-full">
+              <button 
+                className={`flex items-center gap-3 px-4 py-3.5 rounded-xl font-medium transition-all w-full ${
+                  activeNav === 'explore'
+                    ? 'text-white bg-white/10 shadow-sm'
+                    : 'text-white/60 hover:bg-white/5 hover:text-white'
+                }`}
+                onClick={onNavigateExplore}
+              >
                 <span className="material-symbols-outlined text-xl">explore</span>
                 <span className="tracking-wide text-sm">Explore</span>
               </button>
 
-              <button className="flex items-center gap-3 px-4 py-3.5 rounded-xl font-medium transition-all text-white/60 hover:bg-white/5 hover:text-white w-full relative">
+              <button 
+                className={`flex items-center gap-3 px-4 py-3.5 rounded-xl font-medium transition-all w-full relative ${
+                  activeNav === 'pesan' || activeNav === 'messages'
+                    ? 'text-white bg-white/10 shadow-sm'
+                    : 'text-white/60 hover:bg-white/5 hover:text-white'
+                }`}
+                onClick={onNavigateMessages}
+              >
                 <span className="material-symbols-outlined text-xl">chat_bubble</span>
                 <span className="tracking-wide text-sm">Pesan</span>
                 <span className="absolute top-3 left-11 w-2 h-2 bg-red-500 rounded-full border border-[#2B4468]"></span>
               </button>
 
-              <button className="flex items-center gap-3 px-4 py-3.5 rounded-xl font-medium transition-all text-white/60 hover:bg-white/5 hover:text-white w-full">
+              <button 
+                className={`flex items-center gap-3 px-4 py-3.5 rounded-xl font-medium transition-all w-full ${
+                  activeNav === 'settings'
+                    ? 'text-white bg-white/10 shadow-sm'
+                    : 'text-white/60 hover:bg-white/5 hover:text-white'
+                }`}
+                onClick={onNavigateSettings}
+              >
                 <span className="material-symbols-outlined text-xl">settings</span>
                 <span className="tracking-wide text-sm">Settings</span>
               </button>
@@ -157,7 +201,7 @@ export function ProjectDetailAlumni({ onBack, initialTab = 'discussion' }: Proje
           {/* Logout */}
           <div className="p-5 pb-6">
             <button
-              onClick={onBack}
+              onClick={onLogout || onBack}
               className="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-white/60 hover:bg-white/5 hover:text-white transition-all"
             >
               <span className="material-symbols-outlined text-xl">logout</span>
@@ -168,7 +212,7 @@ export function ProjectDetailAlumni({ onBack, initialTab = 'discussion' }: Proje
       </aside>
 
       {/* Main Content */}
-      <div className="flex-1 lg:ml-64 flex flex-col min-h-screen overflow-x-hidden max-w-full">
+      <div className="flex-1 lg:ml-64 flex flex-col min-h-screen overflow-x-hidden max-w-full pb-24 lg:pb-28">
         {/* Header */}
         <div className="sticky top-0 z-20 flex items-center bg-white px-4 md:px-6 lg:px-8 py-4 justify-between border-b border-[#E5E7EB] shadow-sm">
           <div className="flex items-center justify-start">
@@ -266,6 +310,8 @@ export function ProjectDetailAlumni({ onBack, initialTab = 'discussion' }: Proje
               >
                 Anggota
               </button>
+              
+              {/* Tab Diskusi - Always visible */}
               <button
                 className={`text-center py-3 px-2 md:px-4 text-sm font-semibold transition-colors whitespace-nowrap ${
                   activeTab === 'discussion' ? 'text-[#243D68] border-b-2 border-[#243D68]' : 'text-[#6B7280] hover:text-[#333333]'
@@ -274,6 +320,8 @@ export function ProjectDetailAlumni({ onBack, initialTab = 'discussion' }: Proje
               >
                 Diskusi
               </button>
+              
+              {/* Tab Wallet - Always visible */}
               <button
                 className={`text-center py-3 px-2 md:px-4 text-sm font-semibold transition-colors whitespace-nowrap ${
                   activeTab === 'wallet' ? 'text-[#243D68] border-b-2 border-[#243D68]' : 'text-[#6B7280] hover:text-[#333333]'
@@ -288,8 +336,31 @@ export function ProjectDetailAlumni({ onBack, initialTab = 'discussion' }: Proje
           {/* Tab Content - Discussion */}
           {activeTab === 'discussion' && (
             <div className="flex-1 bg-[#F8F9FA] pb-20 overflow-x-hidden max-w-full">
-              {/* Voting Alert Card - ENHANCED FOR TABLET & DESKTOP */}
-              <div className="bg-gradient-to-br from-[#243D68] via-[#2B4468] to-[#1a2d4d] mx-3 md:mx-6 lg:mx-8 my-4 md:my-6 rounded-xl md:rounded-2xl p-4 md:p-6 lg:p-8 shadow-2xl max-w-full relative overflow-hidden">
+              {/* Show info banner if not a project member */}
+              {!isProjectMember ? (
+                <div className="px-4 md:px-6 lg:px-8 py-8 flex items-center justify-center min-h-[400px]">
+                  <div className="bg-[#FFF9F0] border border-[#FAC06E]/30 rounded-xl p-6 max-w-lg w-full shadow-sm">
+                    <div className="flex items-start gap-4">
+                      <div className="flex-shrink-0 mt-1">
+                        <div className="w-8 h-8 rounded-full border-2 border-[#FAC06E] flex items-center justify-center">
+                          <span className="material-symbols-outlined text-[#FAC06E] text-lg">info</span>
+                        </div>
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="text-[#243D68] font-bold text-base mb-2">
+                          Bergabung untuk Akses Penuh
+                        </h4>
+                        <p className="text-[#6B7280] text-sm leading-relaxed">
+                          Klik tombol <span className="font-semibold text-[#243D68]">"Join Project"</span> di bawah untuk mengajukan diri bergabung. Setelah diterima oleh PIC, Anda akan mendapatkan akses ke fitur <span className="font-semibold text-[#243D68]">Diskusi</span> dan <span className="font-semibold text-[#243D68]">Wallet</span> untuk berkolaborasi dengan tim.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  {/* Voting Alert Card - ENHANCED FOR TABLET & DESKTOP */}
+                  <div className="bg-gradient-to-br from-[#243D68] via-[#2B4468] to-[#1a2d4d] mx-3 md:mx-6 lg:mx-8 my-4 md:my-6 rounded-xl md:rounded-2xl p-4 md:p-6 lg:p-8 shadow-2xl max-w-full relative overflow-hidden">
                 {/* Decorative Background Elements - Desktop Only */}
                 <div className="hidden md:block absolute top-0 right-0 w-64 h-64 bg-[#FAC06E] opacity-5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
                 <div className="hidden md:block absolute bottom-0 left-0 w-48 h-48 bg-white opacity-5 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2"></div>
@@ -616,6 +687,8 @@ export function ProjectDetailAlumni({ onBack, initialTab = 'discussion' }: Proje
                   <span className="text-xs text-[#9CA3AF]">Anda sudah melihat semua pesan</span>
                 </div>
               </div>
+                </>
+              )}
             </div>
           )}
 
@@ -846,21 +919,6 @@ export function ProjectDetailAlumni({ onBack, initialTab = 'discussion' }: Proje
                 </div>
               </div>
 
-              {/* Join Project CTA Button */}
-              <div className="bg-gradient-to-br from-[#243D68]/5 to-[#243D68]/10 rounded-2xl p-6 border-2 border-[#243D68]/20">
-                <div className="text-center mb-4">
-                  <h3 className="text-xl font-black text-[#243D68] mb-2">
-                    Tertarik Bergabung?
-                  </h3>
-                  <p className="text-sm text-[#6B7280] leading-relaxed">
-                    Jadilah bagian dari tim dan berkontribusi langsung dalam proyek ini. Pilih posisi yang sesuai dengan keahlian Anda!
-                  </p>
-                </div>
-                <button className="w-full flex items-center justify-center gap-3 rounded-xl h-14 bg-gradient-to-r from-[#243D68] to-[#30518B] text-white text-base font-bold leading-normal tracking-widest shadow-[6px_6px_0px_0px_rgba(250,192,110,1)] hover:shadow-[8px_8px_0px_0px_rgba(250,192,110,1)] active:shadow-none active:translate-x-1 active:translate-y-1 transition-all uppercase">
-                  <span className="material-symbols-outlined text-2xl">group_add</span>
-                  <span>Join Project</span>
-                </button>
-              </div>
             </div>
           )}
           
@@ -1069,8 +1127,31 @@ export function ProjectDetailAlumni({ onBack, initialTab = 'discussion' }: Proje
           
           {activeTab === 'wallet' && (
             <div className="px-4 md:px-6 lg:px-8 py-6 space-y-6">
-              {/* Wallet Card */}
-              <div className="bg-gradient-to-br from-[#243D68] to-[#1a2d4d] rounded-2xl p-6 shadow-xl relative overflow-hidden">
+              {/* Show info banner if not a project member */}
+              {!isProjectMember ? (
+                <div className="flex items-center justify-center min-h-[400px]">
+                  <div className="bg-[#FFF9F0] border border-[#FAC06E]/30 rounded-xl p-6 max-w-lg w-full shadow-sm">
+                    <div className="flex items-start gap-4">
+                      <div className="flex-shrink-0 mt-1">
+                        <div className="w-8 h-8 rounded-full border-2 border-[#FAC06E] flex items-center justify-center">
+                          <span className="material-symbols-outlined text-[#FAC06E] text-lg">info</span>
+                        </div>
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="text-[#243D68] font-bold text-base mb-2">
+                          Bergabung untuk Akses Penuh
+                        </h4>
+                        <p className="text-[#6B7280] text-sm leading-relaxed">
+                          Klik tombol <span className="font-semibold text-[#243D68]">"Join Project"</span> di bawah untuk mengajukan diri bergabung. Setelah diterima oleh PIC, Anda akan mendapatkan akses ke fitur <span className="font-semibold text-[#243D68]">Diskusi</span> dan <span className="font-semibold text-[#243D68]">Wallet</span> untuk berkolaborasi dengan tim.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  {/* Wallet Card */}
+                  <div className="bg-gradient-to-br from-[#243D68] to-[#1a2d4d] rounded-2xl p-6 shadow-xl relative overflow-hidden">
                 {/* Background Pattern */}
                 <div className="absolute inset-0 opacity-5">
                   <div className="absolute top-0 right-0 w-64 h-64 bg-white rounded-full -translate-y-1/2 translate-x-1/2"></div>
@@ -1218,6 +1299,8 @@ export function ProjectDetailAlumni({ onBack, initialTab = 'discussion' }: Proje
                   </button>
                 </div>
               </div>
+                </>
+              )}
             </div>
           )}
         </div>
@@ -1439,6 +1522,29 @@ export function ProjectDetailAlumni({ onBack, initialTab = 'discussion' }: Proje
                 </>
               )}
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Fixed Join Project Button - Only visible if user is not a project member */}
+      {!isProjectMember && (
+        <div className="fixed bottom-0 left-0 right-0 lg:left-64 bg-white border-t border-[#E5E7EB] px-4 md:px-6 lg:px-8 py-4 z-40 shadow-[0_-4px_12px_rgba(0,0,0,0.08)]">
+          <div className="max-w-4xl mx-auto">
+            <button 
+              onClick={() => {
+                // Simulate PIC accepting user to project
+                setIsProjectMember(true);
+                setActiveTab('discussion');
+                toast.success('Selamat! Anda berhasil bergabung dengan project ini', {
+                  description: 'Akses penuh ke Diskusi dan Wallet sudah tersedia',
+                  duration: 4000,
+                });
+              }}
+              className="w-full flex items-center justify-center gap-3 rounded-xl h-14 bg-gradient-to-r from-[#243D68] to-[#30518B] text-white text-base font-bold leading-normal tracking-widest shadow-[6px_6px_0px_0px_rgba(250,192,110,1)] hover:shadow-[8px_8px_0px_0px_rgba(250,192,110,1)] active:shadow-none active:translate-x-1 active:translate-y-1 transition-all uppercase"
+            >
+              <span className="material-symbols-outlined text-2xl">group_add</span>
+              <span>Join Project</span>
+            </button>
           </div>
         </div>
       )}

@@ -3,9 +3,24 @@ import { useState } from 'react';
 interface MessagesAlumniProps {
   onBack: () => void;
   onNavigateToProject?: () => void;
+  onNavigateHome?: () => void;
+  onNavigateExplore?: () => void;
+  onNavigateMessages?: () => void;
+  onNavigateSettings?: () => void;
+  onLogout?: () => void;
+  activeNav?: string;
 }
 
-export function MessagesAlumni({ onBack, onNavigateToProject }: MessagesAlumniProps) {
+export function MessagesAlumni({ 
+  onBack, 
+  onNavigateToProject,
+  onNavigateHome,
+  onNavigateExplore,
+  onNavigateMessages,
+  onNavigateSettings,
+  onLogout,
+  activeNav = 'pesan'
+}: MessagesAlumniProps) {
   const [activeTab, setActiveTab] = useState<'chats' | 'teams' | 'tasks' | 'voting'>('chats');
   const [searchQuery, setSearchQuery] = useState('');
   const [votedPolls, setVotedPolls] = useState<{ [key: number]: number }>({}); // Store poll id and selected option id
@@ -14,8 +29,8 @@ export function MessagesAlumni({ onBack, onNavigateToProject }: MessagesAlumniPr
   const conversations = [
     {
       id: 1,
-      name: 'Tim Digitalisasi Arsip',
-      lastMessage: 'Budi: Mockup sudah ready untuk review',
+      name: 'Tim Dauroh Online Almaqdisi',
+      lastMessage: 'Budi: Jadwal kajian minggu depan sudah fix',
       time: '2 mnt',
       unread: 3,
       avatar: '👥',
@@ -24,8 +39,8 @@ export function MessagesAlumni({ onBack, onNavigateToProject }: MessagesAlumniPr
     },
     {
       id: 2,
-      name: 'AlumniMentorship',
-      lastMessage: 'Siti: Meeting pukul 2 siang ya!',
+      name: 'Edukasi @baitulmaqdishub',
+      lastMessage: 'Siti: Konten Instagram untuk besok sudah siap',
       time: '15 mnt',
       unread: 1,
       avatar: '👥',
@@ -44,11 +59,11 @@ export function MessagesAlumni({ onBack, onNavigateToProject }: MessagesAlumniPr
     },
     {
       id: 4,
-      name: 'Design Team',
+      name: 'Buku Tentang Baitul Maqdis',
       lastMessage: 'Kamu: Terima kasih feedbacknya!',
       time: '3 jam',
       unread: 0,
-      avatar: '��',
+      avatar: '📚',
       type: 'team',
       online: false
     },
@@ -68,26 +83,26 @@ export function MessagesAlumni({ onBack, onNavigateToProject }: MessagesAlumniPr
   const teams = [
     {
       id: 1,
-      name: 'Digitalisasi Arsip',
-      members: 8,
+      name: 'Dauroh Online Almaqdisi',
+      members: 24,
       progress: 75,
-      icon: 'folder',
+      icon: 'play_lesson',
       color: 'blue'
     },
     {
       id: 2,
-      name: 'AlumniMentorship',
-      members: 12,
+      name: 'Edukasi @baitulmaqdishub',
+      members: 18,
       progress: 60,
-      icon: 'groups',
+      icon: 'campaign',
       color: 'green'
     },
     {
       id: 3,
-      name: 'Design Team',
-      members: 5,
+      name: 'Buku Tentang Baitul Maqdis',
+      members: 12,
       progress: 45,
-      icon: 'palette',
+      icon: 'menu_book',
       color: 'purple'
     }
   ];
@@ -96,27 +111,27 @@ export function MessagesAlumni({ onBack, onNavigateToProject }: MessagesAlumniPr
   const tasks = [
     {
       id: 1,
-      title: 'Pengkajian Desain UI/UX',
-      project: 'Digitalisasi Arsip',
+      title: 'Persiapan Materi Kajian Sejarah',
+      project: 'Dauroh Online Almaqdisi',
       dueDate: 'Hari ini',
       priority: 'high',
-      assignedBy: 'DevTeam'
+      assignedBy: 'Tim Kurikulum'
     },
     {
       id: 2,
-      title: 'Briefing Tim Dev',
-      project: 'AlumniMentorship',
+      title: 'Buat Konten Instagram & TikTok',
+      project: 'Edukasi @baitulmaqdishub',
       dueDate: 'Besok',
       priority: 'high',
-      assignedBy: 'Management'
+      assignedBy: 'Content Manager'
     },
     {
       id: 3,
-      title: 'Review Mockup Design',
-      project: 'Design Team',
+      title: 'Review Draft Bab 3',
+      project: 'Buku Tentang Baitul Maqdis',
       dueDate: '2 hari lagi',
       priority: 'medium',
-      assignedBy: 'Siti A.'
+      assignedBy: 'Editor'
     }
   ];
 
@@ -124,9 +139,9 @@ export function MessagesAlumni({ onBack, onNavigateToProject }: MessagesAlumniPr
   const [pollsData, setPollsData] = useState([
     {
       id: 1,
-      question: 'Waktu meeting bulanan yang paling cocok?',
+      question: 'Waktu live streaming kajian yang paling cocok?',
       creator: 'Budi Hartono',
-      project: 'Digitalisasi Arsip',
+      project: 'Dauroh Online Almaqdisi',
       createdAt: '2 jam lalu',
       deadline: 'Besok, 17:00',
       status: 'active',
@@ -141,7 +156,7 @@ export function MessagesAlumni({ onBack, onNavigateToProject }: MessagesAlumniPr
       id: 2,
       question: 'Pilih topik diskusi minggu ini:',
       creator: 'Siti Aminah',
-      project: 'AlumniMentorship',
+      project: 'Edukasi @baitulmaqdishub',
       createdAt: '5 jam lalu',
       deadline: '2 hari lagi',
       status: 'active',
@@ -156,7 +171,7 @@ export function MessagesAlumni({ onBack, onNavigateToProject }: MessagesAlumniPr
       id: 3,
       question: 'Budget prioritas untuk Q2 2026?',
       creator: 'Ahmad Fauzi',
-      project: 'Design Team',
+      project: 'Buku Tentang Baitul Maqdis',
       createdAt: 'Kemarin',
       deadline: '3 hari lagi',
       status: 'active',
@@ -234,19 +249,31 @@ export function MessagesAlumni({ onBack, onNavigateToProject }: MessagesAlumniPr
           <nav className="flex-1 px-5 pt-8">
             <div className="space-y-2">
               <button
-                className="flex items-center gap-3 px-4 py-3.5 rounded-xl font-medium transition-all text-white/60 hover:bg-white/5 hover:text-white w-full"
-                onClick={onBack}
+                className={`flex items-center gap-3 px-4 py-3.5 rounded-xl font-medium transition-all ${
+                  activeNav === 'home' ? 'bg-white/10 text-white' : 'text-white/60 hover:bg-white/5 hover:text-white'
+                } w-full`}
+                onClick={onNavigateHome}
               >
                 <span className="material-symbols-outlined text-xl">home</span>
                 <span className="tracking-wide text-sm">Home</span>
               </button>
 
-              <button className="flex items-center gap-3 px-4 py-3.5 rounded-xl font-medium transition-all text-white/60 hover:bg-white/5 hover:text-white w-full">
+              <button
+                className={`flex items-center gap-3 px-4 py-3.5 rounded-xl font-medium transition-all ${
+                  activeNav === 'explore' ? 'bg-white/10 text-white' : 'text-white/60 hover:bg-white/5 hover:text-white'
+                } w-full`}
+                onClick={onNavigateExplore}
+              >
                 <span className="material-symbols-outlined text-xl">explore</span>
                 <span className="tracking-wide text-sm">Explore</span>
               </button>
 
-              <button className="flex items-center gap-3 px-4 py-3.5 rounded-xl font-medium transition-all bg-white/10 text-white w-full relative">
+              <button
+                className={`flex items-center gap-3 px-4 py-3.5 rounded-xl font-medium transition-all ${
+                  activeNav === 'pesan' ? 'bg-white/10 text-white' : 'text-white/60 hover:bg-white/5 hover:text-white'
+                } w-full relative`}
+                onClick={onNavigateMessages}
+              >
                 <span className="material-symbols-outlined text-xl">chat_bubble</span>
                 <span className="tracking-wide text-sm">Pesan</span>
                 {tasks.filter(t => t.priority === 'high').length > 0 && (
@@ -256,7 +283,12 @@ export function MessagesAlumni({ onBack, onNavigateToProject }: MessagesAlumniPr
                 )}
               </button>
 
-              <button className="flex items-center gap-3 px-4 py-3.5 rounded-xl font-medium transition-all text-white/60 hover:bg-white/5 hover:text-white w-full">
+              <button
+                className={`flex items-center gap-3 px-4 py-3.5 rounded-xl font-medium transition-all ${
+                  activeNav === 'settings' ? 'bg-white/10 text-white' : 'text-white/60 hover:bg-white/5 hover:text-white'
+                } w-full`}
+                onClick={onNavigateSettings}
+              >
                 <span className="material-symbols-outlined text-xl">settings</span>
                 <span className="tracking-wide text-sm">Settings</span>
               </button>
@@ -266,7 +298,7 @@ export function MessagesAlumni({ onBack, onNavigateToProject }: MessagesAlumniPr
           {/* Logout */}
           <div className="p-5 pb-6">
             <button
-              onClick={onBack}
+              onClick={onLogout}
               className="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-white/60 hover:bg-white/5 hover:text-white transition-all"
             >
               <span className="material-symbols-outlined text-xl">logout</span>
@@ -289,13 +321,7 @@ export function MessagesAlumni({ onBack, onNavigateToProject }: MessagesAlumniPr
                 <h2 className="text-[#0E1B33] text-lg font-bold leading-tight tracking-tight">
                   Pesan
                 </h2>
-                <p className="text-[#6B7280] text-xs">Hai, Rania 👋</p>
               </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <button className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg text-[#243D68] hover:bg-[#F8F9FA] transition-colors">
-                <span className="material-symbols-outlined">add</span>
-              </button>
             </div>
           </div>
 

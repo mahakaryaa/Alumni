@@ -346,7 +346,7 @@ export function ExploreProject({
                       {project.status}
                     </span>
                     <span className="bg-white/95 backdrop-blur-md text-[#243D68] text-xs font-semibold px-3 py-1.5 rounded-full shadow-lg">
-                      Project Tim
+                      Project Individu
                     </span>
                   </div>
                 </div>

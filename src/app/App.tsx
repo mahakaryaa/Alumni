@@ -1,4 +1,8 @@
 import { useState } from 'react';
+import { Toaster } from 'sonner';
+import { ErrorBoundary } from '@/app/components/ErrorBoundary';
+import { toastMessages } from '@/utils/toast';
+import { STORAGE_KEYS } from '@/constants';
 import { ProjectDetail } from '@/app/components/ProjectDetail';
 import { ProjectDetailAlumni } from '@/app/components/ProjectDetailAlumni';
 import { ExploreProject } from '@/app/components/ExploreProject';
@@ -8,33 +12,76 @@ import { EventDetail } from '@/app/components/EventDetail';
 import { MessagePage } from '@/app/components/MessagePage';
 import { SettingsPage } from '@/app/components/SettingsPage';
 import { MessagesAlumni } from '@/app/components/MessagesAlumni';
+import { DonationPage } from '@/app/components/DonationPage';
 import heroImage from 'figma:asset/e58bcf57f4d8cba056148583d179c170bd719908.png';
 
 export default function App() {
   const [activeNav, setActiveNav] = useState('home');
-  const [currentView, setCurrentView] = useState<'home' | 'project-detail' | 'explore' | 'alumni-story' | 'login' | 'event-detail' | 'messages' | 'settings'>('home');
+  const [currentView, setCurrentView] = useState<'home' | 'project-detail' | 'explore' | 'alumni-story' | 'login' | 'event-detail' | 'messages' | 'settings' | 'donation'>('home');
   const [exploreInitialTab, setExploreInitialTab] = useState<'open' | 'galeri'>('open');
   const [projectDetailInitialTab, setProjectDetailInitialTab] = useState<'overview' | 'progress' | 'members' | 'discussion' | 'wallet'>('overview');
-  const [userRole, setUserRole] = useState<'donatur' | 'alumni' | null>(null);
+  
+  // User role with localStorage persistence
+  const [userRole, setUserRole] = useState<'donatur' | 'alumni' | null>(() => {
+    const saved = localStorage.getItem(STORAGE_KEYS.USER_ROLE);
+    return saved as 'donatur' | 'alumni' | null;
+  });
+
+  // Notification count state
+  const [notificationCount, setNotificationCount] = useState(3); // Mock data: 3 unread notifications
+
+  // Logout handler
+  const handleLogout = () => {
+    setUserRole(null);
+    localStorage.removeItem(STORAGE_KEYS.USER_ROLE);
+    setCurrentView('home');
+    setActiveNav('home');
+    toastMessages.logout.success();
+  };
+
+  // Login handler with persistence
+  const handleLogin = (role: 'donatur' | 'alumni') => {
+    setUserRole(role);
+    localStorage.setItem(STORAGE_KEYS.USER_ROLE, role);
+    setCurrentView('home');
+    setActiveNav('home');
+  };
 
   if (currentView === 'login') {
     return <Login onBack={() => {
       setCurrentView('home');
       setActiveNav('home');
-    }} onLoginSuccess={(role: 'donatur' | 'alumni') => {
-      setUserRole(role);
-      setCurrentView('home');
-      setActiveNav('home');
-    }} />;
+    }} onLoginSuccess={handleLogin} />;
   }
 
   if (currentView === 'project-detail') {
     // Show different detail page based on user role
     if (userRole === 'alumni') {
-      return <ProjectDetailAlumni onBack={() => {
-        setCurrentView('home');
-        setActiveNav('home');
-      }} initialTab={projectDetailInitialTab} />;
+      return <ProjectDetailAlumni 
+        onBack={() => {
+          setCurrentView('home');
+          setActiveNav('home');
+        }} 
+        initialTab={projectDetailInitialTab}
+        onNavigateHome={() => {
+          setCurrentView('home');
+          setActiveNav('home');
+        }}
+        onNavigateExplore={() => {
+          setCurrentView('explore');
+          setActiveNav('explore');
+        }}
+        onNavigateMessages={() => {
+          setCurrentView('messages');
+          setActiveNav('pesan');
+        }}
+        onNavigateSettings={() => {
+          setCurrentView('settings');
+          setActiveNav('settings');
+        }}
+        onLogout={handleLogout}
+        activeNav={activeNav}
+      />;
     }
     
     return <ProjectDetail onBack={() => {
@@ -97,6 +144,24 @@ export default function App() {
           setProjectDetailInitialTab('overview');
           setCurrentView('project-detail');
         }}
+        onNavigateHome={() => {
+          setCurrentView('home');
+          setActiveNav('home');
+        }}
+        onNavigateExplore={() => {
+          setCurrentView('explore');
+          setActiveNav('explore');
+        }}
+        onNavigateMessages={() => {
+          setCurrentView('messages');
+          setActiveNav('pesan');
+        }}
+        onNavigateSettings={() => {
+          setCurrentView('settings');
+          setActiveNav('settings');
+        }}
+        onLogout={handleLogout}
+        activeNav={activeNav}
       />;
     }
     
@@ -151,8 +216,38 @@ export default function App() {
     />;
   }
 
+  if (currentView === 'donation') {
+    return <DonationPage 
+      onBack={() => {
+        setCurrentView('home');
+        setActiveNav('home');
+      }}
+      projectTitle="Pengembangan Aplikasi AlumniConnect"
+      projectCategory="Pendidikan"
+      onNavigateHome={() => {
+        setCurrentView('home');
+        setActiveNav('home');
+      }}
+      onNavigateExplore={() => {
+        setCurrentView('explore');
+        setActiveNav('explore');
+      }}
+      onNavigateMessages={() => {
+        setCurrentView('messages');
+        setActiveNav('pesan');
+      }}
+      onNavigateSettings={() => {
+        setCurrentView('settings');
+        setActiveNav('settings');
+      }}
+      activeNav={activeNav}
+    />;
+  }
+
   return (
-    <div className="flex min-h-screen relative bg-[#F8F9FA]">
+    <ErrorBoundary>
+      <Toaster position="top-center" richColors closeButton />
+      <div className="flex min-h-screen relative bg-[#F8F9FA]">
       {/* Sidebar */}
       <aside className="w-64 bg-[#2B4468] border-r border-[#2B4468] fixed h-screen top-0 left-0 z-50 flex flex-col hidden lg:flex shadow-sm">
         {/* Decorative Background Elements */}
@@ -222,6 +317,7 @@ export default function App() {
               >
                 <span className="material-symbols-outlined text-xl">chat_bubble</span>
                 <span className="tracking-wide text-sm">Pesan</span>
+                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
               </a>
 
               <a
@@ -246,7 +342,7 @@ export default function App() {
           <div className="p-5 pb-6">
             <button
               className="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all w-full text-white/60 hover:bg-white/5 hover:text-white"
-              onClick={() => setCurrentView('login')}
+              onClick={handleLogout}
             >
               <span className="material-symbols-outlined text-xl">logout</span>
               <span className="tracking-wide text-sm">Logout</span>
@@ -424,7 +520,10 @@ export default function App() {
                     Yuk, tanam 1000 pohon untuk Baitul Maqdis yang lebih hijau &amp; sejuk!
                   </p>
                   <button
-                    onClick={() => setCurrentView('project-detail')}
+                    onClick={() => {
+                      setProjectDetailInitialTab('overview'); // Reset to overview tab
+                      setCurrentView('project-detail');
+                    }}
                     className="w-full bg-[#243D68] text-white font-semibold rounded-[12px] hover:bg-[#183A74] transition-colors py-3 px-6"
                   >
                     Lihat Project
@@ -451,7 +550,10 @@ export default function App() {
                     Buka pintu masa depan digital untuk adik-adik di area Baitul Maqdis.
                   </p>
                   <button
-                    onClick={() => setCurrentView('project-detail')}
+                    onClick={() => {
+                      setProjectDetailInitialTab('overview'); // Reset to overview tab
+                      setCurrentView('project-detail');
+                    }}
                     className="w-full mt-2 bg-[#243D68] text-white font-semibold py-3 rounded-[12px] hover:bg-[#183A74] transition-colors"
                   >
                     Lihat Project
@@ -463,14 +565,74 @@ export default function App() {
 
           {/* Quote Section */}
           <section>
-            <div className="bg-[rgba(250,192,110,0.6)] border border-[#D6DCE8] rounded-2xl p-8 lg:p-12 text-center relative overflow-hidden shadow-sm">
-              <blockquote className="font-['Lora'] italic text-base lg:text-lg text-[#1F2937] max-w-2xl mx-auto leading-relaxed">
-                <span className="text-[10rem] leading-none float-left mr-2 mt-[-2rem] text-[#243D68] opacity-20" style={{ fontFamily: 'Archivo Black' }}>\"</span>Setiap langkah kecil yang kita ambil hari ini adalah fondasi untuk pembebasan Baitul Maqdis
-                esok hari."
-              </blockquote>
-              <cite className="block mt-4 text-[#0E1B33] font-semibold text-sm not-italic">
-                Alumni Inspiratif
-              </cite>
+            <div className="relative rounded-2xl overflow-hidden shadow-lg">
+              {/* Background with gradient */}
+              <div className="absolute inset-0 bg-gradient-to-br from-[#243D68] via-[#2B4468] to-[#1a2d4d]"></div>
+              
+              {/* Decorative elements */}
+              <div className="absolute top-0 right-0 w-64 h-64 bg-[#FAC06E] rounded-full opacity-10 blur-3xl"></div>
+              <div className="absolute bottom-0 left-0 w-48 h-48 bg-[#FAC06E] rounded-full opacity-10 blur-3xl"></div>
+              
+              {/* Content */}
+              <div className="relative z-10 px-6 py-12 lg:px-16 lg:py-16">
+                {/* Dome illustration */}
+                <div className="flex justify-center mb-8">
+                  <svg width="180" height="120" viewBox="0 0 180 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-[#FAC06E]">
+                    {/* Main dome */}
+                    <ellipse cx="90" cy="35" rx="35" ry="20" stroke="currentColor" strokeWidth="2" fill="none"/>
+                    <path d="M 55 35 Q 55 45 60 50 L 60 85" stroke="currentColor" strokeWidth="2" fill="none"/>
+                    <path d="M 125 35 Q 125 45 120 50 L 120 85" stroke="currentColor" strokeWidth="2" fill="none"/>
+                    <line x1="60" y1="50" x2="70" y2="50" stroke="currentColor" strokeWidth="2"/>
+                    <line x1="110" y1="50" x2="120" y2="50" stroke="currentColor" strokeWidth="2"/>
+                    
+                    {/* Center structure */}
+                    <rect x="70" y="45" width="40" height="40" stroke="currentColor" strokeWidth="2" fill="none"/>
+                    
+                    {/* Arches */}
+                    <path d="M 75 85 Q 80 75 85 85" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+                    <path d="M 85 85 Q 90 75 95 85" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+                    <path d="M 95 85 Q 100 75 105 85" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+                    
+                    {/* Side arches */}
+                    <path d="M 30 70 Q 35 60 40 70 L 40 95" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+                    <path d="M 45 70 Q 50 60 55 70 L 55 95" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+                    
+                    <path d="M 125 70 Q 130 60 135 70 L 135 95" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+                    <path d="M 140 70 Q 145 60 150 70 L 150 95" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+                    
+                    {/* Base */}
+                    <line x1="25" y1="95" x2="155" y2="95" stroke="currentColor" strokeWidth="2"/>
+                    <line x1="20" y1="100" x2="160" y2="100" stroke="currentColor" strokeWidth="2.5"/>
+                    
+                    {/* Crescent */}
+                    <path d="M 88 15 Q 90 10 92 15" stroke="currentColor" strokeWidth="1.5" fill="none"/>
+                    <circle cx="90" cy="18" r="2" fill="currentColor"/>
+                  </svg>
+                </div>
+                
+                {/* Quote text */}
+                <blockquote className="text-center max-w-3xl mx-auto">
+                  <p className="text-white text-base lg:text-lg leading-relaxed mb-8 px-4">
+                    "Setiap langkah kecil yang kita ambil hari ini adalah fondasi untuk pembebasan Baitul Maqdis esok hari."
+                  </p>
+                  
+                  {/* Author section */}
+                  <div className="flex items-center justify-center gap-4 mb-6">
+                    <div className="h-px w-12 bg-[#FAC06E]"></div>
+                    <cite className="text-[#FAC06E] font-bold text-sm uppercase tracking-widest not-italic">
+                      Alumni Inspiratif
+                    </cite>
+                    <div className="h-px w-12 bg-[#FAC06E]"></div>
+                  </div>
+                  
+                  {/* Dots */}
+                  <div className="flex justify-center gap-2">
+                    <div className="w-2.5 h-2.5 rounded-full bg-[#FAC06E]"></div>
+                    <div className="w-2.5 h-2.5 rounded-full bg-[#FAC06E]"></div>
+                    <div className="w-2.5 h-2.5 rounded-full bg-[#FAC06E]"></div>
+                  </div>
+                </blockquote>
+              </div>
             </div>
           </section>
 
@@ -619,26 +781,62 @@ export default function App() {
               </button>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <img
-                alt="Gallery 1"
-                className="w-full aspect-square object-cover rounded-[16px] shadow-sm hover:scale-105 transition-transform"
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuC7qMSJdMXqdlx2DS-QcXA6LU2i_R1MSOfAYAYOeyI2kIp9QE6DDeIXTFmsOmG7ACgKvksS4gFV-xEvvkWafBmT47cCran0KW65lxxInLNamOXOvhZgCbU9IW1j8MSHom7befLmfCty_3DPUh8m_E1hqsgsoSr_GDER7x9W6TkzB-n4hVxxNltNoYeAjTpreqPDiuTpVToF0gIKmpsEUDthRWEVV_uRQMhL4xh-VqiJV7Dzc45sFTnAXq6sZI9Z6f66H1qXPyeAIzsv"
-              />
-              <img
-                alt="Gallery 2"
-                className="w-full aspect-square object-cover rounded-[16px] shadow-sm hover:scale-105 transition-transform"
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuCmq45Viuq3yJockszGsGZ94LsQD007r0SBv7C1mgVVEBwm5yKkR5kS2YkZKvFE_nz2_QJEEZdYRRlqUzjMlbb40ocANC7hP7YFxb7OkiHr9d40kkCoDVILZppAzrOxmAGKdjGBWdWyIGYG26Qq-9U2tQ7_C8e-Ff9bpxderu1gLUVwUquec-9sbpH3DszoRRA_Ocd2IVJb-mVbbArvo-G3qkjSo5iWMuMffgcGGhX69sl6YDCyBAXv5MyImUY38957ruBMuhaPJ3sa"
-              />
-              <img
-                alt="Gallery 3"
-                className="w-full aspect-square object-cover rounded-[16px] shadow-sm hover:scale-105 transition-transform"
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuBu0YTCuTjScQVeCbT3Ymw4P2yHfcfnSsxBYQM8I41PTPIht9ruG0553HfPM_NljSjUZLSWjrRs6HqNfnEZqik_9mB58l76bGR02Zm8P7k97HY6STTud_2YtFtEJRS6qF6G4lHlVutpk4iLZ2erwH_iodIWmmLX3VPy4mlXJ_QRBGaT311j0G3nr0uR_AAbKEW7wjZSIRuPERUI8P7sIjLbIzaH5xDgZPYb7Q-iIl6Rssir8F4lptiyGxGQ6BUgmooJOX8kMQwc3Yuo"
-              />
-              <img
-                alt="Gallery 4"
-                className="w-full aspect-square object-cover rounded-[16px] shadow-sm hover:scale-105 transition-transform"
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuCKgk1wQybl_06Hc1JgI1LOspF8rGZ6zwOJQw1xpYVMihrRnFf_IFNgFDft3pok665wLRJD7RzU0Hx9eiKCsTNRLTIkxFnfDijgW5P56BfWh-y8Gobh55lSMMSCpadTeWp6AP0d8BYymr2iuNCPKC3h3YvuW0I9DKZ0TO_4vD92PTa2QwGqYnGX1nea9XwKz2RJEmRWy-fnErkMiObjKEbqp5VbEM1-cGilWitY17ilIKVN8DfP_Atse69vukkdPgJrnIrM3UjUxC7g"
-              />
+              <button
+                onClick={() => {
+                  setExploreInitialTab('galeri');
+                  setActiveNav('explore');
+                  setCurrentView('explore');
+                }}
+                className="overflow-hidden rounded-[16px] cursor-pointer"
+              >
+                <img
+                  alt="Gallery 1"
+                  className="w-full aspect-square object-cover rounded-[16px] shadow-sm hover:scale-105 transition-transform"
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuC7qMSJdMXqdlx2DS-QcXA6LU2i_R1MSOfAYAYOeyI2kIp9QE6DDeIXTFmsOmG7ACgKvksS4gFV-xEvvkWafBmT47cCran0KW65lxxInLNamOXOvhZgCbU9IW1j8MSHom7befLmfCty_3DPUh8m_E1hqsgsoSr_GDER7x9W6TkzB-n4hVxxNltNoYeAjTpreqPDiuTpVToF0gIKmpsEUDthRWEVV_uRQMhL4xh-VqiJV7Dzc45sFTnAXq6sZI9Z6f66H1qXPyeAIzsv"
+                />
+              </button>
+              <button
+                onClick={() => {
+                  setExploreInitialTab('galeri');
+                  setActiveNav('explore');
+                  setCurrentView('explore');
+                }}
+                className="overflow-hidden rounded-[16px] cursor-pointer"
+              >
+                <img
+                  alt="Gallery 2"
+                  className="w-full aspect-square object-cover rounded-[16px] shadow-sm hover:scale-105 transition-transform"
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuCmq45Viuq3yJockszGsGZ94LsQD007r0SBv7C1mgVVEBwm5yKkR5kS2YkZKvFE_nz2_QJEEZdYRRlqUzjMlbb40ocANC7hP7YFxb7OkiHr9d40kkCoDVILZppAzrOxmAGKdjGBWdWyIGYG26Qq-9U2tQ7_C8e-Ff9bpxderu1gLUVwUquec-9sbpH3DszoRRA_Ocd2IVJb-mVbbArvo-G3qkjSo5iWMuMffgcGGhX69sl6YDCyBAXv5MyImUY38957ruBMuhaPJ3sa"
+                />
+              </button>
+              <button
+                onClick={() => {
+                  setExploreInitialTab('galeri');
+                  setActiveNav('explore');
+                  setCurrentView('explore');
+                }}
+                className="overflow-hidden rounded-[16px] cursor-pointer"
+              >
+                <img
+                  alt="Gallery 3"
+                  className="w-full aspect-square object-cover rounded-[16px] shadow-sm hover:scale-105 transition-transform"
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuBu0YTCuTjScQVeCbT3Ymw4P2yHfcfnSsxBYQM8I41PTPIht9ruG0553HfPM_NljSjUZLSWjrRs6HqNfnEZqik_9mB58l76bGR02Zm8P7k97HY6STTud_2YtFtEJRS6qF6G4lHlVutpk4iLZ2erwH_iodIWmmLX3VPy4mlXJ_QRBGaT311j0G3nr0uR_AAbKEW7wjZSIRuPERUI8P7sIjLbIzaH5xDgZPYb7Q-iIl6Rssir8F4lptiyGxGQ6BUgmooJOX8kMQwc3Yuo"
+                />
+              </button>
+              <button
+                onClick={() => {
+                  setExploreInitialTab('galeri');
+                  setActiveNav('explore');
+                  setCurrentView('explore');
+                }}
+                className="overflow-hidden rounded-[16px] cursor-pointer"
+              >
+                <img
+                  alt="Gallery 4"
+                  className="w-full aspect-square object-cover rounded-[16px] shadow-sm hover:scale-105 transition-transform"
+                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuCKgk1wQybl_06Hc1JgI1LOspF8rGZ6zwOJQw1xpYVMihrRnFf_IFNgFDft3pok665wLRJD7RzU0Hx9eiKCsTNRLTIkxFnfDijgW5P56BfWh-y8Gobh55lSMMSCpadTeWp6AP0d8BYymr2iuNCPKC3h3YvuW0I9DKZ0TO_4vD92PTa2QwGqYnGX1nea9XwKz2RJEmRWy-fnErkMiObjKEbqp5VbEM1-cGilWitY17ilIKVN8DfP_Atse69vukkdPgJrnIrM3UjUxC7g"
+                />
+              </button>
             </div>
             <button
               onClick={() => {
@@ -779,6 +977,7 @@ export default function App() {
           animation: ripple 3s ease-in-out infinite;
         }
       `}</style>
-    </div>
+      </div>
+    </ErrorBoundary>
   );
 }
