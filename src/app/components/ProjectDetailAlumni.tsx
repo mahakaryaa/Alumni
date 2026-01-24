@@ -25,6 +25,13 @@ export function ProjectDetailAlumni({
   // Project membership state - true jika user sudah diterima PIC ke project
   const [isProjectMember, setIsProjectMember] = useState(false);
   
+  // Join project application states
+  const [showJoinModal, setShowJoinModal] = useState(false);
+  const [applicationStatus, setApplicationStatus] = useState<'none' | 'pending' | 'approved'>('none');
+  const [commitmentDuration, setCommitmentDuration] = useState('1-month');
+  const [customDuration, setCustomDuration] = useState('');
+  const [joinReason, setJoinReason] = useState('');
+  
   const [activeTab, setActiveTab] = useState<'overview' | 'progress' | 'members' | 'discussion' | 'wallet'>(initialTab);
   const [showSearch, setShowSearch] = useState(false);
   const [message, setMessage] = useState('');
@@ -58,6 +65,36 @@ export function ProjectDetailAlumni({
       setHasVoted(true);
       setShowVotingModal(false);
     }
+  };
+
+  const handleJoinSubmit = () => {
+    if (!joinReason.trim()) {
+      toast.error('Alasan bergabung harus diisi');
+      return;
+    }
+    if (commitmentDuration === 'custom' && !customDuration.trim()) {
+      toast.error('Mohon isi durasi komitmen custom');
+      return;
+    }
+    
+    // Submit application
+    setApplicationStatus('pending');
+    setShowJoinModal(false);
+    toast.success('Pengajuan berhasil dikirim!', {
+      description: 'Menunggu persetujuan dari PIC project',
+      duration: 4000,
+    });
+  };
+
+  const handleApproveApplication = () => {
+    // Simulate PIC approval
+    setApplicationStatus('approved');
+    setIsProjectMember(true);
+    setActiveTab('discussion');
+    toast.success('Selamat! Anda diterima di project ini', {
+      description: 'Akses penuh ke Diskusi dan Wallet sudah tersedia',
+      duration: 4000,
+    });
   };
 
   // All transactions data
@@ -1530,21 +1567,178 @@ export function ProjectDetailAlumni({
       {!isProjectMember && (
         <div className="fixed bottom-0 left-0 right-0 lg:left-64 bg-white border-t border-[#E5E7EB] px-4 md:px-6 lg:px-8 py-4 z-40 shadow-[0_-4px_12px_rgba(0,0,0,0.08)]">
           <div className="max-w-4xl mx-auto">
-            <button 
-              onClick={() => {
-                // Simulate PIC accepting user to project
-                setIsProjectMember(true);
-                setActiveTab('discussion');
-                toast.success('Selamat! Anda berhasil bergabung dengan project ini', {
-                  description: 'Akses penuh ke Diskusi dan Wallet sudah tersedia',
-                  duration: 4000,
-                });
-              }}
-              className="w-full flex items-center justify-center gap-3 rounded-xl h-14 bg-gradient-to-r from-[#243D68] to-[#30518B] text-white text-base font-bold leading-normal tracking-widest shadow-[6px_6px_0px_0px_rgba(250,192,110,1)] hover:shadow-[8px_8px_0px_0px_rgba(250,192,110,1)] active:shadow-none active:translate-x-1 active:translate-y-1 transition-all uppercase"
-            >
-              <span className="material-symbols-outlined text-2xl">group_add</span>
-              <span>Join Project</span>
-            </button>
+            {applicationStatus === 'none' ? (
+              <button 
+                onClick={() => setShowJoinModal(true)}
+                className="w-full flex items-center justify-center gap-3 rounded-xl h-14 bg-gradient-to-r from-[#243D68] to-[#30518B] text-white text-base font-bold leading-normal tracking-widest shadow-[6px_6px_0px_0px_rgba(250,192,110,1)] hover:shadow-[8px_8px_0px_0px_rgba(250,192,110,1)] active:shadow-none active:translate-x-1 active:translate-y-1 transition-all uppercase"
+              >
+                <span className="material-symbols-outlined text-2xl">group_add</span>
+                <span>Join Project</span>
+              </button>
+            ) : (
+              <div className="flex items-center gap-3">
+                <div className="flex-1 flex items-center gap-3 px-4 py-3 bg-[#FFF9F0] border-2 border-[#FAC06E] rounded-xl">
+                  <div className="w-10 h-10 bg-[#FAC06E] rounded-full flex items-center justify-center flex-shrink-0">
+                    <span className="material-symbols-outlined text-[#243D68] text-xl">pending</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-bold text-[#243D68]">Pengajuan Tertunda</p>
+                    <p className="text-xs text-[#6B7280]">Menunggu persetujuan dari PIC</p>
+                  </div>
+                </div>
+                {/* Debug button - simulate PIC approval (remove in production) */}
+                <button
+                  onClick={handleApproveApplication}
+                  className="px-4 py-3 bg-green-600 hover:bg-green-700 text-white rounded-xl font-semibold text-sm transition-colors whitespace-nowrap"
+                  title="Simulasi: Approve oleh PIC"
+                >
+                  ✓ Approve
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Modal: Join Project Form */}
+      {showJoinModal && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setShowJoinModal(false)}>
+          <div className="bg-white rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <div className="sticky top-0 bg-white border-b border-[#E5E7EB] p-5 flex items-center justify-between z-10 rounded-t-2xl">
+              <div>
+                <h3 className="text-lg font-bold text-[#0E1B33]">Ajukan Bergabung</h3>
+                <p className="text-xs text-[#6B7280] mt-1">Isi form komitmen untuk bergabung dengan project</p>
+              </div>
+              <button onClick={() => setShowJoinModal(false)} className="p-1 hover:bg-[#F8F9FA] rounded-lg transition-colors">
+                <span className="material-symbols-outlined text-[#6B7280]">close</span>
+              </button>
+            </div>
+            
+            <div className="p-5 space-y-5">
+              {/* Commitment Duration */}
+              <div>
+                <label className="block text-sm font-bold text-[#0E1B33] mb-3">
+                  Durasi Komitmen <span className="text-red-500">*</span>
+                </label>
+                <div className="space-y-2">
+                  <label className="flex items-center gap-3 p-3 border border-[#E5E7EB] rounded-xl hover:bg-[#F8F9FA] cursor-pointer transition-colors">
+                    <input
+                      type="radio"
+                      name="duration"
+                      value="1-month"
+                      checked={commitmentDuration === '1-month'}
+                      onChange={(e) => setCommitmentDuration(e.target.value)}
+                      className="w-4 h-4 text-[#243D68] focus:ring-[#243D68]"
+                    />
+                    <span className="text-sm font-medium text-[#0E1B33]">1 Bulan</span>
+                  </label>
+                  
+                  <label className="flex items-center gap-3 p-3 border border-[#E5E7EB] rounded-xl hover:bg-[#F8F9FA] cursor-pointer transition-colors">
+                    <input
+                      type="radio"
+                      name="duration"
+                      value="4-months"
+                      checked={commitmentDuration === '4-months'}
+                      onChange={(e) => setCommitmentDuration(e.target.value)}
+                      className="w-4 h-4 text-[#243D68] focus:ring-[#243D68]"
+                    />
+                    <span className="text-sm font-medium text-[#0E1B33]">4 Bulan</span>
+                  </label>
+                  
+                  <label className="flex items-center gap-3 p-3 border border-[#E5E7EB] rounded-xl hover:bg-[#F8F9FA] cursor-pointer transition-colors">
+                    <input
+                      type="radio"
+                      name="duration"
+                      value="1-year"
+                      checked={commitmentDuration === '1-year'}
+                      onChange={(e) => setCommitmentDuration(e.target.value)}
+                      className="w-4 h-4 text-[#243D68] focus:ring-[#243D68]"
+                    />
+                    <span className="text-sm font-medium text-[#0E1B33]">1 Tahun</span>
+                  </label>
+                  
+                  <label className="flex items-center gap-3 p-3 border border-[#E5E7EB] rounded-xl hover:bg-[#F8F9FA] cursor-pointer transition-colors">
+                    <input
+                      type="radio"
+                      name="duration"
+                      value="until-complete"
+                      checked={commitmentDuration === 'until-complete'}
+                      onChange={(e) => setCommitmentDuration(e.target.value)}
+                      className="w-4 h-4 text-[#243D68] focus:ring-[#243D68]"
+                    />
+                    <span className="text-sm font-medium text-[#0E1B33]">Sampai Project Selesai</span>
+                  </label>
+                  
+                  <label className="flex items-center gap-3 p-3 border border-[#E5E7EB] rounded-xl hover:bg-[#F8F9FA] cursor-pointer transition-colors">
+                    <input
+                      type="radio"
+                      name="duration"
+                      value="custom"
+                      checked={commitmentDuration === 'custom'}
+                      onChange={(e) => setCommitmentDuration(e.target.value)}
+                      className="w-4 h-4 text-[#243D68] focus:ring-[#243D68]"
+                    />
+                    <span className="text-sm font-medium text-[#0E1B33]">Custom</span>
+                  </label>
+                  
+                  {commitmentDuration === 'custom' && (
+                    <input
+                      type="text"
+                      value={customDuration}
+                      onChange={(e) => setCustomDuration(e.target.value)}
+                      placeholder="Contoh: 6 bulan, 2 tahun, dll"
+                      className="w-full px-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#243D68]/20 focus:border-[#243D68] text-sm ml-7"
+                    />
+                  )}
+                </div>
+              </div>
+
+              {/* Reason to Join */}
+              <div>
+                <label className="block text-sm font-bold text-[#0E1B33] mb-3">
+                  Alasan Ingin Bergabung <span className="text-red-500">*</span>
+                </label>
+                <textarea
+                  value={joinReason}
+                  onChange={(e) => setJoinReason(e.target.value)}
+                  placeholder="Jelaskan mengapa Anda tertarik bergabung dengan project ini, skill yang bisa Anda kontribusikan, dan ekspektasi Anda..."
+                  rows={5}
+                  className="w-full px-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#243D68]/20 focus:border-[#243D68] text-sm resize-none"
+                />
+                <p className="text-xs text-[#6B7280] mt-2">
+                  Minimal 50 karakter. Jelaskan dengan detail untuk meningkatkan peluang diterima.
+                </p>
+              </div>
+
+              {/* Info Box */}
+              <div className="bg-[#FFF9F0] border border-[#FAC06E]/30 rounded-xl p-4">
+                <div className="flex gap-3">
+                  <span className="material-symbols-outlined text-[#FAC06E] flex-shrink-0">info</span>
+                  <div>
+                    <p className="text-xs font-semibold text-[#243D68] mb-1">Catatan Penting</p>
+                    <p className="text-xs text-[#6B7280] leading-relaxed">
+                      Pengajuan Anda akan direview oleh PIC project. Setelah disetujui, Anda akan mendapatkan akses penuh ke fitur Diskusi dan Wallet untuk berkolaborasi dengan tim.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-3 pt-2">
+                <button
+                  onClick={() => setShowJoinModal(false)}
+                  className="flex-1 px-4 py-3 border border-[#E5E7EB] text-[#6B7280] rounded-xl font-semibold hover:bg-[#F8F9FA] transition-colors"
+                >
+                  Batal
+                </button>
+                <button
+                  onClick={handleJoinSubmit}
+                  className="flex-1 px-4 py-3 bg-[#243D68] text-white rounded-xl font-semibold hover:bg-[#1a2d4d] transition-colors"
+                >
+                  Kirim Pengajuan
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
