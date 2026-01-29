@@ -10,8 +10,8 @@ export function ProjectDetail({ onBack }: ProjectDetailProps) {
   const [showDonation, setShowDonation] = useState(false);
 
   // Project info for donation
-  const projectTitle = "Renovasi Masjid Al-Ikhlas";
-  const projectCategory = "Pembangunan Masjid";
+  const projectTitle = "Bantuan Pangan Gaza";
+  const projectCategory = "Kemanusiaan";
 
   if (showDonation) {
     return (
@@ -128,14 +128,14 @@ export function ProjectDetail({ onBack }: ProjectDetailProps) {
           {/* Title, Tags & Project Lead */}
           <div className="px-6 md:px-8 pb-4">
             <h1 className="text-[#333333] tracking-normal text-2xl md:text-4xl font-['Archivo_Black'] leading-tight mb-3 uppercase">
-              Pengembangan Aplikasi IKA UB
+              Bantuan Pangan Gaza
             </h1>
             <div className="flex gap-2 mb-4">
               <div className="flex h-7 shrink-0 items-center justify-center gap-x-2 rounded-full bg-[#243D68]/10 px-3 border border-[#243D68]/20">
-                <p className="text-[#243D68] text-xs font-semibold leading-normal">Teknologi</p>
+                <p className="text-[#243D68] text-xs font-semibold leading-normal">Kemanusiaan</p>
               </div>
               <div className="flex h-7 shrink-0 items-center justify-center gap-x-2 rounded-full bg-[#E8F5E9] px-3 border border-[#4CAF50]/20">
-                <p className="text-[#4CAF50] text-xs font-semibold leading-normal">Sosial</p>
+                <p className="text-[#4CAF50] text-xs font-semibold leading-normal">Mendesak</p>
               </div>
             </div>
 
@@ -146,12 +146,12 @@ export function ProjectDetail({ onBack }: ProjectDetailProps) {
                   className="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-10 w-10"
                   style={{
                     backgroundImage:
-                      'url("https://lh3.googleusercontent.com/aida-public/AB6AXuCdGdNRPdJTq7rYpI57MpyJAbrSzME4063Cv_eMCLbsbiX9dr1pAWJ-x2jtf9FUGMvNLmaD7OnFNquRX_2qWE9w_g_Cao9dkoNjDXClNwSVxd0KVd1quE2fKWPIUyyQa8e7YS-sU5n7-Qujeartl5LnjAc8otjPS2CPInJpxfiKdxwgGHevu3k6Ae2UZ5bS98LmB3QZUWRyZsx8xo3-eL_WkfzdY3Ar5UJkj5RMf-jP94L3kJbYozRZnMr3F0byq8Dj6iSBjDygsbaI")',
+                      'url("https://images.unsplash.com/photo-1767780441166-3ffeecced031?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtYW4lMjBtdXNsaW0lMjBjb21tdW5pdHklMjBsZWFkZXJ8ZW58MXx8fHwxNzY5NjUyMTMwfDA&ixlib=rb-4.1.0&q=80&w=1080")',
                   }}
                 ></div>
                 <div>
                   <p className="text-[#6B7280] text-xs font-normal">Project-in-Charge</p>
-                  <p className="text-[#333333] text-sm font-semibold leading-normal">Budi Hartono</p>
+                  <p className="text-[#333333] text-sm font-semibold leading-normal">Ahmad Zulfikar</p>
                 </div>
               </div>
             </div>
@@ -199,9 +199,9 @@ export function ProjectDetail({ onBack }: ProjectDetailProps) {
                       Deskripsi Proyek
                     </h3>
                     <ul className="list-disc list-inside space-y-2 text-[#6B7280] text-sm leading-relaxed">
-                      <li>Membangun aplikasi mobile untuk Ikatan Alumni Universitas Brawijaya (IKA UB).</li>
-                      <li>Memperkuat jaringan dan memfasilitasi kolaborasi antar alumni.</li>
-                      <li>Menyediakan platform informasi terpusat.</li>
+                      <li>Menyalurkan paket sembako untuk 1000 keluarga terdampak di Gaza.</li>
+                      <li>Menyediakan makanan bergizi bagi anak-anak dan keluarga yang membutuhkan.</li>
+                      <li>Koordinasi dengan mitra lokal untuk distribusi yang aman dan efektif.</li>
                     </ul>
                   </div>
                   <div className="bg-[#F8F9FA] rounded-xl p-5 border border-[#E5E7EB]">
@@ -214,13 +214,13 @@ export function ProjectDetail({ onBack }: ProjectDetailProps) {
                         <span className="material-symbols-outlined text-[#4CAF50] text-lg mt-0.5">
                           check_circle
                         </span>
-                        <span>Meningkatkan interaksi dan kolaborasi antar alumni.</span>
+                        <span>Meningkatkan akses masyarakat Gaza ke pangan.</span>
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="material-symbols-outlined text-[#4CAF50] text-lg mt-0.5">
                           check_circle
                         </span>
-                        <span>Menyediakan pusat informasi karir dan peluang bisnis.</span>
+                        <span>Menyediakan dukungan logistik dan distribusi pangan.</span>
                       </li>
                       <li className="flex items-start gap-2">
                         <span className="material-symbols-outlined text-[#4CAF50] text-lg mt-0.5">

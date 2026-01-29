@@ -222,8 +222,8 @@ export default function App() {
         setCurrentView('home');
         setActiveNav('home');
       }}
-      projectTitle="Pengembangan Aplikasi AlumniConnect"
-      projectCategory="Pendidikan"
+      projectTitle="Rekonstruksi Masjid Al-Aqsa"
+      projectCategory="Pembangunan"
       onNavigateHome={() => {
         setCurrentView('home');
         setActiveNav('home');
@@ -406,11 +406,11 @@ export default function App() {
                 </div>
                 
                 <h1 className="text-4xl lg:text-6xl font-['Archivo_Black'] text-[#0E1B33] leading-[0.95] uppercase tracking-tighter">
-                  Banyak Proyek Seru Menanti Peranmu!
+                  Bersama Berjuang Untuk Al Aqsa
                 </h1>
                 
                 <p className="text-[#61728F] text-base lg:text-lg leading-relaxed font-light">
-                  Bergabung dengan ribuan alumni untuk berkolaborasi dalam proyek-proyek sosial yang berdampak nyata. Wujudkan perubahan bersama komunitas yang peduli.
+                  Bergabung dengan ribuan alumni untuk mendukung saudara-saudara kita di Palestina. Mari bersatu dalam aksi nyata untuk Baitul Maqdis dan rakyat Palestina.
                 </p>
 
                 {/* CTA Buttons */}
@@ -503,21 +503,21 @@ export default function App() {
               <div className="snap-center shrink-0 w-[300px] lg:w-[360px] bg-white border border-[#D6DCE8] rounded-[16px] p-4 shadow-[0_8px_24px_rgba(22,36,63,0.08)] hover:shadow-lg transition-all duration-300 group cursor-pointer">
                 <div className="relative mb-4 overflow-hidden rounded-[12px]">
                   <img
-                    alt="Forest canopy"
+                    alt="Bantuan Pangan Gaza"
                     className="w-full aspect-video object-cover group-hover:scale-105 transition-transform duration-500"
-                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuBRYpHU5_mzjIzojDsJXKskEQqs0iWqZ8uCBK9tVeBMWMJA1VCWDPCdaGp8DQIqjaH9o1K2olYJhVqASi7bmEeyaxD0vuWW_dzu11-mun2QX7tlY-_eMj_rwB3PJat3vibLqwLQSbzUG3WANVHciRW3DBS_wMtqxliDA8IvuwMPZ-hcivIlt-fqi419jMeat7ehrxmDFku4oLbEm-TzC37khqhp38IJmvgwS6pzUKK2Yj3cI_P26VSaBOlNNHMqy39EjJ9yymGYqxmF"
+                    src="https://images.unsplash.com/photo-1637826397913-68af81f4d14a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwYWxlc3RpbmUlMjBmb29kJTIwYWlkJTIwaHVtYW5pdGFyaWFufGVufDF8fHx8MTc2OTY1MjEyN3ww&ixlib=rb-4.1.0&q=80&w=1080"
                   />
                   <span className="absolute top-3 right-3 bg-[#C9F7ED] text-[rgb(10,71,16)] text-xs font-bold px-2.5 py-1 rounded-full backdrop-blur-sm">
                     Open Volunteer
                   </span>
                 </div>
                 <div className="space-y-3">
-                  <span className="text-[#243D68] text-xs font-semibold">#GerakanHijau</span>
+                  <span className="text-[#243D68] text-xs font-semibold">#BantuanKemanusiaan</span>
                   <h3 className="text-[18px] font-semibold text-[#0E1B33] leading-snug">
-                    Penghijauan Hutan Kota
+                    Bantuan Pangan Gaza
                   </h3>
                   <p className="text-[#61728F] text-sm line-clamp-2">
-                    Yuk, tanam 1000 pohon untuk Baitul Maqdis yang lebih hijau &amp; sejuk!
+                    Mari bantu saudara kita di Gaza dengan menyalurkan paket sembako untuk 1000 keluarga!
                   </p>
                   <button
                     onClick={() => {
@@ -533,21 +533,21 @@ export default function App() {
               <div className="snap-center shrink-0 w-[300px] lg:w-[360px] bg-white border border-[#D6DCE8] rounded-[16px] p-4 shadow-[0_8px_24px_rgba(22,36,63,0.08)] hover:shadow-lg transition-all duration-300 group cursor-pointer">
                 <div className="relative mb-4 overflow-hidden rounded-[12px]">
                   <img
-                    alt="Cityscape"
+                    alt="Sekolah Online Anak Gaza"
                     className="w-full aspect-video object-cover group-hover:scale-105 transition-transform duration-500"
-                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuCXrtAmuCDhJLVsxlRXcOX-CuxGFCMPw7pgmsdmigycGTWx0hMdXaOqt173aeVv-awzR0v5dz5qS5go0tpju_4kbUXCg7VpqRoSIx5WaRljqR6XNBcfqFm_KCbkZLY9wVug7gBXBu41Vxbk29vhkCcXKzEHH6B1k-tBC14lhqL36bvXb5RL4ClI_ZI6g_7uMQaDemdAshejBW5bJmIDZUxsx7YBOAdqqVbDKuQ7Q9n0pkooIxkLEbTVROc_88agGRPd7FUJNn4wC3M9"
+                    src="https://images.unsplash.com/photo-1661860890799-ae6cac7c71b0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjaGlsZHJlbiUyMGxlYXJuaW5nJTIwYXJhYmljJTIwZWR1Y2F0aW9ufGVufDF8fHx8MTc2OTY1MjEyN3ww&ixlib=rb-4.1.0&q=80&w=1080"
                   />
                   <span className="absolute top-3 right-3 bg-[#C9F7ED] text-[#047857] text-xs font-bold px-2.5 py-1 rounded-full backdrop-blur-sm">
                     Open Volunteer
                   </span>
                 </div>
                 <div className="space-y-3">
-                  <span className="text-[#243D68] text-xs font-semibold">#PendidikanDigital</span>
+                  <span className="text-[#243D68] text-xs font-semibold">#PendidikanPalestina</span>
                   <h3 className="text-[18px] font-semibold text-[#0E1B33] leading-snug">
-                    Kelas Coding Gratis
+                    Sekolah Online Anak Gaza
                   </h3>
                   <p className="text-[#61728F] text-sm line-clamp-2">
-                    Buka pintu masa depan digital untuk adik-adik di area Baitul Maqdis.
+                    Buka pintu masa depan pendidikan untuk anak-anak Gaza yang terdampak konflik.
                   </p>
                   <button
                     onClick={() => {
@@ -639,9 +639,9 @@ export default function App() {
           {/* Alumni Stories */}
           <section>
             <div className="mb-6">
-              <h2 className="text-[20px] font-semibold text-[#0E1B33]">Kisah Alumni Inspiratif</h2>
+              <h2 className="text-[20px] font-semibold text-[#0E1B33]">Kisah Inspiratif Pejuang Al Aqsa</h2>
               <p className="text-[#61728F] mt-1 text-sm">
-                Cerita nyata dari para alumni yang bikin semangat!
+                Kisah nyata alumni yang berdedikasi untuk Baitul Maqdis dan Palestina!
               </p>
             </div>
             <div className="flex overflow-x-auto gap-5 pb-4 hide-scrollbar -mx-6 px-6 lg:mx-0 lg:px-0 snap-x">
@@ -652,12 +652,12 @@ export default function App() {
                 <img
                   alt="Story 1"
                   className="w-full aspect-[4/5] object-cover rounded-[12px] mb-3"
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuDp1xcCWQ87H_5OBbXVevwR9LJkqV2b78wfeFTv31qi2jjKZOW6EiGClJlpgxva_8WR1hjsXphYnvi0S7YJ98K18JkkXBkvcWXYYVKby5CKq6wRIBzlH920qBrcEgEMtHSW9ZhsMvrhaBBp3o5PHNGdm349gMBFrn2hEiyYB8LSm7AvIs95PyH6rMjk3yQfcuqZbkgAzhsubpaLaxuHCZdbbr1ZSTQBoxZ-ZqzQaz7Fn4NBeNkvR5BciVepM7-CExKeIlLVdIYZfx9_"
+                  src="https://images.unsplash.com/photo-1675155111754-c25cd6879770?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3b21hbiUyMHdlYXJpbmclMjBoaWphYiUyMGVkdWNhdGlvbnxlbnwxfHx8fDE3Njk2NTIxMjl8MA&ixlib=rb-4.1.0&q=80&w=1080"
                 />
                 <h3 className="font-semibold text-[#0E1B33] text-sm leading-snug">
-                  Bagaimana Rina memulai Program Mentorship-nya.
+                  Rina & Virtual Tour Sejarah Masjid Al-Aqsa
                 </h3>
-                <span className="block mt-2 text-xs text-[#61728F] font-medium">#InisiatifPendidikan</span>
+                <span className="block mt-2 text-xs text-[#61728F] font-medium">#EdukasiAlAqsa</span>
               </div>
               <div
                 onClick={() => setCurrentView('alumni-story')}
@@ -666,12 +666,12 @@ export default function App() {
                 <img
                   alt="Story 2"
                   className="w-full aspect-[4/5] object-cover rounded-[12px] mb-3"
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuCXrtAmuCDhJLVsxlRXcOX-CuxGFCMPw7pgmsdmigycGTWx0hMdXaOqt173aeVv-awzR0v5dz5qS5go0tpju_4kbUXCg7VpqRoSIx5WaRljqR6XNBcfqFm_KCbkZLY9wVug7gBXBu41Vxbk29vhkCcXKzEHH6B1k-tBC14lhqL36bvXb5RL4ClI_ZI6g_7uMQaDemdAshejBW5bJmIDZUxsx7YBOAdqqVbDKuQ7Q9n0pkooIxkLEbTVROc_88agGRPd7FUJNn4wC3M9"
+                  src="https://images.unsplash.com/photo-1767780441166-3ffeecced031?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtYW4lMjBtdXNsaW0lMjBjb21tdW5pdHklMjBsZWFkZXJ8ZW58MXx8fHwxNzY5NjUyMTMwfDA&ixlib=rb-4.1.0&q=80&w=1080"
                 />
                 <h3 className="font-semibold text-[#0E1B33] text-sm leading-snug">
-                  Budi &amp; Gerakan Tanam Mangrove Pesisir.
+                  Budi mengajar Bahasa Arab untuk Solidaritas Palestina
                 </h3>
-                <span className="block mt-2 text-xs text-[#61728F] font-medium">#LingkunganHidup</span>
+                <span className="block mt-2 text-xs text-[#61728F] font-medium">#BahasaArabAlQuds</span>
               </div>
               <div
                 onClick={() => setCurrentView('alumni-story')}
@@ -680,12 +680,12 @@ export default function App() {
                 <img
                   alt="Story 3"
                   className="w-full aspect-[4/5] object-cover rounded-[12px] mb-3"
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuDKRop9NrmHRgEBR-7u4vde2T5Wsxoxhq3QG6JPWpgU8YL1AMu7V-CT0DvpLf0NeskgC-FrvyFznUf50ti5A6PXABnLZx7FvYxp-3ZjSCjsAnpnf5E1MqxbllblFtgKcnT5CkOKI2duc8zYoGDSjrH5Ro9k1pVqkXZF880dpjdzoNUYczEjeviF8thY6maOgKnDuQ6Tkg9ypotxASqrxkItFmYxsubRRzzUiL_0xgSb28874cprjCczZsUK_7Hl_aokOvNLgOSvPyEi"
+                  src="https://images.unsplash.com/photo-1671145655294-5a269b8a4aff?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3b21hbiUyMG11c2xpbSUyMGFjdGl2aXN0fGVufDF8fHx8MTc2OTY1MjEzMHww&ixlib=rb-4.1.0&q=80&w=1080"
                 />
                 <h3 className="font-semibold text-[#0E1B33] text-sm leading-snug">
-                  Siti membangun Startup sosial untuk UMKM.
+                  Siti & Kampanye Digital Free Palestine
                 </h3>
-                <span className="block mt-2 text-xs text-[#61728F] font-medium">#KewirausahaanSosial</span>
+                <span className="block mt-2 text-xs text-[#61728F] font-medium">#FreePalestine</span>
               </div>
               <div
                 onClick={() => setCurrentView('alumni-story')}
@@ -694,12 +694,12 @@ export default function App() {
                 <img
                   alt="Story 4"
                   className="w-full aspect-[4/5] object-cover rounded-[12px] mb-3"
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJgtInlQZz7_fHM1vticCT0Wzm08GHhq1rCo_wOwZToeJtOfY1hfqIR1PeNXtuyzYihXnSxR_U6o_lLIntKCP9ax7j7TwqI9K3p_WY8w7kRb5SrHbNBknDoDCg0jzEvMHkrxBTaQLw647zyEewhU5tvK9ylQM5s7dT8pVg2Jq8otGucIKsp64qM95ZTdygPvenC4MPhmu1weCQKjU7bKXOCW5yCReK-0qiiR76NC1eIkT3UQQfiSCcHNsHo6caIec_I9vxopBPQPtB"
+                  src="https://images.unsplash.com/photo-1659353885824-1199aeeebfc6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtdXNsaW0lMjBkb2N0b3IlMjBodW1hbml0YXJiYW58ZW58MXx8fHwxNzY5NjUyMTMxfDA&ixlib=rb-4.1.0&q=80&w=1080"
                 />
                 <h3 className="font-semibold text-[#0E1B33] text-sm leading-snug">
-                  Klinik Gratis Andi untuk warga desa terpencil.
+                  Andi menggalang Dana Medis untuk Korban Gaza
                 </h3>
-                <span className="block mt-2 text-xs text-[#61728F] font-medium">#KesehatanMasyarakat</span>
+                <span className="block mt-2 text-xs text-[#61728F] font-medium">#MedisGaza</span>
               </div>
             </div>
           </section>
@@ -719,7 +719,7 @@ export default function App() {
                 <img
                   alt="Cleanup"
                   className="w-24 h-24 rounded-[12px] object-cover shrink-0 group-hover:scale-105 transition-transform"
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuA67Er5Q8_pn9r701cSnYk9zgOdNOzX0VEjgD_TqxIyZ9V__by-HB8CPd4N6pwSv0bDYAHjumdkZ-0tbaXqtkBKBcrlpHwVZ9tIGL9t2o5BnzfcL9PbGUklLTiNCBOAC-CGMZonUs9e0nueYxBFDtLIltOa7Ybuod4Oc_ZGTJYVaJBHHMmJAWRf41-UV15jvlcdZCvwHEd_nEHetJBfEQi3xvJnY2Bjn1ytn_amaeIg4ys_8jjVlThsgPCjXpeRmgMg1RXW6_LgAn8w"
+                  src="https://images.unsplash.com/photo-1758204054488-51024ea2e94c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjbGVhbiUyMHdhdGVyJTIwaHVtYW5pdGFyaWFuJTIwYWlkfGVufDF8fHx8MTc2OTY1MjEyOXww&ixlib=rb-4.1.0&q=80&w=1080"
                 />
                 <div className="flex flex-col justify-center">
                   <div className="mb-1">
@@ -728,10 +728,10 @@ export default function App() {
                     </span>
                   </div>
                   <h3 className="text-[18px] font-semibold text-[#0E1B33] mb-1 group-hover:text-[#243D68] transition-colors">
-                    Bersih Pesisir Jakarta
+                    Bantuan Air Bersih Gaza
                   </h3>
                   <p className="text-sm text-[#61728F] line-clamp-2">
-                    Bergabung dalam aksi bersih pantai untuk menjaga ekosistem laut kita.
+                    Suplai air bersih untuk keluarga-keluarga di Gaza yang kesulitan akses air.
                   </p>
                 </div>
               </div>
@@ -746,7 +746,7 @@ export default function App() {
                 <img
                   alt="Mentoring"
                   className="w-24 h-24 rounded-[12px] object-cover shrink-0 group-hover:scale-105 transition-transform"
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuBEHQAb8XUyXwq0ho0L-6dxhaG1mbTTH2D0-j9DJqG0htuA3PmUCZHRmBLGa5Z5Xi7UbsO4nIgvvteNS0ZXNX4xEIQ_m5bPdJVJXIxTCzGmRJ-kDwx7JlP3OS8qDPpQGvioehoyW7p2CLDsMv16rpgF8L8-K1JYrHE9mWZceNRMWQnvy17AsjamqaTebRmFcQT7kj3_-E-qeHwf2boK6aAp0Xx6Ps9m77Izmm0xSuY_eHeZZW_I4kBc8zUuGro9LNyktmEdC66EEGVY"
+                  src="https://images.unsplash.com/photo-1643214410415-de1976ad74ff?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxvcnBoYW4lMjBjaGlsZHJlbiUyMGNhcmUlMjBzdXBwb3J0fGVufDF8fHx8MTc2OTY1MjEyOXww&ixlib=rb-4.1.0&q=80&w=1080"
                 />
                 <div className="flex flex-col justify-center">
                   <div className="mb-1">
@@ -755,10 +755,10 @@ export default function App() {
                     </span>
                   </div>
                   <h3 className="text-[18px] font-semibold text-[#0E1B33] mb-1 group-hover:text-[#243D68] transition-colors">
-                    Kelas Coding Gratis
+                    Rehabilitasi Yatim Palestina
                   </h3>
                   <p className="text-sm text-[#61728F] line-clamp-2">
-                    Membuka pintu masa depan digital untuk adik-adik di panti asuhan.
+                    Program pendampingan untuk anak-anak yatim Palestina yang kehilangan keluarga.
                   </p>
                 </div>
               </div>
@@ -792,7 +792,7 @@ export default function App() {
                 <img
                   alt="Gallery 1"
                   className="w-full aspect-square object-cover rounded-[16px] shadow-sm hover:scale-105 transition-transform"
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuC7qMSJdMXqdlx2DS-QcXA6LU2i_R1MSOfAYAYOeyI2kIp9QE6DDeIXTFmsOmG7ACgKvksS4gFV-xEvvkWafBmT47cCran0KW65lxxInLNamOXOvhZgCbU9IW1j8MSHom7befLmfCty_3DPUh8m_E1hqsgsoSr_GDER7x9W6TkzB-n4hVxxNltNoYeAjTpreqPDiuTpVToF0gIKmpsEUDthRWEVV_uRQMhL4xh-VqiJV7Dzc45sFTnAXq6sZI9Z6f66H1qXPyeAIzsv"
+                  src="https://images.unsplash.com/photo-1761862062324-e0b9dc024433?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxpc2xhbWljJTIwYXJjaGl0ZWN0dXJlJTIwZG9tZSUyMG1vc3F1ZXxlbnwxfHx8fDE3Njk2NTIxMzJ8MA&ixlib=rb-4.1.0&q=80&w=1080"
                 />
               </button>
               <button
@@ -806,7 +806,7 @@ export default function App() {
                 <img
                   alt="Gallery 2"
                   className="w-full aspect-square object-cover rounded-[16px] shadow-sm hover:scale-105 transition-transform"
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuCmq45Viuq3yJockszGsGZ94LsQD007r0SBv7C1mgVVEBwm5yKkR5kS2YkZKvFE_nz2_QJEEZdYRRlqUzjMlbb40ocANC7hP7YFxb7OkiHr9d40kkCoDVILZppAzrOxmAGKdjGBWdWyIGYG26Qq-9U2tQ7_C8e-Ff9bpxderu1gLUVwUquec-9sbpH3DszoRRA_Ocd2IVJb-mVbbArvo-G3qkjSo5iWMuMffgcGGhX69sl6YDCyBAXv5MyImUY38957ruBMuhaPJ3sa"
+                  src="https://images.unsplash.com/photo-1761542928838-86d8a44d5c8b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhcmFiaWMlMjBib29rcyUyMGxpYnJhcnklMjBlZHVjYXRpb258ZW58MXx8fHwxNzY5NjUyMTMxfDA&ixlib=rb-4.1.0&q=80&w=1080"
                 />
               </button>
               <button
@@ -820,7 +820,7 @@ export default function App() {
                 <img
                   alt="Gallery 3"
                   className="w-full aspect-square object-cover rounded-[16px] shadow-sm hover:scale-105 transition-transform"
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuBu0YTCuTjScQVeCbT3Ymw4P2yHfcfnSsxBYQM8I41PTPIht9ruG0553HfPM_NljSjUZLSWjrRs6HqNfnEZqik_9mB58l76bGR02Zm8P7k97HY6STTud_2YtFtEJRS6qF6G4lHlVutpk4iLZ2erwH_iodIWmmLX3VPy4mlXJ_QRBGaT311j0G3nr0uR_AAbKEW7wjZSIRuPERUI8P7sIjLbIzaH5xDgZPYb7Q-iIl6Rssir8F4lptiyGxGQ6BUgmooJOX8kMQwc3Yuo"
+                  src="https://images.unsplash.com/photo-1662104128135-7bd873b2befd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxpc2xhbWljJTIwYXJ0JTIwcGF0dGVybnxlbnwxfHx8fDE3Njk2NTIxMzJ8MA&ixlib=rb-4.1.0&q=80&w=1080"
                 />
               </button>
               <button
@@ -834,7 +834,7 @@ export default function App() {
                 <img
                   alt="Gallery 4"
                   className="w-full aspect-square object-cover rounded-[16px] shadow-sm hover:scale-105 transition-transform"
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuCKgk1wQybl_06Hc1JgI1LOspF8rGZ6zwOJQw1xpYVMihrRnFf_IFNgFDft3pok665wLRJD7RzU0Hx9eiKCsTNRLTIkxFnfDijgW5P56BfWh-y8Gobh55lSMMSCpadTeWp6AP0d8BYymr2iuNCPKC3h3YvuW0I9DKZ0TO_4vD92PTa2QwGqYnGX1nea9XwKz2RJEmRWy-fnErkMiObjKEbqp5VbEM1-cGilWitY17ilIKVN8DfP_Atse69vukkdPgJrnIrM3UjUxC7g"
+                  src="https://images.unsplash.com/photo-1760072986110-01cd779ddec4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtb3NxdWUlMjBwcmF5ZXIlMjBjb21tdW5pdHl8ZW58MXx8fHwxNzY5NjUyMTMxfDA&ixlib=rb-4.1.0&q=80&w=1080"
                 />
               </button>
             </div>
