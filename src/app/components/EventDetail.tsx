@@ -24,7 +24,7 @@ export function EventDetail({ onBack }: EventDetailProps) {
                 <span className="material-symbols-outlined text-[#2B4468] text-xl font-bold">mosque</span>
               </div>
               <span className="font-['Archivo_Black'] text-base uppercase tracking-tight text-[#2B4468]">
-                PROJEKKITA
+                ALMAQDISI PROJECT
               </span>
             </div>
           </div>
