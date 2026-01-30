@@ -30,6 +30,9 @@ export const PROJECT_STATUS = {
 export const USER_ROLES = {
   GUEST: 'guest',
   ALUMNI: 'alumni',
+  ADMIN_PIC: 'pic',
+  ADMIN_MODERATOR: 'moderator',
+  ADMIN_SUPERADMIN: 'superadmin',
 } as const;
 
 // Storage Keys

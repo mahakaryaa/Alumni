@@ -13,11 +13,13 @@ import { MessagePage } from '@/app/components/MessagePage';
 import { SettingsPage } from '@/app/components/SettingsPage';
 import { MessagesAlumni } from '@/app/components/MessagesAlumni';
 import { DonationPage } from '@/app/components/DonationPage';
+import { AdminLogin } from '@/app/components/admin/AdminLogin';
+import { AdminDashboard } from '@/app/components/admin/AdminDashboard';
 import heroImage from 'figma:asset/e58bcf57f4d8cba056148583d179c170bd719908.png';
 
 export default function App() {
   const [activeNav, setActiveNav] = useState('home');
-  const [currentView, setCurrentView] = useState<'home' | 'project-detail' | 'explore' | 'alumni-story' | 'login' | 'event-detail' | 'messages' | 'settings' | 'donation'>('home');
+  const [currentView, setCurrentView] = useState<'home' | 'project-detail' | 'explore' | 'alumni-story' | 'login' | 'event-detail' | 'messages' | 'settings' | 'donation' | 'admin-login' | 'admin-dashboard'>('home');
   const [exploreInitialTab, setExploreInitialTab] = useState<'open' | 'galeri'>('open');
   const [projectDetailInitialTab, setProjectDetailInitialTab] = useState<'overview' | 'progress' | 'members' | 'discussion' | 'wallet'>('overview');
   
@@ -244,6 +246,23 @@ export default function App() {
     />;
   }
 
+  if (currentView === 'admin-login') {
+    return <AdminLogin onBack={() => {
+      setCurrentView('home');
+      setActiveNav('home');
+    }} onLoginSuccess={() => {
+      setCurrentView('admin-dashboard');
+      setActiveNav('home');
+    }} />;
+  }
+
+  if (currentView === 'admin-dashboard') {
+    return <AdminDashboard onBack={() => {
+      setCurrentView('home');
+      setActiveNav('home');
+    }} />;
+  }
+
   return (
     <ErrorBoundary>
       <Toaster position="top-center" richColors closeButton />
@@ -338,6 +357,20 @@ export default function App() {
             </div>
           </nav>
           
+          {/* Admin Panel Button */}
+          <div className="px-5 pb-2">
+            <button
+              className="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all w-full text-[#FAC06E] hover:bg-white/5 border border-[#FAC06E]/30 hover:border-[#FAC06E]"
+              onClick={() => {
+                setCurrentView('admin-login');
+                setActiveNav('admin');
+              }}
+            >
+              <span className="material-symbols-outlined text-xl">admin_panel_settings</span>
+              <span className="tracking-wide text-sm font-semibold">Admin Panel</span>
+            </button>
+          </div>
+
           {/* Logout Button */}
           <div className="p-5 pb-6">
             <button
