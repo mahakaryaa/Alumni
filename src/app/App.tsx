@@ -15,11 +15,12 @@ import { MessagesAlumni } from '@/app/components/MessagesAlumni';
 import { DonationPage } from '@/app/components/DonationPage';
 import { AdminLogin } from '@/app/components/admin/AdminLogin';
 import { AdminDashboard } from '@/app/components/admin/AdminDashboard';
+import { AdminPanelRevised } from '@/app/components/admin-revised/AdminPanelRevised';
 import heroImage from 'figma:asset/e58bcf57f4d8cba056148583d179c170bd719908.png';
 
 export default function App() {
   const [activeNav, setActiveNav] = useState('home');
-  const [currentView, setCurrentView] = useState<'home' | 'project-detail' | 'explore' | 'alumni-story' | 'login' | 'event-detail' | 'messages' | 'settings' | 'donation' | 'admin-login' | 'admin-dashboard'>('home');
+  const [currentView, setCurrentView] = useState<'home' | 'project-detail' | 'explore' | 'alumni-story' | 'login' | 'event-detail' | 'messages' | 'settings' | 'donation' | 'admin-login' | 'admin-dashboard' | 'admin-panel-revised'>('home');
   const [exploreInitialTab, setExploreInitialTab] = useState<'open' | 'galeri'>('open');
   const [projectDetailInitialTab, setProjectDetailInitialTab] = useState<'overview' | 'progress' | 'members' | 'discussion' | 'wallet'>('overview');
   
@@ -31,6 +32,9 @@ export default function App() {
 
   // Notification count state
   const [notificationCount, setNotificationCount] = useState(3); // Mock data: 3 unread notifications
+
+  // Category filter state
+  const [activeCategory, setActiveCategory] = useState<'semua' | 'pendidikan' | 'lingkungan' | 'kesehatan'>('semua');
 
   // Logout handler
   const handleLogout = () => {
@@ -263,6 +267,13 @@ export default function App() {
     }} />;
   }
 
+  if (currentView === 'admin-panel-revised') {
+    return <AdminPanelRevised onBack={() => {
+      setCurrentView('home');
+      setActiveNav('home');
+    }} />;
+  }
+
   return (
     <ErrorBoundary>
       <Toaster position="top-center" richColors closeButton />
@@ -362,12 +373,12 @@ export default function App() {
             <button
               className="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all w-full text-[#FAC06E] hover:bg-white/5 border border-[#FAC06E]/30 hover:border-[#FAC06E]"
               onClick={() => {
-                setCurrentView('admin-login');
+                setCurrentView('admin-panel-revised');
                 setActiveNav('admin');
               }}
             >
               <span className="material-symbols-outlined text-xl">admin_panel_settings</span>
-              <span className="tracking-wide text-sm font-semibold">Admin Panel</span>
+              <span className="tracking-wide text-sm font-semibold">Admin Panel (NEW)</span>
             </button>
           </div>
 
@@ -501,16 +512,44 @@ export default function App() {
           {/* Categories */}
           <section>
             <div className="flex overflow-x-auto gap-3 pb-2 hide-scrollbar">
-              <button className="flex items-center gap-2 px-4 py-2 bg-[#243D68] text-white rounded-full text-sm font-semibold whitespace-nowrap shadow-md border border-[#243D68] transition-transform active:scale-95">
+              <button 
+                onClick={() => setActiveCategory('semua')}
+                className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap shadow-md transition-transform active:scale-95 ${
+                  activeCategory === 'semua'
+                    ? 'bg-[#243D68] text-white border border-[#243D68]'
+                    : 'bg-white border border-[#D6DCE8] text-[#61728F] hover:border-[#243D68] hover:text-[#243D68]'
+                }`}
+              >
                 <span className="material-symbols-outlined text-[20px]">star</span> Semua
               </button>
-              <button className="flex items-center gap-2 px-4 py-2 bg-white border border-[#D6DCE8] text-[#61728F] rounded-full text-sm font-medium whitespace-nowrap hover:border-[#243D68] hover:text-[#243D68] transition-colors active:scale-95">
+              <button 
+                onClick={() => setActiveCategory('pendidikan')}
+                className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all active:scale-95 ${
+                  activeCategory === 'pendidikan'
+                    ? 'bg-[#243D68] text-white border border-[#243D68] shadow-md'
+                    : 'bg-white border border-[#D6DCE8] text-[#61728F] hover:border-[#243D68] hover:text-[#243D68]'
+                }`}
+              >
                 <span className="material-symbols-outlined text-[20px]">school</span> Pendidikan
               </button>
-              <button className="flex items-center gap-2 px-4 py-2 bg-white border border-[#D6DCE8] text-[#61728F] rounded-full text-sm font-medium whitespace-nowrap hover:border-[#243D68] hover:text-[#243D68] transition-colors active:scale-95">
+              <button 
+                onClick={() => setActiveCategory('lingkungan')}
+                className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all active:scale-95 ${
+                  activeCategory === 'lingkungan'
+                    ? 'bg-[#243D68] text-white border border-[#243D68] shadow-md'
+                    : 'bg-white border border-[#D6DCE8] text-[#61728F] hover:border-[#243D68] hover:text-[#243D68]'
+                }`}
+              >
                 <span className="material-symbols-outlined text-[20px]">eco</span> Lingkungan
               </button>
-              <button className="flex items-center gap-2 px-4 py-2 bg-white border border-[#D6DCE8] text-[#61728F] rounded-full text-sm font-medium whitespace-nowrap hover:border-[#243D68] hover:text-[#243D68] transition-colors active:scale-95">
+              <button 
+                onClick={() => setActiveCategory('kesehatan')}
+                className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all active:scale-95 ${
+                  activeCategory === 'kesehatan'
+                    ? 'bg-[#243D68] text-white border border-[#243D68] shadow-md'
+                    : 'bg-white border border-[#D6DCE8] text-[#61728F] hover:border-[#243D68] hover:text-[#243D68]'
+                }`}
+              >
                 <span className="material-symbols-outlined text-[20px]">health_and_safety</span>{' '}
                 Kesehatan
               </button>
@@ -520,7 +559,12 @@ export default function App() {
           {/* Featured Projects */}
           <section>
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold text-[#0E1B33]">Explore Proyek</h2>
+              <h2 className="text-2xl font-bold text-[#0E1B33]">
+                {activeCategory === 'semua' && 'Explore Proyek'}
+                {activeCategory === 'pendidikan' && 'Proyek Pendidikan'}
+                {activeCategory === 'lingkungan' && 'Proyek Lingkungan'}
+                {activeCategory === 'kesehatan' && 'Proyek Kesehatan'}
+              </h2>
               <button 
                 onClick={() => {
                   setActiveNav('explore');
@@ -532,6 +576,23 @@ export default function App() {
                 Lihat Semua
               </button>
             </div>
+            
+            {/* Category Info Badge */}
+            {activeCategory !== 'semua' && (
+              <div className="mb-4 flex items-center justify-between p-3 bg-[#FAC06E]/10 border border-[#FAC06E]/30 rounded-lg animate-in fade-in duration-300">
+                <span className="text-sm text-[#0E1B33]">
+                  Menampilkan proyek kategori <span className="font-semibold capitalize">{activeCategory}</span>
+                </span>
+                <button 
+                  onClick={() => setActiveCategory('semua')}
+                  className="text-xs text-[#243D68] hover:underline font-semibold flex items-center gap-1"
+                >
+                  <span className="material-symbols-outlined text-sm">close</span>
+                  Reset
+                </button>
+              </div>
+            )}
+            
             <div className="flex overflow-x-auto gap-6 pb-4 hide-scrollbar -mx-6 px-6 lg:mx-0 lg:px-0 snap-x">
               <div className="snap-center shrink-0 w-[300px] lg:w-[360px] bg-white border border-[#D6DCE8] rounded-[16px] p-4 shadow-[0_8px_24px_rgba(22,36,63,0.08)] hover:shadow-lg transition-all duration-300 group cursor-pointer">
                 <div className="relative mb-4 overflow-hidden rounded-[12px]">
