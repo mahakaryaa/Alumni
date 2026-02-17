@@ -16,6 +16,56 @@ export function AdminLoginRevised({ onLoginSuccess, onBack }: AdminLoginRevisedP
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [selectedRole, setSelectedRole] = useState<'pic' | 'moderator' | 'superadmin' | null>(null);
+
+  const demoCredentials = [
+    {
+      role: 'pic' as const,
+      label: 'PIC (Project In Charge)',
+      email: 'fatimah.azzahra@almaqdisi.org',
+      password: 'pic123',
+      description: 'Mengelola operasional project',
+      icon: 'engineering'
+    },
+    {
+      role: 'moderator' as const,
+      label: 'Moderator',
+      email: 'siti.nurhaliza@almaqdisi.org',
+      password: 'moderator123',
+      description: 'Moderasi konten dan diskusi',
+      icon: 'shield_person'
+    },
+    {
+      role: 'superadmin' as const,
+      label: 'Superadmin',
+      email: 'ahmad.zaki@almaqdisi.org',
+      password: 'superadmin123',
+      description: 'Akses penuh ke sistem',
+      icon: 'admin_panel_settings'
+    }
+  ];
+
+  const handleRoleSelect = (role: 'pic' | 'moderator' | 'superadmin') => {
+    setSelectedRole(role);
+    const credential = demoCredentials.find(c => c.role === role);
+    if (credential) {
+      setIsLoading(true);
+      
+      // Simulate API call delay
+      setTimeout(() => {
+        const user = loginAdmin(credential.email, credential.password);
+        
+        if (user) {
+          showToast.success(`Selamat datang, ${user.name}!`);
+          onLoginSuccess();
+        } else {
+          showToast.error('Login gagal');
+          setIsLoading(false);
+          setSelectedRole(null);
+        }
+      }, 800);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,12 +120,70 @@ export function AdminLoginRevised({ onLoginSuccess, onBack }: AdminLoginRevisedP
           </div>
 
           {/* Demo Credentials Info */}
-          <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <p className="text-sm font-semibold text-blue-900 mb-2">Demo Credentials:</p>
-            <div className="text-xs text-blue-800 space-y-1">
-              <p><strong>PIC:</strong> fatimah.azzahra@almaqdisi.org / pic123</p>
-              <p><strong>Moderator:</strong> siti.nurhaliza@almaqdisi.org / moderator123</p>
-              <p><strong>Superadmin:</strong> ahmad.zaki@almaqdisi.org / superadmin123</p>
+          <div className="mb-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl">
+            <div className="flex items-center gap-2 mb-3">
+              <span className="material-symbols-outlined text-blue-600">info</span>
+              <p className="text-sm font-bold text-blue-900">Demo Mode - Pilih Role:</p>
+            </div>
+            <p className="text-xs text-blue-700 mb-4">Klik salah satu untuk langsung masuk</p>
+            
+            {/* Quick Login Buttons */}
+            <div className="space-y-3">
+              {demoCredentials.map((cred) => (
+                <button
+                  key={cred.role}
+                  type="button"
+                  onClick={() => handleRoleSelect(cred.role)}
+                  disabled={isLoading}
+                  className={`w-full p-4 rounded-xl border-2 transition-all text-left hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed ${
+                    selectedRole === cred.role 
+                      ? 'border-[#243D68] bg-[#243D68] text-white' 
+                      : 'border-[#E5E7EB] bg-white hover:border-[#243D68]'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                      selectedRole === cred.role ? 'bg-white/20' : 'bg-[#243D68]/10'
+                    }`}>
+                      <span className={`material-symbols-outlined text-xl ${
+                        selectedRole === cred.role ? 'text-white' : 'text-[#243D68]'
+                      }`}>
+                        {cred.icon}
+                      </span>
+                    </div>
+                    <div className="flex-1">
+                      <p className={`font-bold text-sm ${
+                        selectedRole === cred.role ? 'text-white' : 'text-[#0E1B33]'
+                      }`}>
+                        {cred.label}
+                      </p>
+                      <p className={`text-xs mt-0.5 ${
+                        selectedRole === cred.role ? 'text-white/80' : 'text-[#6B7280]'
+                      }`}>
+                        {cred.description}
+                      </p>
+                    </div>
+                    {selectedRole === cred.role && isLoading && (
+                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    )}
+                    {selectedRole !== cred.role && (
+                      <span className="material-symbols-outlined text-[#6B7280]">
+                        arrow_forward
+                      </span>
+                    )}
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Divider */}
+          <div className="relative mb-6">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-[#E5E7EB]"></div>
+            </div>
+            <div className="relative flex justify-center text-xs">
+              <span className="bg-white px-3 text-[#6B7280] font-medium">Atau login manual</span>
             </div>
           </div>
 

@@ -9,6 +9,29 @@ export type CommitmentDuration = '1_month' | '3_months' | '6_months' | '1_year' 
 export type MemberStatus = 'active' | 'inactive' | 'suspended';
 export type TransactionType = 'donation' | 'expense';
 export type ExpenseCategory = 'operational' | 'distribution' | 'marketing' | 'admin' | 'equipment' | 'other';
+export type ActivityType = 
+  | 'member_joined' 
+  | 'member_left' 
+  | 'transaction_added' 
+  | 'update_posted' 
+  | 'poll_created'
+  | 'milestone_achieved'
+  | 'request_approved'
+  | 'request_rejected';
+export type ActivityAction = 
+  | 'approve_request'
+  | 'reject_request'
+  | 'kick_member'
+  | 'add_donation'
+  | 'add_expense'
+  | 'post_update'
+  | 'create_poll'
+  | 'assign_task'
+  | 'complete_task'
+  | 'update_project';
+export type TaskStatus = 'pending' | 'in_progress' | 'completed' | 'cancelled';
+export type TaskPriority = 'low' | 'medium' | 'high' | 'urgent';
+export type TaskCategory = 'operational' | 'distribution' | 'marketing' | 'admin' | 'other';
 
 export interface AdminUser {
   id: string;
@@ -125,32 +148,37 @@ export interface FinanceTransaction {
   createdAt: string;
 }
 
-// Polling Types
-export type PollType = 'single_choice' | 'multiple_choice' | 'rating_scale';
+// Poll Types
 export type PollStatus = 'draft' | 'active' | 'closed';
+
+export interface PollOption {
+  id: string;
+  text: string;
+  votes: number;
+  voters: string[]; // Member names (if not anonymous)
+}
 
 export interface Poll {
   id: string;
   projectId: string;
-  title: string;
+  question: string;
   description?: string;
-  type: PollType;
-  options: {
-    id: string;
-    text: string;
-    votes: number;
-    voters?: string[]; // Member IDs (if not anonymous)
-  }[];
+  title?: string; // Alias for question for backward compatibility
+  type?: 'single_choice' | 'multiple_choice';
+  options: PollOption[];
+  allowMultiple?: boolean; // Alternative to type
   deadline: string;
   status: PollStatus;
   isAnonymous: boolean;
-  showRealtimeResults: boolean;
-  isRequired: boolean;
+  showRealtimeResults?: boolean;
+  isRequired?: boolean;
   createdBy: string; // PIC ID
+  createdByName?: string;
   createdAt: string;
   closedAt?: string;
   totalVotes: number;
-  participationRate: number; // percentage
+  totalVoters?: number;
+  participationRate?: number; // percentage
 }
 
 export interface PollVote {
@@ -213,16 +241,26 @@ export interface PICDelegation {
   status: 'completed';
 }
 
-// Activity Log Types (Revised)
-export type ActivityAction = 
-  | 'approve_request' | 'reject_request'
-  | 'kick_member' | 'broadcast_message'
-  | 'update_dana_umum' | 'update_dana_internal' | 'add_expense'
-  | 'edit_overview' | 'post_update' | 'upload_gallery'
-  | 'create_poll' | 'close_poll'
-  | 'delegate_pic'
-  | 'login' | 'logout';
+// Delegated Task Types
+export interface DelegatedTask {
+  id: string;
+  projectId: string;
+  title: string;
+  description: string;
+  assignedTo: string; // Member ID
+  assignedToName: string;
+  assignedBy: string; // PIC ID
+  assignedByName: string;
+  priority: TaskPriority;
+  category: TaskCategory;
+  status: TaskStatus;
+  dueDate: string;
+  createdAt: string;
+  completedAt?: string;
+  notes?: string;
+}
 
+// Activity Log Types (Revised)
 export interface ActivityLog {
   id: string;
   userId: string;
@@ -287,6 +325,131 @@ export interface SuperadminDashboardStats {
   picCount: number;
   totalAlumni: number;
   totalDonors: number;
+}
+
+// Donation & Financial Types (For Superadmin Financial Dashboard)
+export type DonationStatus = 'pending' | 'approved' | 'rejected' | 'cancelled';
+export type DonorType = 'alumni' | 'non_alumni' | 'anonymous';
+export type PaymentMethod = 'bank_transfer' | 'ewallet' | 'credit_card' | 'cash';
+
+export interface Donation {
+  id: string;
+  donorId: string;
+  donorName: string;
+  donorEmail?: string;
+  donorPhone?: string;
+  donorType: DonorType;
+  projectId: string;
+  projectTitle: string;
+  amount: number;
+  paymentMethod: PaymentMethod;
+  bankName?: string;
+  accountNumber?: string;
+  accountName?: string;
+  status: DonationStatus;
+  proofUrl?: string; // URL bukti transfer
+  notes?: string;
+  message?: string; // Pesan dari donatur
+  isAnonymous: boolean;
+  submittedAt: string;
+  verifiedAt?: string;
+  verifiedBy?: string; // Superadmin ID
+  verificationNote?: string;
+  rejectionReason?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ProjectWallet {
+  id: string;
+  projectId: string;
+  projectTitle: string;
+  balance: number; // Saldo terkini
+  totalIncome: number; // Total donasi masuk (approved)
+  totalExpense: number; // Total pengeluaran
+  totalPending: number; // Donasi pending approval
+  totalRejected: number; // Donasi rejected
+  lastTransactionAt?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface WalletTransaction {
+  id: string;
+  walletId: string;
+  projectId: string;
+  type: 'income' | 'expense' | 'withdrawal';
+  amount: number;
+  balanceBefore: number;
+  balanceAfter: number;
+  source: string; // Donor name or expense category
+  description: string;
+  reference?: string; // Donation ID or Expense ID
+  createdBy?: string; // Admin ID
+  createdByName?: string;
+  createdAt: string;
+}
+
+export interface WithdrawalRequest {
+  id: string;
+  projectId: string;
+  projectTitle: string;
+  picId: string;
+  picName: string;
+  amount: number;
+  purpose: string;
+  bankName: string;
+  accountNumber: string;
+  accountName: string;
+  status: 'pending' | 'approved' | 'rejected';
+  requestedAt: string;
+  reviewedAt?: string;
+  reviewedBy?: string; // Superadmin ID
+  reviewerName?: string;
+  reviewNote?: string;
+  rejectionReason?: string;
+}
+
+export interface FinancialDashboardStats {
+  // Global Statistics
+  totalDonationsAllTime: number;
+  totalDonationsPending: number;
+  totalDonationsRejected: number;
+  totalWalletBalance: number;
+  totalDonationsThisMonth: number;
+  totalDonationsLastMonth: number;
+  growthPercentage: number;
+  
+  // Donors
+  totalDonors: number;
+  totalAlumniDonors: number;
+  totalNonAlumniDonors: number;
+  
+  // Projects
+  totalActiveProjects: number;
+  averageDonationPerProject: number;
+  
+  // Pending Actions
+  pendingPayments: number;
+  pendingWithdrawals: number;
+}
+
+export interface TopProjectByDonation {
+  projectId: string;
+  projectTitle: string;
+  projectCategory: string;
+  totalDonations: number;
+  donorCount: number;
+  averageDonation: number;
+  lastDonationAt: string;
+}
+
+export interface MonthlyDonationTrend {
+  month: string;
+  year: number;
+  totalDonations: number;
+  donationCount: number;
+  averageDonation: number;
 }
 
 // Permission Matrix

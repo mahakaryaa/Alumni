@@ -179,7 +179,7 @@ export function AlumniStoryDetail({ onBack }: AlumniStoryDetailProps) {
                   className="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-12 w-12 shrink-0"
                   style={{
                     backgroundImage:
-                      'url("https://lh3.googleusercontent.com/aida-public/AB6AXuDp1xcCWQ87H_5OBbXVevwR9LJkqV2b78wfeFTv31qi2jjKZOW6EiGClJlpgxva_8WR1hjsXphYnvi0S7YJ98K18JkkXBkvcWXYYVKby5CKq6wRIBzlH920qBrcEgEMtHSW9ZhsMvrhaBBp3o5PHNGdm349gMBFrn2hEiyYB8LSm7AvIs95PyH6rMjk3yQfcuqZbkgAzhsubpaLaxuHCZdbbr1ZSTQBoxZ-ZqzQaz7Fn4NBeNkvR5BciVepM7-CExKeIlLVdIYZfx9_")',
+                      'url("https://images.unsplash.com/photo-1547567919-07728e7d2dc5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtdXNsaW0lMjB3b21hbiUyMGhpamFiJTIwdGVhY2hlciUyMHByb2Zlc3Npb25hbCUyMHBvcnRyYWl0fGVufDF8fHx8MTc3MTEyMTA5N3ww&ixlib=rb-4.1.0&q=80&w=1080")',
                   }}
                 ></div>
                 <div className="flex-1">

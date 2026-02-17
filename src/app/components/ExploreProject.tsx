@@ -25,6 +25,12 @@ export function ExploreProject({
   const [selectedTab, setSelectedTab] = useState<'open' | 'galeri'>(initialTab);
   const [showHeader, setShowHeader] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
+  const [showFilterModal, setShowFilterModal] = useState(false);
+  
+  // Filter states
+  const [filterStatus, setFilterStatus] = useState<string[]>([]);
+  const [filterLocation, setFilterLocation] = useState<string[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     const handleScroll = () => {
@@ -131,6 +137,12 @@ export function ExploreProject({
     ? galeriProjects 
     : galeriProjects.filter(p => p.category === selectedCategory);
 
+  // Apply filters
+  const appliedFilterGaleriProjects = filteredGaleriProjects
+    .filter(p => filterStatus.length === 0 || filterStatus.includes(p.status))
+    .filter(p => filterLocation.length === 0 || filterLocation.includes(p.location))
+    .filter(p => p.title.toLowerCase().includes(searchQuery.toLowerCase()));
+
   return (
     <div className="flex min-h-screen relative bg-[#E5E8EC]">
       {/* Sidebar - Desktop Only */}
@@ -229,8 +241,12 @@ export function ExploreProject({
               className="w-full h-12 pl-12 pr-12 rounded-[12px] border border-[#D6DCE8] bg-white text-[#0E1B33] placeholder-[#919EB2] focus:ring-2 focus:ring-[#243D68] focus:border-[#243D68] shadow-sm text-sm transition-all outline-none"
               placeholder="Cari proyek impianmu..."
               type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
-            <button className="absolute right-3 top-1/2 -translate-y-1/2 p-2 text-[#61728F] hover:text-[#243D68] rounded-lg hover:bg-[#E5E8EC] transition-colors">
+            <button className="absolute right-3 top-1/2 -translate-y-1/2 p-2 text-[#61728F] hover:text-[#243D68] rounded-lg hover:bg-[#E5E8EC] transition-colors"
+              onClick={() => setShowFilterModal(true)}
+            >
               <span className="material-symbols-outlined">tune</span>
             </button>
           </div>
@@ -324,7 +340,7 @@ export function ExploreProject({
               </div>
             ))
           ) : (
-            filteredGaleriProjects.map((project) => (
+            appliedFilterGaleriProjects.map((project) => (
               <div
                 key={project.id}
                 onClick={onNavigateToDetail}
@@ -432,6 +448,125 @@ export function ExploreProject({
           </button>
         </div>
       </nav>
+
+      {/* Filter Modal */}
+      <div className={`fixed top-0 left-0 right-0 bottom-0 bg-black/50 flex items-center justify-center ${showFilterModal ? 'visible' : 'hidden'}`}>
+        <div className="bg-white rounded-lg w-11/12 max-w-2xl p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-bold text-[#243D68]">Filter Proyek</h2>
+            <button className="text-[#243D68] text-xl" onClick={() => setShowFilterModal(false)}>
+              <span className="material-symbols-outlined">close</span>
+            </button>
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <h3 className="text-sm font-semibold text-[#243D68]">Status</h3>
+              <div className="flex flex-wrap gap-2 mt-2">
+                <button
+                  className={`px-3 py-1.5 rounded-full text-sm font-semibold ${
+                    filterStatus.includes('Akan Datang') ? 'bg-[#243D68] text-white' : 'bg-gray-200 text-gray-700'
+                  }`}
+                  onClick={() => {
+                    if (filterStatus.includes('Akan Datang')) {
+                      setFilterStatus(filterStatus.filter(status => status !== 'Akan Datang'));
+                    } else {
+                      setFilterStatus([...filterStatus, 'Akan Datang']);
+                    }
+                  }}
+                >
+                  Akan Datang
+                </button>
+                <button
+                  className={`px-3 py-1.5 rounded-full text-sm font-semibold ${
+                    filterStatus.includes('Sedang Berlangsung') ? 'bg-[#243D68] text-white' : 'bg-gray-200 text-gray-700'
+                  }`}
+                  onClick={() => {
+                    if (filterStatus.includes('Sedang Berlangsung')) {
+                      setFilterStatus(filterStatus.filter(status => status !== 'Sedang Berlangsung'));
+                    } else {
+                      setFilterStatus([...filterStatus, 'Sedang Berlangsung']);
+                    }
+                  }}
+                >
+                  Sedang Berlangsung
+                </button>
+                <button
+                  className={`px-3 py-1.5 rounded-full text-sm font-semibold ${
+                    filterStatus.includes('Sudah Berlalu') ? 'bg-[#243D68] text-white' : 'bg-gray-200 text-gray-700'
+                  }`}
+                  onClick={() => {
+                    if (filterStatus.includes('Sudah Berlalu')) {
+                      setFilterStatus(filterStatus.filter(status => status !== 'Sudah Berlalu'));
+                    } else {
+                      setFilterStatus([...filterStatus, 'Sudah Berlalu']);
+                    }
+                  }}
+                >
+                  Sudah Berlalu
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-sm font-semibold text-[#243D68]">Lokasi</h3>
+              <div className="flex flex-wrap gap-2 mt-2">
+                <button
+                  className={`px-3 py-1.5 rounded-full text-sm font-semibold ${
+                    filterLocation.includes('Jakarta Selatan') ? 'bg-[#243D68] text-white' : 'bg-gray-200 text-gray-700'
+                  }`}
+                  onClick={() => {
+                    if (filterLocation.includes('Jakarta Selatan')) {
+                      setFilterLocation(filterLocation.filter(location => location !== 'Jakarta Selatan'));
+                    } else {
+                      setFilterLocation([...filterLocation, 'Jakarta Selatan']);
+                    }
+                  }}
+                >
+                  Jakarta Selatan
+                </button>
+                <button
+                  className={`px-3 py-1.5 rounded-full text-sm font-semibold ${
+                    filterLocation.includes('Online') ? 'bg-[#243D68] text-white' : 'bg-gray-200 text-gray-700'
+                  }`}
+                  onClick={() => {
+                    if (filterLocation.includes('Online')) {
+                      setFilterLocation(filterLocation.filter(location => location !== 'Online'));
+                    } else {
+                      setFilterLocation([...filterLocation, 'Online']);
+                    }
+                  }}
+                >
+                  Online
+                </button>
+                <button
+                  className={`px-3 py-1.5 rounded-full text-sm font-semibold ${
+                    filterLocation.includes('Bandung') ? 'bg-[#243D68] text-white' : 'bg-gray-200 text-gray-700'
+                  }`}
+                  onClick={() => {
+                    if (filterLocation.includes('Bandung')) {
+                      setFilterLocation(filterLocation.filter(location => location !== 'Bandung'));
+                    } else {
+                      setFilterLocation([...filterLocation, 'Bandung']);
+                    }
+                  }}
+                >
+                  Bandung
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-6 flex justify-end">
+            <button
+              className="bg-[#243D68] text-white text-sm font-semibold py-2 px-5 rounded-full hover:bg-[#1a2e52] active:scale-[0.98] transition-all duration-200 shadow-sm hover:shadow-md inline-flex items-center justify-center"
+              onClick={() => setShowFilterModal(false)}
+            >
+              Terapkan Filter
+            </button>
+          </div>
+        </div>
+      </div>
 
       <style>{`
         .hide-scrollbar::-webkit-scrollbar {

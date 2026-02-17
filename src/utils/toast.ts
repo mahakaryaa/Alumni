@@ -66,12 +66,13 @@ export const showToast = {
       error: string;
     }
   ) => {
-    return toast.promise(promise, {
+    toast.promise(promise, {
       loading: messages.loading,
       success: messages.success,
       error: messages.error,
       className: 'font-[Outfit]',
     });
+    return promise; // Return the original promise for chaining
   },
 
   /**

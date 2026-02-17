@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 
 interface ProjectDetailAlumniProps {
+  hasJoinedProjects?: boolean; // NEW: Indicate if alumni has joined any projects
   onBack: () => void;
   initialTab?: 'overview' | 'progress' | 'members' | 'discussion' | 'wallet';
   onNavigateHome?: () => void;
@@ -13,6 +14,7 @@ interface ProjectDetailAlumniProps {
 }
 
 export function ProjectDetailAlumni({ 
+  hasJoinedProjects = false, // NEW: Default false
   onBack, 
   initialTab = 'overview',
   onNavigateHome,
@@ -23,7 +25,8 @@ export function ProjectDetailAlumni({
   activeNav = 'home'
 }: ProjectDetailAlumniProps) {
   // Project membership state - true jika user sudah diterima PIC ke project
-  const [isProjectMember, setIsProjectMember] = useState(false);
+  // Initialize with hasJoinedProjects prop for demo purposes
+  const [isProjectMember, setIsProjectMember] = useState(hasJoinedProjects);
   
   // Join project application states
   const [showJoinModal, setShowJoinModal] = useState(false);

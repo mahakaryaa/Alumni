@@ -8,21 +8,52 @@ interface MessagePageProps {
 }
 
 export function MessagePage({ onBack, onNavigateHome, onNavigateExplore, onNavigateSettings, onNavigateMessages, activeNav = 'pesan' }: MessagePageProps) {
-  // Mock data - laporan donasi
+  // Mock data - laporan donasi dengan berbagai status
   const donations = [
     {
       id: 1,
-      project: 'Renovasi Masjid Al-Ikhlas',
-      amount: 500000,
-      date: '12 Jan 2026',
-      status: 'Berhasil',
+      refNumber: 'PK05187621522',
+      project: 'Bantuan Pangan Gaza',
+      category: 'Kemanusiaan',
+      amount: 50000,
+      method: 'DANA',
+      date: '17 Februari 2026',
+      transferTime: '17 Februari 2026 pukul 12.13',
+      status: 'verifikasi', // dalam proses verifikasi
     },
     {
       id: 2,
-      project: 'Pengembangan Aplikasi IKA UB',
-      amount: 250000,
-      date: '5 Jan 2026',
-      status: 'Berhasil',
+      refNumber: 'PK05187621423',
+      project: 'Pendidikan Al-Aqsa',
+      category: 'Pendidikan',
+      amount: 100000,
+      method: 'BCA',
+      date: '15 Februari 2026',
+      transferTime: '15 Februari 2026 pukul 09.30',
+      status: 'confirmed', // berhasil dikonfirmasi
+    },
+    {
+      id: 3,
+      refNumber: 'PK05187621321',
+      project: 'Rumah Sakit Gaza',
+      category: 'Kesehatan',
+      amount: 75000,
+      method: 'Mandiri',
+      date: '14 Februari 2026',
+      transferTime: '14 Februari 2026 pukul 15.45',
+      status: 'rejected', // ditolak
+      rejectReason: 'Bukti transfer tidak valid. Mohon upload ulang bukti transfer yang jelas.',
+    },
+    {
+      id: 4,
+      refNumber: 'PK05187621220',
+      project: 'Renovasi Masjid Al-Ikhlas',
+      category: 'Infrastruktur',
+      amount: 500000,
+      method: 'BNI',
+      date: '12 Jan 2026',
+      transferTime: '12 Jan 2026 pukul 10.20',
+      status: 'confirmed', // Berhasil (old data)
     },
   ];
 
@@ -226,28 +257,151 @@ export function MessagePage({ onBack, onNavigateHome, onNavigateExplore, onNavig
 
             {/* Donation List */}
             <div className="space-y-3">
-              {donations.map((donation) => (
-                <div
-                  key={donation.id}
-                  className="bg-white rounded-xl p-5 border border-[#E5E7EB] hover:shadow-md transition-shadow"
-                >
-                  <div className="flex items-start justify-between mb-2">
-                    <div className="flex-1">
-                      <h4 className="font-semibold text-[#333333] mb-1">{donation.project}</h4>
-                      <p className="text-sm text-[#6B7280]">{donation.date}</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-bold text-[#243D68]">
-                        Rp {donation.amount.toLocaleString('id-ID')}
-                      </p>
-                      <span className="inline-flex items-center gap-1 text-xs font-medium text-[#4CAF50] bg-[#E8F5E9] px-2 py-1 rounded-full mt-1">
-                        <span className="material-symbols-outlined text-xs">check_circle</span>
-                        {donation.status}
+              {donations.map((donation) => {
+                // Determine status styling
+                let statusBadge = {
+                  icon: 'check_circle',
+                  text: 'Berhasil',
+                  color: 'text-[#4CAF50]',
+                  bgColor: 'bg-[#E8F5E9]'
+                };
+
+                if (donation.status === 'verifikasi') {
+                  statusBadge = {
+                    icon: 'schedule',
+                    text: 'Dalam Verifikasi',
+                    color: 'text-[#FF9800]',
+                    bgColor: 'bg-[#FFF3E0]'
+                  };
+                } else if (donation.status === 'rejected') {
+                  statusBadge = {
+                    icon: 'cancel',
+                    text: 'Ditolak',
+                    color: 'text-[#F44336]',
+                    bgColor: 'bg-[#FFEBEE]'
+                  };
+                } else if (donation.status === 'confirmed') {
+                  statusBadge = {
+                    icon: 'check_circle',
+                    text: 'Berhasil',
+                    color: 'text-[#4CAF50]',
+                    bgColor: 'bg-[#E8F5E9]'
+                  };
+                }
+
+                return (
+                  <div
+                    key={donation.id}
+                    className={`bg-white rounded-xl p-5 border hover:shadow-md transition-shadow ${
+                      donation.status === 'rejected' 
+                        ? 'border-[#F44336]/30 bg-red-50/30' 
+                        : donation.status === 'verifikasi'
+                        ? 'border-[#FF9800]/30 bg-orange-50/30'
+                        : 'border-[#E5E7EB]'
+                    }`}
+                  >
+                    {/* Status Badge - Top */}
+                    <div className="mb-3">
+                      <span className={`inline-flex items-center gap-1 text-xs font-semibold ${statusBadge.color} ${statusBadge.bgColor} px-3 py-1.5 rounded-full`}>
+                        <span className="material-symbols-outlined text-sm">{statusBadge.icon}</span>
+                        {statusBadge.text}
                       </span>
                     </div>
+
+                    {/* Ref Number with Copy Button */}
+                    <div className="mb-3 pb-3 border-b border-[#E5E7EB]">
+                      <p className="text-xs text-[#6B7280] mb-1">Nomor Referensi Donasi</p>
+                      <div className="flex items-center gap-2">
+                        <code className="text-sm font-bold text-[#243D68]">{donation.refNumber}</code>
+                        <button
+                          onClick={() => {
+                            navigator.clipboard.writeText(donation.refNumber);
+                            // You can add toast notification here
+                          }}
+                          className="p-1 hover:bg-[#F8F9FA] rounded transition-colors"
+                          title="Salin nomor referensi"
+                        >
+                          <span className="material-symbols-outlined text-[#6B7280] text-base">content_copy</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Project Details */}
+                    <div className="space-y-2 mb-4">
+                      <div>
+                        <p className="text-xs text-[#6B7280]">Project</p>
+                        <p className="font-semibold text-[#333333]">{donation.project}</p>
+                        <p className="text-xs text-[#FAC06E] font-medium">{donation.category}</p>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3 pt-2">
+                        <div>
+                          <p className="text-xs text-[#6B7280]">Nominal Donasi</p>
+                          <p className="font-bold text-[#243D68]">Rp {donation.amount.toLocaleString('id-ID')}</p>
+                        </div>
+                        <div>
+                          <p className="text-xs text-[#6B7280]">Metode Pembayaran</p>
+                          <p className="font-semibold text-[#333333]">{donation.method}</p>
+                        </div>
+                      </div>
+
+                      <div>
+                        <p className="text-xs text-[#6B7280]">Waktu Transfer</p>
+                        <p className="text-sm text-[#333333]">{donation.transferTime}</p>
+                      </div>
+                    </div>
+
+                    {/* Status Messages */}
+                    {donation.status === 'verifikasi' && (
+                      <div className="bg-[#FFF3E0] border border-[#FF9800]/30 rounded-lg p-3 mt-3">
+                        <div className="flex gap-2">
+                          <span className="material-symbols-outlined text-[#FF9800] text-lg mt-0.5">info</span>
+                          <div className="flex-1">
+                            <p className="text-xs font-semibold text-[#FF9800] mb-1">Donasi dalam Proses Verifikasi</p>
+                            <p className="text-xs text-[#6B7280]">
+                              Terima kasih atas konfirmasi Anda. Bukti transfer telah kami terima dan sedang dalam proses verifikasi.
+                            </p>
+                            <div className="mt-2 space-y-1">
+                              <p className="text-xs text-[#6B7280]">• Donasi akan diverifikasi dalam 1x24 jam</p>
+                              <p className="text-xs text-[#6B7280]">• Anda akan menerima email konfirmasi setelah verifikasi</p>
+                              <p className="text-xs text-[#6B7280]">• Notifikasi juga akan dikirim melalui aplikasi</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {donation.status === 'rejected' && donation.rejectReason && (
+                      <div className="bg-[#FFEBEE] border border-[#F44336]/30 rounded-lg p-3 mt-3">
+                        <div className="flex gap-2">
+                          <span className="material-symbols-outlined text-[#F44336] text-lg mt-0.5">error</span>
+                          <div className="flex-1">
+                            <p className="text-xs font-semibold text-[#F44336] mb-1">Donasi Ditolak</p>
+                            <p className="text-xs text-[#6B7280] mb-2">{donation.rejectReason}</p>
+                            <button className="text-xs font-semibold text-[#243D68] bg-white px-3 py-1.5 rounded-lg hover:bg-[#F8F9FA] transition-colors border border-[#E5E7EB]">
+                              Upload Ulang Bukti Transfer
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {donation.status === 'confirmed' && (
+                      <div className="bg-[#E8F5E9] border border-[#4CAF50]/30 rounded-lg p-3 mt-3">
+                        <div className="flex gap-2">
+                          <span className="material-symbols-outlined text-[#4CAF50] text-lg mt-0.5">check_circle</span>
+                          <div className="flex-1">
+                            <p className="text-xs font-semibold text-[#4CAF50] mb-1">Donasi Berhasil Dikonfirmasi</p>
+                            <p className="text-xs text-[#6B7280]">
+                              Terima kasih! Donasi Anda telah berhasil diverifikasi dan diteruskan untuk {donation.project}.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </section>
 

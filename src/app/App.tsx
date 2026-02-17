@@ -1,40 +1,49 @@
 import { useState } from 'react';
-import { Toaster } from 'sonner';
-import { ErrorBoundary } from '@/app/components/ErrorBoundary';
-import { toastMessages } from '@/utils/toast';
+import { HomePage } from './components/HomePage';
+import { ProjectDetail } from './components/ProjectDetail';
+import { ExploreProject } from './components/ExploreProject';
+import { AlumniStoryDetail } from './components/AlumniStoryDetail';
+import { EventDetail } from './components/EventDetail';
+import { Login } from './components/Login';
+import { DonationPage } from './components/DonationPage';
+import { MessagePage } from './components/MessagePage';
+import { SettingsPage } from './components/SettingsPage';
+import { MessagesAlumni } from './components/MessagesAlumni';
+import { ProjectDetailAlumni } from './components/ProjectDetailAlumni';
+import { Logo } from './components/Logo';
 import { STORAGE_KEYS } from '@/constants';
-import { ProjectDetail } from '@/app/components/ProjectDetail';
-import { ProjectDetailAlumni } from '@/app/components/ProjectDetailAlumni';
-import { ExploreProject } from '@/app/components/ExploreProject';
-import { AlumniStoryDetail } from '@/app/components/AlumniStoryDetail';
-import { Login } from '@/app/components/Login';
-import { EventDetail } from '@/app/components/EventDetail';
-import { MessagePage } from '@/app/components/MessagePage';
-import { SettingsPage } from '@/app/components/SettingsPage';
-import { MessagesAlumni } from '@/app/components/MessagesAlumni';
-import { DonationPage } from '@/app/components/DonationPage';
-import { AdminLogin } from '@/app/components/admin/AdminLogin';
-import { AdminDashboard } from '@/app/components/admin/AdminDashboard';
-import { AdminPanelRevised } from '@/app/components/admin-revised/AdminPanelRevised';
-import heroImage from 'figma:asset/e58bcf57f4d8cba056148583d179c170bd719908.png';
+import { toastMessages } from '@/utils/toast';
+import { ErrorBoundary } from './components/ErrorBoundary';
+import { LoginWidget } from './components/LoginWidget';
+import { Toaster } from 'sonner';
+
+// Import images (using unsplash)
+const heroImage = 'https://images.unsplash.com/photo-1618083707215-bb3b870419a4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtb3NxdWUlMjBhbCUyMGFxc2ElMjBqZXJ1c2FsZW18ZW58MXx8fHwxNzY5NjUyMTI3fDA&ixlib=rb-4.1.0&q=80&w=1080';
 
 export default function App() {
   const [activeNav, setActiveNav] = useState('home');
-  const [currentView, setCurrentView] = useState<'home' | 'project-detail' | 'explore' | 'alumni-story' | 'login' | 'event-detail' | 'messages' | 'settings' | 'donation' | 'admin-login' | 'admin-dashboard' | 'admin-panel-revised'>('home');
+  const [currentView, setCurrentView] = useState<'home' | 'project-detail' | 'explore' | 'alumni-story' | 'login' | 'event-detail' | 'messages' | 'settings' | 'donation'>('home');
   const [exploreInitialTab, setExploreInitialTab] = useState<'open' | 'galeri'>('open');
   const [projectDetailInitialTab, setProjectDetailInitialTab] = useState<'overview' | 'progress' | 'members' | 'discussion' | 'wallet'>('overview');
   
   // User role with localStorage persistence
-  const [userRole, setUserRole] = useState<'donatur' | 'alumni' | null>(() => {
+  const [userRole, setUserRole] = useState<'donatur' | 'alumni' | 'alumni-guest' | null>(() => {
     const saved = localStorage.getItem(STORAGE_KEYS.USER_ROLE);
-    return saved as 'donatur' | 'alumni' | null;
+    return saved as 'donatur' | 'alumni' | 'alumni-guest' | null;
   });
+
+  // Login widget state
+  const [showLoginWidget, setShowLoginWidget] = useState(false);
 
   // Notification count state
   const [notificationCount, setNotificationCount] = useState(3); // Mock data: 3 unread notifications
 
   // Category filter state
   const [activeCategory, setActiveCategory] = useState<'semua' | 'pendidikan' | 'lingkungan' | 'kesehatan'>('semua');
+
+  // Mock user joined projects state (untuk demo)
+  // Set ke true jika alumni sudah pernah join project, false jika belum
+  const [hasJoinedProjects, setHasJoinedProjects] = useState(true); // Default: true untuk demo joined state
 
   // Logout handler
   const handleLogout = () => {
@@ -46,7 +55,7 @@ export default function App() {
   };
 
   // Login handler with persistence
-  const handleLogin = (role: 'donatur' | 'alumni') => {
+  const handleLogin = (role: 'donatur' | 'alumni' | 'alumni-guest') => {
     setUserRole(role);
     localStorage.setItem(STORAGE_KEYS.USER_ROLE, role);
     setCurrentView('home');
@@ -64,6 +73,7 @@ export default function App() {
     // Show different detail page based on user role
     if (userRole === 'alumni') {
       return <ProjectDetailAlumni 
+        hasJoinedProjects={hasJoinedProjects}
         onBack={() => {
           setCurrentView('home');
           setActiveNav('home');
@@ -142,6 +152,7 @@ export default function App() {
     // Show different messages page based on user role
     if (userRole === 'alumni') {
       return <MessagesAlumni 
+        hasJoinedProjects={hasJoinedProjects}
         onBack={() => {
           setCurrentView('home');
           setActiveNav('home');
@@ -218,7 +229,9 @@ export default function App() {
         setCurrentView('settings');
         setActiveNav('settings');
       }}
+      onLogout={handleLogout}
       activeNav={activeNav}
+      userRole={userRole}
     />;
   }
 
@@ -250,30 +263,6 @@ export default function App() {
     />;
   }
 
-  if (currentView === 'admin-login') {
-    return <AdminLogin onBack={() => {
-      setCurrentView('home');
-      setActiveNav('home');
-    }} onLoginSuccess={() => {
-      setCurrentView('admin-dashboard');
-      setActiveNav('home');
-    }} />;
-  }
-
-  if (currentView === 'admin-dashboard') {
-    return <AdminDashboard onBack={() => {
-      setCurrentView('home');
-      setActiveNav('home');
-    }} />;
-  }
-
-  if (currentView === 'admin-panel-revised') {
-    return <AdminPanelRevised onBack={() => {
-      setCurrentView('home');
-      setActiveNav('home');
-    }} />;
-  }
-
   return (
     <ErrorBoundary>
       <Toaster position="top-center" richColors closeButton />
@@ -288,14 +277,7 @@ export default function App() {
         <div className="relative z-10 flex flex-col h-full">
           {/* Logo */}
           <div className="p-5">
-            <div className="bg-[#FAC06E] p-3 flex items-center gap-3 shadow-md rounded-[10px]">
-              <div className="w-8 h-8 border-2 border-[#2B4468] flex items-center justify-center">
-                <span className="material-symbols-outlined text-[#2B4468] text-xl font-bold">mosque</span>
-              </div>
-              <span className="font-['Archivo_Black'] text-base uppercase tracking-tight text-[#2B4468]">
-                ALMAQDISI PROJECT
-              </span>
-            </div>
+            <Logo />
           </div>
 
           {/* Menu Navigation */}
@@ -413,12 +395,23 @@ export default function App() {
               <span className="material-symbols-outlined text-2xl">notifications</span>
               <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
             </button>
-            <button
-              onClick={() => setCurrentView('login')}
-              className="bg-gradient-to-r from-[#243D68] to-[#30518B] text-white font-bold py-2.5 px-5 rounded-lg text-sm hover:shadow-lg transition shadow-md uppercase tracking-wide min-h-[44px]"
-            >
-              Login
-            </button>
+            
+            {userRole === null ? (
+              <button
+                onClick={() => setShowLoginWidget(true)}
+                className="bg-gradient-to-r from-[#243D68] to-[#30518B] text-white font-bold py-2.5 px-5 rounded-lg text-sm hover:shadow-lg transition shadow-md uppercase tracking-wide min-h-[44px]"
+              >
+                Login
+              </button>
+            ) : (
+              <button
+                onClick={handleLogout}
+                className="bg-red-500 text-white font-bold py-2.5 px-5 rounded-lg text-sm hover:bg-red-600 transition shadow-md uppercase tracking-wide min-h-[44px] flex items-center gap-2"
+              >
+                <span className="material-symbols-outlined text-lg">logout</span>
+                <span>Logout</span>
+              </button>
+            )}
           </div>
         </header>
 
@@ -431,13 +424,23 @@ export default function App() {
                 <span className="material-symbols-outlined text-2xl">notifications</span>
                 <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
               </button>
-              <a
-                className="hidden md:block bg-[#243D68] text-white font-semibold py-2.5 px-6 rounded-[12px] text-sm hover:bg-[#183A74] transition shadow-md"
-                href="#"
-                onClick={() => setCurrentView('login')}
-              >
-                Login
-              </a>
+              
+              {userRole === null ? (
+                <button
+                  className="hidden md:block bg-[#243D68] text-white font-semibold py-2.5 px-6 rounded-[12px] text-sm hover:bg-[#183A74] transition shadow-md"
+                  onClick={() => setShowLoginWidget(true)}
+                >
+                  Login
+                </button>
+              ) : (
+                <button
+                  className="hidden md:flex items-center gap-2 bg-red-500 text-white font-semibold py-2.5 px-6 rounded-[12px] text-sm hover:bg-red-600 transition shadow-md"
+                  onClick={handleLogout}
+                >
+                  <span className="material-symbols-outlined text-lg">logout</span>
+                  <span>Logout</span>
+                </button>
+              )}
             </div>
 
             <div className="grid md:grid-cols-2 gap-6 md:gap-8 lg:gap-16 items-center relative z-10">
@@ -746,7 +749,7 @@ export default function App() {
                 <img
                   alt="Story 1"
                   className="w-full aspect-[4/5] object-cover rounded-[12px] mb-3"
-                  src="https://images.unsplash.com/photo-1675155111754-c25cd6879770?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3b21hbiUyMHdlYXJpbmclMjBoaWphYiUyMGVkdWNhdGlvbnxlbnwxfHx8fDE3Njk2NTIxMjl8MA&ixlib=rb-4.1.0&q=80&w=1080"
+                  src="https://images.unsplash.com/photo-1547567919-07728e7d2dc5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtdXNsaW0lMjB3b21hbiUyMGhpamabiJTIwcHJvZmVzc2lvbmFsJTIwdGVhY2hlcnxlbnwxfHx8fDE3Njk2NTIxMzJ8MA&ixlib=rb-4.1.0&q=80&w=1080"
                 />
                 <h3 className="font-semibold text-[#0E1B33] text-sm leading-snug">
                   Rina & Virtual Tour Sejarah Masjid Al-Aqsa
@@ -760,7 +763,7 @@ export default function App() {
                 <img
                   alt="Story 2"
                   className="w-full aspect-[4/5] object-cover rounded-[12px] mb-3"
-                  src="https://images.unsplash.com/photo-1767780441166-3ffeecced031?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtYW4lMjBtdXNsaW0lMjBjb21tdW5pdHklMjBsZWFkZXJ8ZW58MXx8fHwxNzY5NjUyMTMwfDA&ixlib=rb-4.1.0&q=80&w=1080"
+                  src="https://images.unsplash.com/photo-1769636929231-3cd7f853d038?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwcm9mZXNzaW9uYWwlMjBtYW4lMjBmb3JtYWwlMjBidXNpbmVzcyUyMHBvcnRyYWl0fGVufDF8fHx8MTc3MTEyMTAzMXww&ixlib=rb-4.1.0&q=80&w=1080"
                 />
                 <h3 className="font-semibold text-[#0E1B33] text-sm leading-snug">
                   Budi mengajar Bahasa Arab untuk Solidaritas Palestina
@@ -774,7 +777,7 @@ export default function App() {
                 <img
                   alt="Story 3"
                   className="w-full aspect-[4/5] object-cover rounded-[12px] mb-3"
-                  src="https://images.unsplash.com/photo-1671145655294-5a269b8a4aff?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3b21hbiUyMG11c2xpbSUyMGFjdGl2aXN0fGVufDF8fHx8MTc2OTY1MjEzMHww&ixlib=rb-4.1.0&q=80&w=1080"
+                  src="https://images.unsplash.com/photo-1647187977218-12de72a8830d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtdXNsaW0lMjB3b21hbiUyMGhpamabiJTIwYWN0aXZpc3QlMjB2b2x1bnRlZXJ8ZW58MXx8fHwxNzcxMTIxMDMyfDA&ixlib=rb-4.1.0&q=80&w=1080"
                 />
                 <h3 className="font-semibold text-[#0E1B33] text-sm leading-snug">
                   Siti & Kampanye Digital Free Palestine
@@ -788,7 +791,7 @@ export default function App() {
                 <img
                   alt="Story 4"
                   className="w-full aspect-[4/5] object-cover rounded-[12px] mb-3"
-                  src="https://images.unsplash.com/photo-1659353885824-1199aeeebfc6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtdXNsaW0lMjBkb2N0b3IlMjBodW1hbml0YXJiYW58ZW58MXx8fHwxNzY5NjUyMTMxfDA&ixlib=rb-4.1.0&q=80&w=1080"
+                  src="https://images.unsplash.com/photo-1645066928295-2506defde470?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwcm9mZXNzaW9uYWwlMjBtYW4lMjBkb2N0b3IlMjBtZWRpY2FsJTIwZm9ybWFsfGVufDF8fHx8MTc3MTEyMTAzMnww&ixlib=rb-4.1.0&q=80&w=1080"
                 />
                 <h3 className="font-semibold text-[#0E1B33] text-sm leading-snug">
                   Andi menggalang Dana Medis untuk Korban Gaza
@@ -1072,6 +1075,21 @@ export default function App() {
         }
       `}</style>
       </div>
+
+      {/* Login Widget */}
+      {showLoginWidget && (
+        <LoginWidget
+          onClose={() => setShowLoginWidget(false)}
+          onLoginSuccess={(role) => {
+            handleLogin(role);
+            setShowLoginWidget(false);
+          }}
+          onRegisterClick={() => {
+            setShowLoginWidget(false);
+            setCurrentView('login');
+          }}
+        />
+      )}
     </ErrorBoundary>
   );
 }

@@ -122,12 +122,12 @@ export function Login({ onBack, onLoginSuccess }: LoginProps) {
         </button>
 
         {/* Mobile Header */}
-        <div className="lg:hidden flex items-center justify-between p-6 border-b border-[#E5E7EB]">
+        <div className="lg:hidden flex items-center justify-between p-4 sm:p-6 border-b border-[#E5E7EB]">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 bg-[#243D68] flex items-center justify-center">
               <span className="material-symbols-outlined text-[#FAC06E] text-xl">mosque</span>
             </div>
-            <span className="font-['Archivo_Black'] text-lg uppercase tracking-tight text-[#243D68]">
+            <span className="font-['Archivo_Black'] text-base sm:text-lg uppercase tracking-tight text-[#243D68]">
               ProjekKita
             </span>
           </div>
@@ -135,8 +135,8 @@ export function Login({ onBack, onLoginSuccess }: LoginProps) {
             onClick={onBack}
             className="flex items-center gap-1 text-[#243D68] hover:text-[#183A74] transition-all duration-300 font-semibold"
           >
-            <span className="material-symbols-outlined">close</span>
-            <span className="text-xs uppercase tracking-wider">Tutup</span>
+            <span className="material-symbols-outlined text-xl">close</span>
+            <span className="text-xs sm:text-sm uppercase tracking-wider">Tutup</span>
           </button>
         </div>
 

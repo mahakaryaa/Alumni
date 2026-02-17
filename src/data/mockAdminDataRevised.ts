@@ -12,6 +12,8 @@ import type {
   ProgressUpdate,
   Poll,
   PICDashboardStats,
+  ActivityLog,
+  DelegatedTask,
 } from '@/types/admin-revised';
 
 // ============================================
@@ -498,27 +500,32 @@ export const mockPolls: Poll[] = [
   {
     id: 'poll-1',
     projectId: 'project-1',
-    title: 'Waktu terbaik untuk meeting rutin?',
+    question: 'Waktu terbaik untuk meeting rutin?',
     description: 'Kita mau atur jadwal meeting rutin tim. Pilih waktu yang paling cocok untuk kalian semua ya!',
+    title: 'Waktu terbaik untuk meeting rutin?',
     type: 'single_choice',
     options: [
-      { id: 'opt-1', text: 'Sabtu pagi (08.00-10.00)', votes: 10, voters: [] },
-      { id: 'opt-2', text: 'Sabtu sore (14.00-16.00)', votes: 12, voters: [] },
-      { id: 'opt-3', text: 'Minggu pagi (08.00-10.00)', votes: 2, voters: [] },
+      { id: 'opt-1', text: 'Sabtu pagi (08.00-10.00)', votes: 10, voters: ['Khadijah Mariam', 'Abdullah Rahman', 'Rizky Firmansyah'] },
+      { id: 'opt-2', text: 'Sabtu sore (14.00-16.00)', votes: 12, voters: ['Siti Rahmawati', 'Nurul Hidayah'] },
+      { id: 'opt-3', text: 'Minggu pagi (08.00-10.00)', votes: 2, voters: ['Budi Hartono'] },
     ],
+    allowMultiple: false,
     deadline: '2025-02-10T23:59:59Z',
     status: 'active',
-    isAnonymous: true,
+    isAnonymous: false,
     showRealtimeResults: true,
     isRequired: false,
     createdBy: 'pic-1',
+    createdByName: 'Fatimah Az-Zahra',
     createdAt: '2025-02-05T10:00:00Z',
     totalVotes: 24,
+    totalVoters: 20,
     participationRate: 80, // 20/25 members
   },
   {
     id: 'poll-2',
     projectId: 'project-1',
+    question: 'Apakah setuju dengan sistem shift packaging?',
     title: 'Apakah setuju dengan sistem shift packaging?',
     type: 'single_choice',
     options: [
@@ -527,18 +534,28 @@ export const mockPolls: Poll[] = [
       { id: 'opt-6', text: 'Kurang Setuju', votes: 2, voters: [] },
       { id: 'opt-7', text: 'Tidak Setuju', votes: 0, voters: [] },
     ],
+    allowMultiple: false,
     deadline: '2025-02-01T23:59:59Z',
     status: 'closed',
-    isAnonymous: false,
+    isAnonymous: true,
     showRealtimeResults: true,
     isRequired: false,
     createdBy: 'pic-1',
+    createdByName: 'Fatimah Az-Zahra',
     createdAt: '2025-01-28T10:00:00Z',
     closedAt: '2025-02-01T23:59:59Z',
     totalVotes: 25,
+    totalVoters: 25,
     participationRate: 100,
   },
 ];
+
+// Alias for consistency
+export function getProjectPolls(projectId: string): Poll[] {
+  return mockPolls
+    .filter(p => p.projectId === projectId)
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+}
 
 // ============================================
 // DEMO PROGRESS UPDATES
@@ -550,13 +567,7 @@ export const mockProgressUpdates: ProgressUpdate[] = [
     projectId: 'project-1',
     type: 'milestone',
     title: '🎉 Milestone Tercapai: 75% Progress!',
-    content: `Alhamdulillah tim, kita sudah berhasil mengumpulkan 750 paket sembako dari target 1000 paket. Terima kasih atas dedikasi seluruh member dan donatur yang sudah berkontribusi!
-
-**Update selanjutnya:**
-- Minggu ini: packaging 250 paket lagi
-- Minggu depan: koordinasi distribusi dengan mitra lokal
-
-Jazakumullah khairan!`,
+    content: `Alhamdulillah tim, kita sudah berhasil mengumpulkan 750 paket sembako dari target 1000 paket. Terima kasih atas dedikasi seluruh member dan donatur yang sudah berkontribusi!\n\n**Update selanjutnya:**\n- Minggu ini: packaging 250 paket lagi\n- Minggu depan: koordinasi distribusi dengan mitra lokal\n\nJazakumullah khairan!`,
     mediaUrls: ['https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=800'],
     createdBy: 'pic-1',
     createdAt: '2025-02-05T14:00:00Z',
@@ -569,26 +580,149 @@ Jazakumullah khairan!`,
     projectId: 'project-1',
     type: 'meeting_reminder',
     title: '📢 Meeting Rutin Tim - Sabtu, 3 Feb 2025',
-    content: `Assalamu'alaikum Tim!
-
-Reminder untuk meeting rutin kita:
-📅 **Sabtu, 3 Februari 2025**
-🕐 **14.00 - 16.00 WIB**
-📍 **Zoom Meeting** (link di grup WA)
-
-**Agenda:**
-1. Review progress bulan Januari
-2. Planning distribusi Maret
-3. Koordinasi dengan mitra Gaza
-
-Mohon hadir ya! Jazakumullah khairan.
-
-- PIC Fatimah`,
+    content: `Assalamu'alaikum Tim!\n\nReminder untuk meeting rutin kita:\n📅 **Sabtu, 3 Februari 2025**\n🕐 **14.00 - 16.00 WIB**\n📍 **Zoom Meeting** (link di grup WA)\n\n**Agenda:**\n1. Review progress bulan Januari\n2. Planning distribusi Maret\n3. Koordinasi dengan mitra Gaza\n\nMohon hadir ya! Jazakumullah khairan.\n\n- PIC Fatimah`,
     createdBy: 'pic-1',
     createdAt: '2025-02-01T10:00:00Z',
     notifyMembers: true,
     commentsCount: 8,
     likesCount: 30,
+  },
+];
+
+// ============================================
+// DEMO ACTIVITY LOGS
+// ============================================
+
+export const mockActivityLogs: ActivityLog[] = [
+  {
+    id: 'log-1',
+    userId: 'pic-1',
+    userName: 'Fatimah Az-Zahra',
+    userRole: 'pic',
+    action: 'approve_request',
+    targetType: 'join_request',
+    targetId: 'req-4',
+    description: 'Approved join request from Khadijah Mariam',
+    projectId: 'project-1',
+    timestamp: '2024-12-10T09:45:00Z',
+  },
+  {
+    id: 'log-2',
+    userId: 'pic-1',
+    userName: 'Fatimah Az-Zahra',
+    userRole: 'pic',
+    action: 'add_expense',
+    targetType: 'finance',
+    targetId: 'tx-3',
+    description: 'Added expense: Pembelian sembako 100 paket (Rp 5,000,000)',
+    projectId: 'project-1',
+    timestamp: '2025-02-04T15:00:00Z',
+  },
+  {
+    id: 'log-3',
+    userId: 'pic-1',
+    userName: 'Fatimah Az-Zahra',
+    userRole: 'pic',
+    action: 'post_update',
+    targetType: 'content',
+    targetId: 'update-1',
+    description: 'Posted milestone update: 75% Progress!',
+    projectId: 'project-1',
+    timestamp: '2025-02-05T14:00:00Z',
+  },
+  {
+    id: 'log-4',
+    userId: 'pic-1',
+    userName: 'Fatimah Az-Zahra',
+    userRole: 'pic',
+    action: 'create_poll',
+    targetType: 'poll',
+    targetId: 'poll-1',
+    description: 'Created new poll: Waktu terbaik untuk meeting rutin?',
+    projectId: 'project-1',
+    timestamp: '2025-02-05T10:00:00Z',
+  },
+  {
+    id: 'log-5',
+    userId: 'pic-1',
+    userName: 'Fatimah Az-Zahra',
+    userRole: 'pic',
+    action: 'kick_member',
+    targetType: 'member',
+    targetId: 'member-6',
+    description: 'Kicked member: Budi Hartono - Tidak aktif berkontribusi',
+    projectId: 'project-1',
+    timestamp: '2024-12-15T10:00:00Z',
+  },
+];
+
+// ============================================
+// DEMO DELEGATED TASKS
+// ============================================
+
+export const mockDelegatedTasks: DelegatedTask[] = [
+  {
+    id: 'task-1',
+    projectId: 'project-1',
+    title: 'Koordinasi dengan mitra lokal Gaza untuk distribusi batch 1',
+    description: 'Hubungi pak Ahmad di Gaza untuk konfirmasi jadwal distribusi. Pastikan warehouse sudah siap menerima 100 paket pertama.',
+    assignedTo: 'member-2',
+    assignedToName: 'Abdullah Rahman',
+    assignedBy: 'pic-1',
+    assignedByName: 'Fatimah Az-Zahra',
+    priority: 'urgent',
+    category: 'operational',
+    status: 'in_progress',
+    dueDate: '2025-02-08T00:00:00Z',
+    createdAt: '2025-02-03T10:00:00Z',
+    notes: 'Sudah dapat kontak WA pak Ahmad'
+  },
+  {
+    id: 'task-2',
+    projectId: 'project-1',
+    title: 'Design poster kampanye fase 2',
+    description: 'Buat design poster untuk kampanye fundraising fase 2. Gunakan tema warna biru-putih dengan elemen masjid Al-Aqsa.',
+    assignedTo: 'member-3',
+    assignedToName: 'Siti Rahmawati',
+    assignedBy: 'pic-1',
+    assignedByName: 'Fatimah Az-Zahra',
+    priority: 'high',
+    category: 'marketing',
+    status: 'pending',
+    dueDate: '2025-02-10T00:00:00Z',
+    createdAt: '2025-02-04T14:00:00Z',
+  },
+  {
+    id: 'task-3',
+    projectId: 'project-1',
+    title: 'Laporan keuangan bulan Januari',
+    description: 'Buat laporan keuangan lengkap untuk bulan Januari termasuk pemasukan, pengeluaran, dan saldo. Format PDF',
+    assignedTo: 'member-4',
+    assignedToName: 'Rizky Firmansyah',
+    assignedBy: 'pic-1',
+    assignedByName: 'Fatimah Az-Zahra',
+    priority: 'high',
+    category: 'admin',
+    status: 'completed',
+    dueDate: '2025-02-05T00:00:00Z',
+    createdAt: '2025-01-28T09:00:00Z',
+    completedAt: '2025-02-04T16:30:00Z',
+  },
+  {
+    id: 'task-4',
+    projectId: 'project-1',
+    title: 'Packaging sembako batch 3',
+    description: 'Koordinasi tim packaging untuk batch 3 (200 paket). Lokasi: Gudang Al-Hidayah',
+    assignedTo: 'member-1',
+    assignedToName: 'Khadijah Mariam',
+    assignedBy: 'pic-1',
+    assignedByName: 'Fatimah Az-Zahra',
+    priority: 'medium',
+    category: 'distribution',
+    status: 'completed',
+    dueDate: '2025-02-01T00:00:00Z',
+    createdAt: '2025-01-25T10:00:00Z',
+    completedAt: '2025-01-31T18:00:00Z',
   },
 ];
 
@@ -674,6 +808,20 @@ export function getProjectUpdates(projectId: string): ProgressUpdate[] {
   // Sort by created date descending
   return mockProgressUpdates
     .filter(u => u.projectId === projectId)
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+}
+
+export function getActivityLogsByProject(projectId: string): ActivityLog[] {
+  // Sort by timestamp descending (most recent first)
+  return mockActivityLogs
+    .filter(log => log.projectId === projectId)
+    .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+}
+
+export function getDelegatedTasks(projectId: string): DelegatedTask[] {
+  // Sort by created date descending
+  return mockDelegatedTasks
+    .filter(task => task.projectId === projectId)
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 }
 

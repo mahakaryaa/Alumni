@@ -8,14 +8,22 @@ import { AdminUser } from '@/types/admin-revised';
 import { AdminSidebarRevised } from './AdminSidebarRevised';
 import { AdminLoginRevised } from './AdminLoginRevised';
 import { PICDashboard } from './PICDashboard';
-import { PendingRequests } from './PendingRequests';
-import { MemberManagement } from './MemberManagement';
 import { ProjectFinance } from './ProjectFinance';
 import { ContentManagement } from './ContentManagement';
 import { PollingManagement } from './PollingManagement';
+import { PICDelegation } from './PICDelegation';
+import { ActivityLog } from './ActivityLog';
+import { ModeratorDashboard } from './ModeratorDashboard';
+import { ModeratorFinance } from './ModeratorFinance';
+import { ModeratorContent } from './ModeratorContent';
+import { ModeratorActivityLog } from './ModeratorActivityLog';
+import { AlumniDataManagement } from './AlumniDataManagement';
+import { SuperadminFinancialDashboard } from './SuperadminFinancialDashboard';
+import { DonationVerification } from './DonationVerification';
+import { WalletManagement } from './WalletManagement';
 import { showToast } from '@/utils/toast';
 import { getProjectByPIC, calculateDashboardStats } from '@/data/mockAdminDataRevised';
-import { getCurrentAdminUser, clearAdminSession } from '@/utils/adminAuth';
+import { getCurrentAdminUser, clearAdminSession } from '@/utils/adminAuthRevised';
 
 interface AdminPanelRevisedProps {
   onBack: () => void;
@@ -23,8 +31,10 @@ interface AdminPanelRevisedProps {
 
 type ActivePage = 
   | 'dashboard'
-  | 'pending-requests'
-  | 'members'
+  | 'financial-dashboard'
+  | 'donation-verification'
+  | 'wallet-management'
+  | 'alumni-data'
   | 'finance'
   | 'content'
   | 'polling'
@@ -36,6 +46,7 @@ export function AdminPanelRevised({ onBack }: AdminPanelRevisedProps) {
   const [currentUser, setCurrentUser] = useState<AdminUser | null>(null);
   const [activePage, setActivePage] = useState<ActivePage>('dashboard');
   const [isLoading, setIsLoading] = useState(true);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   useEffect(() => {
     // Check if user is already logged in
@@ -65,8 +76,9 @@ export function AdminPanelRevised({ onBack }: AdminPanelRevisedProps) {
     onBack();
   };
 
-  const handleNavigate = (page: ActivePage) => {
-    setActivePage(page);
+  const handleNavigate = (page: string) => {
+    setActivePage(page as ActivePage);
+    setIsMobileSidebarOpen(false); // Close sidebar after navigation on mobile
   };
 
   // Loading state
@@ -118,6 +130,21 @@ export function AdminPanelRevised({ onBack }: AdminPanelRevisedProps) {
     );
   }
 
+  // For moderator and superadmin - get overview of all projects
+  const allProjects = currentUser.role !== 'pic' 
+    ? [1, 2, 3] // Mock: All project IDs for moderator/superadmin
+    : [];
+  
+  const moderatorStats = currentUser.role === 'moderator' || currentUser.role === 'superadmin'
+    ? {
+        totalProjects: 3,
+        activeMembers: 42,
+        pendingRequests: 7,
+        totalDonations: 125000000,
+        recentActivities: 15,
+      }
+    : null;
+
   return (
     <div className="flex min-h-screen bg-[#F8F9FA]">
       {/* Sidebar */}
@@ -126,6 +153,8 @@ export function AdminPanelRevised({ onBack }: AdminPanelRevisedProps) {
         activePage={activePage}
         onNavigate={handleNavigate}
         onLogout={handleLogout}
+        isMobileSidebarOpen={isMobileSidebarOpen}
+        setIsMobileSidebarOpen={setIsMobileSidebarOpen}
       />
 
       {/* Main Content */}
@@ -143,7 +172,10 @@ export function AdminPanelRevised({ onBack }: AdminPanelRevisedProps) {
             </div>
 
             {/* Mobile Menu Toggle */}
-            <button className="lg:hidden p-2 hover:bg-[#F8F9FA] rounded-lg transition-colors">
+            <button 
+              onClick={() => setIsMobileSidebarOpen(true)}
+              className="lg:hidden p-2 hover:bg-[#F8F9FA] rounded-lg transition-colors"
+            >
               <span className="material-symbols-outlined text-[#243D68]">menu</span>
             </button>
           </div>
@@ -151,7 +183,8 @@ export function AdminPanelRevised({ onBack }: AdminPanelRevisedProps) {
 
         {/* Page Content */}
         <div className="p-6 md:p-8">
-          {activePage === 'dashboard' && stats && (
+          {/* Dashboard */}
+          {activePage === 'dashboard' && currentUser.role === 'pic' && stats && (
             <PICDashboard
               currentUser={currentUser}
               stats={stats}
@@ -159,28 +192,56 @@ export function AdminPanelRevised({ onBack }: AdminPanelRevisedProps) {
             />
           )}
 
-          {activePage === 'pending-requests' && project && (
-            <PendingRequests
+          {activePage === 'dashboard' && (currentUser.role === 'moderator' || currentUser.role === 'superadmin') && (
+            <ModeratorDashboard
               currentUser={currentUser}
-              projectId={project.id}
               onNavigate={handleNavigate}
             />
           )}
 
-          {activePage === 'members' && project && (
-            <MemberManagement
-              currentUser={currentUser}
-              projectId={project.id}
-            />
-          )}
-
-          {activePage === 'finance' && project && (
+          {/* Finance */}
+          {activePage === 'finance' && currentUser.role === 'pic' && project && (
             <ProjectFinance
               currentUser={currentUser}
               projectId={project.id}
             />
           )}
 
+          {activePage === 'finance' && (currentUser.role === 'moderator' || currentUser.role === 'superadmin') && (
+            <ModeratorFinance
+              currentUser={currentUser}
+            />
+          )}
+
+          {/* Content */}
+          {activePage === 'content' && currentUser.role === 'pic' && project && (
+            <ContentManagement
+              currentUser={currentUser}
+              projectId={project.id}
+            />
+          )}
+
+          {activePage === 'content' && (currentUser.role === 'moderator' || currentUser.role === 'superadmin') && (
+            <ModeratorContent
+              currentUser={currentUser}
+            />
+          )}
+
+          {/* Activity Log */}
+          {activePage === 'activity-log' && currentUser.role === 'pic' && project && (
+            <ActivityLog
+              currentUser={currentUser}
+              projectId={project.id}
+            />
+          )}
+
+          {activePage === 'activity-log' && (currentUser.role === 'moderator' || currentUser.role === 'superadmin') && (
+            <ModeratorActivityLog
+              currentUser={currentUser}
+            />
+          )}
+
+          {/* PIC Only Pages */}
           {activePage === 'polling' && project && (
             <PollingManagement
               currentUser={currentUser}
@@ -188,28 +249,33 @@ export function AdminPanelRevised({ onBack }: AdminPanelRevisedProps) {
             />
           )}
 
-          {activePage === 'content' && project && (
-            <ContentManagement
+          {activePage === 'delegation' && project && (
+            <PICDelegation
               currentUser={currentUser}
               projectId={project.id}
             />
           )}
 
-          {/* Placeholder for other pages */}
-          {activePage === 'delegation' && (
-            <div className="text-center py-12">
-              <span className="material-symbols-outlined text-6xl text-[#6B7280] mb-4">construction</span>
-              <h2 className="font-semibold text-xl text-[#0E1B33] mb-2">Coming Soon</h2>
-              <p className="text-[#6B7280]">Delegation page is under construction</p>
-            </div>
+          {/* Alumni Data Management */}
+          {activePage === 'alumni-data' && (
+            <AlumniDataManagement
+              currentUser={currentUser}
+            />
           )}
 
-          {activePage === 'activity-log' && (
-            <div className="text-center py-12">
-              <span className="material-symbols-outlined text-6xl text-[#6B7280] mb-4">construction</span>
-              <h2 className="font-semibold text-xl text-[#0E1B33] mb-2">Coming Soon</h2>
-              <p className="text-[#6B7280]">Activity Log page is under construction</p>
-            </div>
+          {/* Financial Dashboard (Superadmin Only) */}
+          {activePage === 'financial-dashboard' && currentUser.role === 'superadmin' && (
+            <SuperadminFinancialDashboard />
+          )}
+
+          {/* Donation Verification (Superadmin Only) */}
+          {activePage === 'donation-verification' && currentUser.role === 'superadmin' && (
+            <DonationVerification currentUser={currentUser} />
+          )}
+
+          {/* Wallet Management (Superadmin Only) */}
+          {activePage === 'wallet-management' && currentUser.role === 'superadmin' && (
+            <WalletManagement currentUser={currentUser} />
           )}
         </div>
       </div>
