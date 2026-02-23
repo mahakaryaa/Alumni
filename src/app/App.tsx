@@ -912,6 +912,10 @@ function AppContent() {
       }}
       userRole={userRole}
       onEventRegistrationSubmitted={handleEventRegistrationSubmitted}
+      onNavigateToLogin={() => {
+        setCurrentView('welcome');
+        setActiveNav('home');
+      }}
     />;
   }
 
@@ -1483,7 +1487,8 @@ function AppContent() {
                     ? 'bg-[#243D68] text-white border border-[#243D68]'
                     : 'bg-white border border-[#D6DCE8] text-[#61728F] hover:border-[#243D68] hover:text-[#243D68]'
                 }`}
-              >\n                <span className="material-symbols-outlined text-[20px]">star</span> {t.categories.all}
+              >
+                {t.categories.all}
               </button>
               <button 
                 onClick={() => setActiveCategory('pendidikan')}

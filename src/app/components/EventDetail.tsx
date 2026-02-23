@@ -8,6 +8,7 @@ interface EventDetailProps {
   onBack: () => void;
   userRole?: 'donatur' | 'alumni' | 'alumni-guest' | null;
   onEventRegistrationSubmitted?: (registration: EventRegistration) => void;
+  onNavigateToLogin?: () => void;
 }
 
 // Mock event data
@@ -19,7 +20,7 @@ const EVENT_DATA = {
   location: 'Surabaya Convention Hall',
 };
 
-export function EventDetail({ onBack, userRole, onEventRegistrationSubmitted }: EventDetailProps) {
+export function EventDetail({ onBack, userRole, onEventRegistrationSubmitted, onNavigateToLogin }: EventDetailProps) {
   const { language } = useTranslation();
   const [registrationStatus, setRegistrationStatus] = useState<'none' | 'pending' | 'approved' | 'rejected'>('none');
   const [showRegisterModal, setShowRegisterModal] = useState(false);
@@ -39,6 +40,7 @@ export function EventDetail({ onBack, userRole, onEventRegistrationSubmitted }: 
   const handleOpenRegister = () => {
     if (!isAlumni) {
       toast.error('Silakan login sebagai alumni untuk mendaftar event');
+      onNavigateToLogin?.();
       return;
     }
     setShowRegisterModal(true);
