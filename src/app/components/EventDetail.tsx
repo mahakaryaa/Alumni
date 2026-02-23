@@ -1,11 +1,100 @@
 import { useState } from 'react';
+import { Logo } from './Logo';
+import { toast } from 'sonner';
+import { useTranslation } from '@/hooks/useTranslation';
+import type { EventRegistration } from '@/types';
 
 interface EventDetailProps {
   onBack: () => void;
+  userRole?: 'donatur' | 'alumni' | 'alumni-guest' | null;
+  onEventRegistrationSubmitted?: (registration: EventRegistration) => void;
 }
 
-export function EventDetail({ onBack }: EventDetailProps) {
-  const [isRegistered, setIsRegistered] = useState(false);
+// Mock event data
+const EVENT_DATA = {
+  id: 'event-workshop-2025',
+  title: 'Workshop Alumni di Surabaya!',
+  date: '12 November 2025',
+  time: '09:00 - 17:00 WIB',
+  location: 'Surabaya Convention Hall',
+};
+
+export function EventDetail({ onBack, userRole, onEventRegistrationSubmitted }: EventDetailProps) {
+  const { language } = useTranslation();
+  const [registrationStatus, setRegistrationStatus] = useState<'none' | 'pending' | 'approved' | 'rejected'>('none');
+  const [showRegisterModal, setShowRegisterModal] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Form state
+  const [phone, setPhone] = useState('');
+  const [motivation, setMotivation] = useState('');
+  const [dietaryRestrictions, setDietaryRestrictions] = useState('');
+  const [emergencyContact, setEmergencyContact] = useState('');
+  const [emergencyPhone, setEmergencyPhone] = useState('');
+  const [hasAttendedBefore, setHasAttendedBefore] = useState(false);
+
+  const isAlumni = userRole === 'alumni';
+  const motivationValid = motivation.trim().length >= 50;
+
+  const handleOpenRegister = () => {
+    if (!isAlumni) {
+      toast.error('Silakan login sebagai alumni untuk mendaftar event');
+      return;
+    }
+    setShowRegisterModal(true);
+  };
+
+  const handleSubmitRegistration = async () => {
+    if (!phone.trim()) {
+      toast.error('Nomor telepon wajib diisi');
+      return;
+    }
+    if (!motivationValid) {
+      toast.error('Motivasi minimal 50 karakter');
+      return;
+    }
+
+    setIsSubmitting(true);
+    await new Promise(r => setTimeout(r, 1200));
+
+    const newRegistration: EventRegistration = {
+      id: `reg-${Date.now()}`,
+      eventId: EVENT_DATA.id,
+      eventTitle: EVENT_DATA.title,
+      eventDate: EVENT_DATA.date,
+      eventTime: EVENT_DATA.time,
+      eventLocation: EVENT_DATA.location,
+      alumniId: 'current-user-id',
+      alumniName: 'Alumni User',
+      alumniEmail: 'alumni@example.com',
+      alumniPhone: phone,
+      alumniAngkatan: '2019',
+      alumniKota: 'Surabaya',
+      motivation,
+      hasAttendedBefore,
+      dietaryRestrictions: dietaryRestrictions || undefined,
+      emergencyContact: emergencyContact || undefined,
+      emergencyContactPhone: emergencyPhone || undefined,
+      status: 'pending',
+      submittedAt: new Date().toISOString(),
+    };
+
+    onEventRegistrationSubmitted?.(newRegistration);
+    setRegistrationStatus('pending');
+    setShowRegisterModal(false);
+    setIsSubmitting(false);
+    toast.success('Pendaftaran berhasil dikirim! Menunggu persetujuan panitia.');
+  };
+
+  const getRegistrationButtonState = () => {
+    if (registrationStatus === 'pending') return { label: 'Menunggu Konfirmasi', icon: 'schedule', disabled: true, color: 'bg-yellow-100 text-yellow-700 border-2 border-yellow-300' };
+    if (registrationStatus === 'approved') return { label: 'Sudah Terdaftar ✓', icon: 'check_circle', disabled: true, color: 'bg-green-100 text-green-700 border-2 border-green-300' };
+    if (registrationStatus === 'rejected') return { label: 'Pendaftaran Ditolak', icon: 'cancel', disabled: true, color: 'bg-red-100 text-red-700 border-2 border-red-300' };
+    if (!isAlumni) return { label: 'Login Alumni untuk Daftar', icon: 'lock', disabled: false, color: 'bg-[#E5E8EC] text-[#6B7280] border-2 border-[#D6DCE8]' };
+    return { label: 'Daftar Sekarang', icon: 'how_to_reg', disabled: false, color: 'bg-[#183A74] text-white shadow-[6px_6px_0px_0px_rgba(250,192,110,1)] active:shadow-none active:translate-x-1 active:translate-y-1' };
+  };
+
+  const btnState = getRegistrationButtonState();
 
   return (
     <div className="flex min-h-screen bg-white">
@@ -19,14 +108,7 @@ export function EventDetail({ onBack }: EventDetailProps) {
         <div className="relative z-10 flex flex-col h-full">
           {/* Logo */}
           <div className="p-5">
-            <div className="bg-[#FAC06E] p-3 flex items-center gap-3 shadow-md">
-              <div className="w-8 h-8 border-2 border-[#2B4468] flex items-center justify-center">
-                <span className="material-symbols-outlined text-[#2B4468] text-xl font-bold">mosque</span>
-              </div>
-              <span className="font-['Archivo_Black'] text-base uppercase tracking-tight text-[#2B4468]">
-                ALMAQDISI PROJECT
-              </span>
-            </div>
+            <Logo />
           </div>
           
           {/* Menu Navigation */}
@@ -91,7 +173,7 @@ export function EventDetail({ onBack }: EventDetailProps) {
         </div>
 
         {/* Content */}
-        <div className="flex-1 pb-20 lg:pb-8">
+        <div className="flex-1 pb-28 lg:pb-8">
           {/* Hero Image */}
           <div className="px-6 md:px-8 pt-6 pb-4">
             <div className="w-full rounded-2xl overflow-hidden relative aspect-[16/9] md:aspect-[2.35/1]">
@@ -171,6 +253,17 @@ export function EventDetail({ onBack }: EventDetailProps) {
                 </div>
               </div>
             </div>
+
+            {/* Registration Status Banner (if registered) */}
+            {registrationStatus === 'pending' && (
+              <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-4 flex items-center gap-3">
+                <span className="material-symbols-outlined text-yellow-600 text-2xl">schedule</span>
+                <div>
+                  <p className="font-semibold text-yellow-800">Menunggu Konfirmasi Panitia</p>
+                  <p className="text-sm text-yellow-700">Pendaftaran Anda sedang dalam peninjauan. Kami akan memberi tahu Anda segera.</p>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Content Sections */}
@@ -189,131 +282,6 @@ export function EventDetail({ onBack }: EventDetailProps) {
               </p>
             </div>
 
-            {/* Agenda */}
-            <div className="bg-[#F8F9FA] rounded-xl p-5 border border-[#E5E7EB]">
-              <h3 className="text-base font-bold text-[#333333] mb-4 flex items-center gap-2">
-                <span className="material-symbols-outlined text-[#243D68]">event_note</span>
-                Agenda Acara
-              </h3>
-              <div className="space-y-4">
-                <div className="flex gap-4">
-                  <div className="flex flex-col items-center">
-                    <div className="w-12 h-12 bg-[#243D68] rounded-full flex items-center justify-center text-white font-bold text-sm">
-                      09:00
-                    </div>
-                    <div className="w-0.5 h-full bg-[#D6DCE8] mt-2"></div>
-                  </div>
-                  <div className="flex-1 pb-4">
-                    <h4 className="font-semibold text-[#333333] mb-1">Registrasi & Welcome Coffee</h4>
-                    <p className="text-sm text-[#6B7280]">Pendaftaran peserta dan networking informal</p>
-                  </div>
-                </div>
-
-                <div className="flex gap-4">
-                  <div className="flex flex-col items-center">
-                    <div className="w-12 h-12 bg-[#243D68] rounded-full flex items-center justify-center text-white font-bold text-sm">
-                      10:00
-                    </div>
-                    <div className="w-0.5 h-full bg-[#D6DCE8] mt-2"></div>
-                  </div>
-                  <div className="flex-1 pb-4">
-                    <h4 className="font-semibold text-[#333333] mb-1">Pembukaan & Keynote Speaker</h4>
-                    <p className="text-sm text-[#6B7280]">Sambutan dari ketua IKA dan pembicara utama</p>
-                  </div>
-                </div>
-
-                <div className="flex gap-4">
-                  <div className="flex flex-col items-center">
-                    <div className="w-12 h-12 bg-[#243D68] rounded-full flex items-center justify-center text-white font-bold text-sm">
-                      11:30
-                    </div>
-                    <div className="w-0.5 h-full bg-[#D6DCE8] mt-2"></div>
-                  </div>
-                  <div className="flex-1 pb-4">
-                    <h4 className="font-semibold text-[#333333] mb-1">Sesi Workshop - Batch 1</h4>
-                    <p className="text-sm text-[#6B7280]">3 workshop paralel: Career Development, Social Impact, Entrepreneurship</p>
-                  </div>
-                </div>
-
-                <div className="flex gap-4">
-                  <div className="flex flex-col items-center">
-                    <div className="w-12 h-12 bg-[#243D68] rounded-full flex items-center justify-center text-white font-bold text-sm">
-                      13:00
-                    </div>
-                    <div className="w-0.5 h-full bg-[#D6DCE8] mt-2"></div>
-                  </div>
-                  <div className="flex-1 pb-4">
-                    <h4 className="font-semibold text-[#333333] mb-1">ISHOMA</h4>
-                    <p className="text-sm text-[#6B7280]">Istirahat, Sholat, Makan siang</p>
-                  </div>
-                </div>
-
-                <div className="flex gap-4">
-                  <div className="flex flex-col items-center">
-                    <div className="w-12 h-12 bg-[#243D68] rounded-full flex items-center justify-center text-white font-bold text-sm">
-                      14:30
-                    </div>
-                    <div className="w-0.5 h-full bg-[#D6DCE8] mt-2"></div>
-                  </div>
-                  <div className="flex-1 pb-4">
-                    <h4 className="font-semibold text-[#333333] mb-1">Sesi Workshop - Batch 2</h4>
-                    <p className="text-sm text-[#6B7280]">Lanjutan workshop dengan topik berbeda</p>
-                  </div>
-                </div>
-
-                <div className="flex gap-4">
-                  <div className="flex flex-col items-center">
-                    <div className="w-12 h-12 bg-[#243D68] rounded-full flex items-center justify-center text-white font-bold text-sm">
-                      16:00
-                    </div>
-                  </div>
-                  <div className="flex-1">
-                    <h4 className="font-semibold text-[#333333] mb-1">Penutupan & Networking</h4>
-                    <p className="text-sm text-[#6B7280]">Sesi foto bersama dan networking</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Speakers */}
-            <div className="bg-[#F8F9FA] rounded-xl p-5 border border-[#E5E7EB]">
-              <h3 className="text-base font-bold text-[#333333] mb-4 flex items-center gap-2">
-                <span className="material-symbols-outlined text-[#243D68]">person</span>
-                Pembicara
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="flex items-center gap-4 bg-white p-4 rounded-lg border border-[#E5E7EB]">
-                  <div
-                    className="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-14 w-14 shrink-0"
-                    style={{
-                      backgroundImage:
-                        'url("https://lh3.googleusercontent.com/aida-public/AB6AXuCdGdNRPdJTq7rYpI57MpyJAbrSzME4063Cv_eMCLbsbiX9dr1pAWJ-x2jtf9FUGMvNLmaD7OnFNquRX_2qWE9w_g_Cao9dkoNjDXClNwSVxd0KVd1quE2fKWPIUyyQa8e7YS-sU5n7-Qujeartl5LnjAc8otjPS2CPInJpxfiKdxwgGHevu3k6Ae2UZ5bS98LmB3QZUWRyZsx8xo3-eL_WkfzdY3Ar5UJkj5RMf-jP94L3kJbYozRZnMr3F0byq8Dj6iSBjDygsbaI")',
-                    }}
-                  ></div>
-                  <div className="flex-1">
-                    <p className="text-base font-semibold text-[#333333]">Dr. Ahmad Sudirman</p>
-                    <p className="text-sm text-[#6B7280]">CEO TechStart Indonesia</p>
-                    <p className="text-xs text-[#4A90E2] mt-1 font-medium">Keynote Speaker</p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-4 bg-white p-4 rounded-lg border border-[#E5E7EB]">
-                  <div
-                    className="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-14 w-14 shrink-0"
-                    style={{
-                      backgroundImage:
-                        'url("https://lh3.googleusercontent.com/aida-public/AB6AXuDiTCni6xCVaBuSHYW9yXo4lhDCML_Cp6QKgGXN6fU4Sxwl-E-6K_4bLGC0gu_nS-I8pGEEyTEqzf9XY8MH_bBN_5dJy36wNXq4gUzT5bGqXQpwpRJRv84P9LBSg8HppXOV8WYGYe-oYIbBk8LEO8HJuUaVq4bGaGDf0rJL74OqYJzLAw7cg1iA15o9uHDZV-c5l8xf3u7OX-FPJJzcBR_qAnbWgK8TXiRWuUt_p8a4Gex_pUKCJoN4Fk6Rn9vWDhWL8FBhUBmB")',
-                    }}
-                  ></div>
-                  <div className="flex-1">
-                    <p className="text-base font-semibold text-[#333333]">Siti Nurhaliza, M.Psi</p>
-                    <p className="text-sm text-[#6B7280]">Career Coach & Mentor</p>
-                    <p className="text-xs text-[#4A90E2] mt-1 font-medium">Workshop Facilitator</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
             {/* Benefit */}
             <div className="bg-[#F8F9FA] rounded-xl p-5 border border-[#E5E7EB]">
               <h3 className="text-base font-bold text-[#333333] mb-3 flex items-center gap-2">
@@ -321,87 +289,211 @@ export function EventDetail({ onBack }: EventDetailProps) {
                 Benefit untuk Peserta
               </h3>
               <ul className="space-y-3 text-[#6B7280] text-sm leading-relaxed">
-                <li className="flex items-start gap-2">
-                  <span className="material-symbols-outlined text-[#4CAF50] text-lg mt-0.5">
-                    check_circle
-                  </span>
-                  <span>Sertifikat kehadiran dari IKA Universitas Brawijaya</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="material-symbols-outlined text-[#4CAF50] text-lg mt-0.5">
-                    check_circle
-                  </span>
-                  <span>Materi workshop lengkap dalam bentuk digital</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="material-symbols-outlined text-[#4CAF50] text-lg mt-0.5">
-                    check_circle
-                  </span>
-                  <span>Konsumsi (snack, lunch, coffee break)</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="material-symbols-outlined text-[#4CAF50] text-lg mt-0.5">
-                    check_circle
-                  </span>
-                  <span>Networking session dengan alumni sukses</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="material-symbols-outlined text-[#4CAF50] text-lg mt-0.5">
-                    check_circle
-                  </span>
-                  <span>Goodie bag eksklusif IKA UB</span>
-                </li>
+                {['Sertifikat kehadiran dari IKA', 'Materi workshop dalam format digital', 'Konsumsi (snack, lunch, coffee break)', 'Networking session dengan alumni sukses', 'Goodie bag eksklusif'].map(benefit => (
+                  <li key={benefit} className="flex items-start gap-2">
+                    <span className="material-symbols-outlined text-green-500 text-lg mt-0.5">check_circle</span>
+                    <span>{benefit}</span>
+                  </li>
+                ))}
               </ul>
             </div>
 
-            {/* Contact Person */}
+            {/* Contact */}
             <div className="bg-[#F8F9FA] rounded-xl p-5 border border-[#E5E7EB]">
               <h3 className="text-base font-bold text-[#333333] mb-3 flex items-center gap-2">
                 <span className="material-symbols-outlined text-[#243D68]">contact_support</span>
                 Kontak Panitia
               </h3>
               <div className="space-y-3">
-                <div className="flex items-center gap-3">
-                  <span className="material-symbols-outlined text-[#4A90E2]">phone</span>
-                  <p className="text-sm text-[#6B7280]">+62 812-3456-7890 (Budi)</p>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className="material-symbols-outlined text-[#4A90E2]">email</span>
-                  <p className="text-sm text-[#6B7280]">workshop@ikaub.ac.id</p>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className="material-symbols-outlined text-[#4A90E2]">location_on</span>
-                  <p className="text-sm text-[#6B7280]">Jl. Mayjen Sungkono No. 123, Surabaya</p>
-                </div>
+                {[
+                  { icon: 'phone', text: '+62 812-3456-7890 (Budi)' },
+                  { icon: 'email', text: 'workshop@almaqdisi.id' },
+                  { icon: 'location_on', text: 'Jl. Mayjen Sungkono No. 123, Surabaya' },
+                ].map(item => (
+                  <div key={item.icon} className="flex items-center gap-3">
+                    <span className="material-symbols-outlined text-[#4A90E2]">{item.icon}</span>
+                    <p className="text-sm text-[#6B7280]">{item.text}</p>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
 
-          {/* Registration Button - Fixed Bottom on Mobile */}
+          {/* Registration Button - Fixed Bottom */}
           <div className="fixed bottom-0 left-0 right-0 lg:static bg-white border-t border-[#D6DCE8] p-4 lg:px-8 lg:pb-8 z-10">
             <button
-              onClick={() => setIsRegistered(!isRegistered)}
-              className={`w-full lg:max-w-md lg:mx-auto flex items-center justify-center gap-2 py-4 rounded-xl font-bold uppercase tracking-widest transition-all duration-300 ${
-                isRegistered
-                  ? 'bg-[#E5E8EC] text-[#6B7280] border-2 border-[#D6DCE8]'
-                  : 'bg-[#183A74] text-white shadow-[6px_6px_0px_0px_rgba(250,192,110,1)] active:shadow-none active:translate-x-1 active:translate-y-1'
-              }`}
+              onClick={btnState.disabled ? undefined : handleOpenRegister}
+              disabled={btnState.disabled}
+              className={`w-full lg:max-w-md lg:mx-auto flex items-center justify-center gap-2 py-4 rounded-xl font-bold uppercase tracking-widest transition-all duration-300 ${btnState.color} ${btnState.disabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}
             >
-              {isRegistered ? (
-                <>
-                  <span className="material-symbols-outlined">check_circle</span>
-                  <span>Sudah Terdaftar</span>
-                </>
-              ) : (
-                <>
-                  <span className="material-symbols-outlined">how_to_reg</span>
-                  <span>Daftar Sekarang</span>
-                </>
-              )}
+              <span className="material-symbols-outlined">{btnState.icon}</span>
+              <span>{btnState.label}</span>
             </button>
           </div>
         </div>
       </div>
+
+      {/* Registration Modal */}
+      {showRegisterModal && (
+        <div className="fixed inset-0 bg-black/60 z-50 flex items-end md:items-center justify-center p-0 md:p-4">
+          <div className="bg-white w-full md:max-w-lg rounded-t-3xl md:rounded-2xl max-h-[92vh] flex flex-col">
+            {/* Modal Header */}
+            <div className="sticky top-0 bg-white rounded-t-3xl md:rounded-t-2xl border-b border-[#E5E7EB] px-6 py-4 flex items-center justify-between">
+              <div>
+                <h3 className="font-['Archivo_Black'] text-lg uppercase text-[#0E1B33]">Daftar Event</h3>
+                <p className="text-sm text-[#6B7280]">Workshop Alumni di Surabaya</p>
+              </div>
+              <button
+                onClick={() => setShowRegisterModal(false)}
+                className="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-[#F8F9FA] transition-colors text-[#6B7280]"
+              >
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+
+            {/* Modal Body - Scrollable */}
+            <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+              {/* Pre-filled info */}
+              <div className="bg-[#F8F9FA] rounded-xl p-4 border border-[#E5E7EB]">
+                <p className="text-xs text-[#6B7280] font-semibold uppercase tracking-wide mb-2">Data Anda</p>
+                <p className="font-semibold text-[#0E1B33]">Alumni User</p>
+                <p className="text-sm text-[#6B7280]">alumni@example.com • Angkatan 2019</p>
+              </div>
+
+              {/* Phone */}
+              <div>
+                <label className="block text-sm font-semibold text-[#0E1B33] mb-1.5">
+                  No. Telepon <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="tel"
+                  value={phone}
+                  onChange={e => setPhone(e.target.value)}
+                  placeholder="+62 8xx-xxxx-xxxx"
+                  className="w-full px-4 py-3 border-2 border-[#E5E7EB] rounded-xl focus:border-[#243D68] focus:outline-none"
+                />
+              </div>
+
+              {/* Motivation */}
+              <div>
+                <label className="block text-sm font-semibold text-[#0E1B33] mb-1.5">
+                  Motivasi Hadir <span className="text-red-500">*</span>
+                </label>
+                <textarea
+                  value={motivation}
+                  onChange={e => setMotivation(e.target.value)}
+                  placeholder="Tuliskan motivasi Anda menghadiri event ini (min. 50 karakter)..."
+                  rows={4}
+                  className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none resize-none transition-colors ${
+                    motivation.length > 0 && !motivationValid ? 'border-red-300 focus:border-red-500' : 'border-[#E5E7EB] focus:border-[#243D68]'
+                  }`}
+                />
+                <div className="flex justify-between mt-1">
+                  <span className={`text-xs ${motivationValid ? 'text-green-600' : 'text-[#6B7280]'}`}>
+                    {motivationValid ? '✓ Valid' : `${motivation.length}/50 karakter minimum`}
+                  </span>
+                  <span className="text-xs text-[#6B7280]">{motivation.length} karakter</span>
+                </div>
+              </div>
+
+              {/* Dietary */}
+              <div>
+                <label className="block text-sm font-semibold text-[#0E1B33] mb-1.5">
+                  Pantangan Makanan <span className="text-[#6B7280] font-normal">(opsional)</span>
+                </label>
+                <input
+                  type="text"
+                  value={dietaryRestrictions}
+                  onChange={e => setDietaryRestrictions(e.target.value)}
+                  placeholder="Contoh: vegetarian, tidak makan seafood, dll."
+                  className="w-full px-4 py-3 border-2 border-[#E5E7EB] rounded-xl focus:border-[#243D68] focus:outline-none"
+                />
+              </div>
+
+              {/* Emergency Contact */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-semibold text-[#0E1B33] mb-1.5">
+                    Kontak Darurat <span className="text-[#6B7280] font-normal text-xs">(opsional)</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={emergencyContact}
+                    onChange={e => setEmergencyContact(e.target.value)}
+                    placeholder="Nama"
+                    className="w-full px-3 py-2.5 border-2 border-[#E5E7EB] rounded-xl focus:border-[#243D68] focus:outline-none text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-[#0E1B33] mb-1.5 invisible">No. Telepon</label>
+                  <input
+                    type="tel"
+                    value={emergencyPhone}
+                    onChange={e => setEmergencyPhone(e.target.value)}
+                    placeholder="No. Telepon"
+                    className="w-full px-3 py-2.5 border-2 border-[#E5E7EB] rounded-xl focus:border-[#243D68] focus:outline-none text-sm"
+                  />
+                </div>
+              </div>
+
+              {/* Has attended before */}
+              <label className="flex items-center gap-3 p-4 bg-[#F8F9FA] rounded-xl border border-[#E5E7EB] cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={hasAttendedBefore}
+                  onChange={e => setHasAttendedBefore(e.target.checked)}
+                  className="w-5 h-5 accent-[#243D68] cursor-pointer"
+                />
+                <div>
+                  <p className="font-semibold text-[#0E1B33] text-sm">Pernah hadir di event sebelumnya</p>
+                  <p className="text-xs text-[#6B7280]">Centang jika Anda alumni yang pernah hadir di event AlMaqdisi</p>
+                </div>
+              </label>
+
+              {/* Terms info */}
+              <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 flex gap-2">
+                <span className="material-symbols-outlined text-blue-600 text-lg flex-shrink-0">info</span>
+                <p className="text-xs text-blue-700 leading-relaxed">
+                  Pendaftaran Anda akan ditinjau oleh panitia. Anda akan mendapat notifikasi setelah pendaftaran diproses.
+                </p>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="sticky bottom-0 bg-white border-t border-[#E5E7EB] px-6 py-4">
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowRegisterModal(false)}
+                  className="flex-1 py-3.5 border-2 border-[#E5E7EB] text-[#6B7280] rounded-xl font-semibold hover:bg-[#F8F9FA] transition-colors"
+                >
+                  {language === 'id' ? 'Batal' : 'Cancel'}
+                </button>
+                <button
+                  onClick={handleSubmitRegistration}
+                  disabled={isSubmitting || !phone.trim() || !motivationValid}
+                  className={`flex-2 flex-[2] py-3.5 rounded-xl font-bold uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${
+                    isSubmitting || !phone.trim() || !motivationValid
+                      ? 'bg-[#E5E8EC] text-[#6B7280] cursor-not-allowed'
+                      : 'bg-[#243D68] text-white hover:bg-[#183A74] shadow-lg'
+                  }`}
+                >
+                  {isSubmitting ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                      <span>Mengirim...</span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="material-symbols-outlined text-xl">send</span>
+                      <span>Kirim Pendaftaran</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

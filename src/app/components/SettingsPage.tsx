@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { Logo } from './Logo';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface SettingsPageProps {
   onBack: () => void;
@@ -7,8 +9,12 @@ interface SettingsPageProps {
   onNavigateMessages?: () => void;
   onNavigateSettings?: () => void;
   onLogout?: () => void;
+  onNavigateMyDonations?: () => void;
+  onNavigateMyJoinRequests?: () => void;
   activeNav?: string;
   userRole?: 'donatur' | 'alumni' | 'alumni-guest' | null;
+  language?: 'id' | 'en';
+  onLanguageChange?: (lang: 'id' | 'en') => void;
 }
 
 export function SettingsPage({ 
@@ -18,14 +24,18 @@ export function SettingsPage({
   onNavigateMessages, 
   onNavigateSettings,
   onLogout,
+  onNavigateMyDonations,
+  onNavigateMyJoinRequests,
   activeNav = 'settings',
-  userRole = 'alumni'
+  userRole = 'alumni',
+  language: externalLanguage,
+  onLanguageChange
 }: SettingsPageProps) {
   // Profile states
   const [profilePhoto, setProfilePhoto] = useState('');
-  const [fullName, setFullName] = useState('Budi Santoso');
-  const [username, setUsername] = useState('budisantoso');
-  const [email, setEmail] = useState('budi.santoso@email.com');
+  const [fullName, setFullName] = useState('Muhammad Alfatih');
+  const [username, setUsername] = useState('muhammadalfatih');
+  const [email, setEmail] = useState('muhammad.alfatih@email.com');
   const [phone, setPhone] = useState('081234567890');
   const [jurusan, setJurusan] = useState('Teknik Informatika');
   const [bio, setBio] = useState('Alumni aktif yang passionate dalam teknologi dan pendidikan');
@@ -39,7 +49,7 @@ export function SettingsPage({
   ]);
   
   // Additional Informasi Pribadi states
-  const [namaPanggilan, setNamaPanggilan] = useState('Budi');
+  const [namaPanggilan, setNamaPanggilan] = useState('Fatih');
   const [domisili, setDomisili] = useState('Jakarta');
   const [statusPernikahan, setStatusPernikahan] = useState('Single');
   const [statusPekerjaan, setStatusPekerjaan] = useState('Bekerja');
@@ -73,8 +83,16 @@ export function SettingsPage({
   const [mentionPermission, setMentionPermission] = useState('all');
   const [showOnlineStatus, setShowOnlineStatus] = useState(true);
   
-  // Preferences states
-  const [language, setLanguage] = useState('id');
+  // Preferences states - use external language if provided, otherwise use local state
+  const [internalLanguage, setInternalLanguage] = useState<'id' | 'en'>('id');
+  const language = externalLanguage || internalLanguage;
+  const setLanguage = (lang: 'id' | 'en') => {
+    if (onLanguageChange) {
+      onLanguageChange(lang);
+    } else {
+      setInternalLanguage(lang);
+    }
+  };
   
   // Modal states
   const [showEditProfile, setShowEditProfile] = useState(false);
@@ -130,6 +148,9 @@ export function SettingsPage({
     }
   };
 
+  // Get translations
+  const { t } = useTranslation();
+
   return (
     <div className="flex min-h-screen bg-[#F8F9FA] overflow-x-hidden max-w-full">
       {/* Sidebar - Desktop Only */}
@@ -141,14 +162,7 @@ export function SettingsPage({
         <div className="relative z-10 flex flex-col h-full">
           {/* Logo */}
           <div className="p-5">
-            <div className="bg-[#FAC06E] p-3 flex items-center gap-3 shadow-md rounded-lg">
-              <div className="w-8 h-8 border-2 border-[#2B4468] flex items-center justify-center rounded-md">
-                <span className="material-symbols-outlined text-[#2B4468] text-xl font-bold">mosque</span>
-              </div>
-              <span className="font-['Archivo_Black'] text-base uppercase tracking-tight text-[#2B4468]">
-                ALMAQDISI PROJECT
-              </span>
-            </div>
+            <Logo />
           </div>
 
           {/* Navigation */}
@@ -161,7 +175,7 @@ export function SettingsPage({
                 onClick={onNavigateHome}
               >
                 <span className="material-symbols-outlined text-xl">home</span>
-                <span className="tracking-wide text-sm">Home</span>
+                <span className="tracking-wide text-sm">{t.nav.home}</span>
               </button>
 
               <button
@@ -171,7 +185,7 @@ export function SettingsPage({
                 onClick={onNavigateExplore}
               >
                 <span className="material-symbols-outlined text-xl">explore</span>
-                <span className="tracking-wide text-sm">Explore</span>
+                <span className="tracking-wide text-sm">{t.nav.explore}</span>
               </button>
 
               <button
@@ -181,12 +195,12 @@ export function SettingsPage({
                 onClick={onNavigateMessages}
               >
                 <span className="material-symbols-outlined text-xl">chat_bubble</span>
-                <span className="tracking-wide text-sm">Pesan</span>
+                <span className="tracking-wide text-sm">{t.nav.messages}</span>
               </button>
 
               <button className="flex items-center gap-3 px-4 py-3.5 rounded-xl font-medium transition-all bg-white/10 text-white w-full">
                 <span className="material-symbols-outlined text-xl">settings</span>
-                <span className="tracking-wide text-sm">Settings</span>
+                <span className="tracking-wide text-sm">{t.nav.settings}</span>
               </button>
             </div>
           </nav>
@@ -255,7 +269,7 @@ export function SettingsPage({
                   }}
                   className="px-3 py-2 md:px-4 bg-white/10 hover:bg-white/20 text-white rounded-lg font-semibold text-xs md:text-sm transition-colors backdrop-blur-sm border border-white/20 whitespace-nowrap"
                 >
-                  Edit Profil
+                  {t.settings.editProfileBtn}
                 </button>
               </div>
             </div>
@@ -264,7 +278,7 @@ export function SettingsPage({
             <div>
               <h3 className="text-sm font-bold text-[#6B7280] uppercase tracking-widest mb-3 flex items-center gap-2">
                 <span className="material-symbols-outlined text-lg">person</span>
-                {userRole === 'donatur' ? 'Akun' : 'Profil Alumni'}
+                {userRole === 'donatur' ? t.settings.account : t.settings.alumniProfile}
               </h3>
               <div className="bg-white rounded-2xl border border-[#E5E7EB] shadow-sm overflow-hidden">
                 <button
@@ -280,8 +294,8 @@ export function SettingsPage({
                     <span className="material-symbols-outlined text-[#243D68]">badge</span>
                   </div>
                   <div className="flex-1 text-left min-w-0">
-                    <p className="text-sm font-semibold text-[#0E1B33]">Informasi Pribadi</p>
-                    <p className="text-xs text-[#6B7280]">Nama, foto, bio, dan kontak</p>
+                    <p className="text-sm font-semibold text-[#0E1B33]">{t.settings.personalInfo}</p>
+                    <p className="text-xs text-[#6B7280]">{language === 'id' ? 'Nama, foto, bio, dan kontak' : 'Name, photo, bio, and contact'}</p>
                   </div>
                   <span className="material-symbols-outlined text-[#6B7280] flex-shrink-0">chevron_right</span>
                 </button>
@@ -298,8 +312,8 @@ export function SettingsPage({
                       <span className="material-symbols-outlined text-[#243D68]">school</span>
                     </div>
                     <div className="flex-1 text-left min-w-0">
-                      <p className="text-sm font-semibold text-[#0E1B33]">Data Alumni</p>
-                      <p className="text-xs text-[#6B7280]">Skill, edukasi, batch Saladin Camp</p>
+                      <p className="text-sm font-semibold text-[#0E1B33]">{t.settings.alumniData}</p>
+                      <p className="text-xs text-[#6B7280]">{language === 'id' ? 'Skill, edukasi, batch Saladin Camp' : 'Skills, education, Saladin Camp batch'}</p>
                     </div>
                     <span className="material-symbols-outlined text-[#6B7280] flex-shrink-0">chevron_right</span>
                   </button>
@@ -311,7 +325,7 @@ export function SettingsPage({
             <div>
               <h3 className="text-sm font-bold text-[#6B7280] uppercase tracking-widest mb-3 flex items-center gap-2">
                 <span className="material-symbols-outlined text-lg">security</span>
-                Keamanan Akun
+                {t.settings.accountSecurity}
               </h3>
               <div className="bg-white rounded-2xl border border-[#E5E7EB] shadow-sm overflow-hidden">
                 <button
@@ -322,8 +336,8 @@ export function SettingsPage({
                     <span className="material-symbols-outlined text-[#243D68]">lock</span>
                   </div>
                   <div className="flex-1 text-left min-w-0">
-                    <p className="text-sm font-semibold text-[#0E1B33]">Ubah Password</p>
-                    <p className="text-xs text-[#6B7280]">Update password akun Anda</p>
+                    <p className="text-sm font-semibold text-[#0E1B33]">{t.settings.changePassword}</p>
+                    <p className="text-xs text-[#6B7280]">{language === 'id' ? 'Update password akun Anda' : 'Update your account password'}</p>
                   </div>
                   <span className="material-symbols-outlined text-[#6B7280] flex-shrink-0">chevron_right</span>
                 </button>
@@ -335,24 +349,24 @@ export function SettingsPage({
                       <span className="material-symbols-outlined text-[#243D68]">verified_user</span>
                     </div>
                     <div className="flex-1 text-left min-w-0">
-                      <p className="text-sm font-semibold text-[#0E1B33]">Verifikasi Email</p>
+                      <p className="text-sm font-semibold text-[#0E1B33]">{t.settings.emailVerification}</p>
                       <div className="flex items-center gap-2 mt-1">
                         {emailVerified ? (
                           <>
                             <span className="material-symbols-outlined text-green-600 text-sm">check_circle</span>
-                            <span className="text-xs text-green-600 font-semibold">Terverifikasi</span>
+                            <span className="text-xs text-green-600 font-semibold">{t.settings.verified}</span>
                           </>
                         ) : (
                           <>
                             <span className="material-symbols-outlined text-orange-600 text-sm">error</span>
-                            <span className="text-xs text-orange-600 font-semibold">Belum Terverifikasi</span>
+                            <span className="text-xs text-orange-600 font-semibold">{t.settings.notVerified}</span>
                           </>
                         )}
                       </div>
                     </div>
                     {!emailVerified && (
                       <button className="text-xs font-bold text-[#243D68] hover:underline flex-shrink-0">
-                        Kirim Ulang
+                        {t.settings.resend}
                       </button>
                     )}
                   </div>
@@ -364,8 +378,8 @@ export function SettingsPage({
                       <span className="material-symbols-outlined text-[#243D68]">phonelink_lock</span>
                     </div>
                     <div className="text-left min-w-0">
-                      <p className="text-sm font-semibold text-[#0E1B33]">Two-Factor Authentication</p>
-                      <p className="text-xs text-[#6B7280]">Keamanan tambahan untuk akun</p>
+                      <p className="text-sm font-semibold text-[#0E1B33]">{t.settings.twoFactor}</p>
+                      <p className="text-xs text-[#6B7280]">{language === 'id' ? 'Keamanan tambahan untuk akun' : 'Additional security for account'}</p>
                     </div>
                   </div>
                   <button
@@ -389,17 +403,17 @@ export function SettingsPage({
             <div>
               <h3 className="text-sm font-bold text-[#6B7280] uppercase tracking-widest mb-3 flex items-center gap-2">
                 <span className="material-symbols-outlined text-lg">notifications</span>
-                Notifikasi
+                {t.settings.notifications}
               </h3>
               <div className="bg-white rounded-2xl border border-[#E5E7EB] shadow-sm p-4 md:p-5">
-                <p className="text-xs text-[#6B7280] mb-4">Atur notifikasi yang ingin Anda terima</p>
+                <p className="text-xs text-[#6B7280] mb-4">{language === 'id' ? 'Atur notifikasi yang ingin Anda terima' : 'Manage the notifications you want to receive'}</p>
 
                 <div className="space-y-4">
                   {/* Push Notifications */}
                   <div className="flex items-center justify-between gap-3 pb-4 border-b border-[#E5E7EB]">
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-[#0E1B33]">Push Notifications</p>
-                      <p className="text-xs text-[#6B7280]">Notifikasi di aplikasi</p>
+                      <p className="text-sm font-semibold text-[#0E1B33]">{t.settings.pushNotifications}</p>
+                      <p className="text-xs text-[#6B7280]">{t.settings.inAppNotifications}</p>
                     </div>
                     <button
                       onClick={() => setPushNotifications(!pushNotifications)}
@@ -418,8 +432,8 @@ export function SettingsPage({
                   {/* Email Notifications */}
                   <div className="flex items-center justify-between gap-3 pb-4 border-b border-[#E5E7EB]">
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-[#0E1B33]">Email Notifications</p>
-                      <p className="text-xs text-[#6B7280]">Notifikasi via email</p>
+                      <p className="text-sm font-semibold text-[#0E1B33]">{t.settings.emailNotifications}</p>
+                      <p className="text-xs text-[#6B7280]">{language === 'id' ? 'Notifikasi via email' : 'Email notifications'}</p>
                     </div>
                     <button
                       onClick={() => setEmailNotifications(!emailNotifications)}
@@ -437,12 +451,12 @@ export function SettingsPage({
 
                   {(userRole === 'alumni' || userRole === 'alumni-guest') && (
                     <>
-                      <p className="text-xs font-semibold text-[#0E1B33] pt-2">Notifikasi Per Kategori:</p>
+                      <p className="text-xs font-semibold text-[#0E1B33] pt-2">{t.settings.notificationCategories}</p>
 
                       {/* Update Proyek */}
                       <div className="flex items-center justify-between gap-3 pb-3">
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-[#0E1B33]">Update proyek yang saya ikuti</p>
+                      <p className="text-sm font-medium text-[#0E1B33]">{t.settings.projectUpdates}</p>
                     </div>
                     <button
                       onClick={() => setNotifProjectUpdates(!notifProjectUpdates)}
@@ -564,16 +578,16 @@ export function SettingsPage({
               </div>
             )}
 
-            {/* 5. PREFERENSI Section */}
+            {/* 6. PREFERENSI Section */}
             <div>
               <h3 className="text-sm font-bold text-[#6B7280] uppercase tracking-widest mb-3 flex items-center gap-2">
                 <span className="material-symbols-outlined text-lg">tune</span>
-                Preferensi
+                {t.settings.preferences}
               </h3>
               <div className="bg-white rounded-2xl border border-[#E5E7EB] shadow-sm p-4 md:p-5 space-y-4">
                 {/* Bahasa */}
                 <div className="pb-4 border-b border-[#E5E7EB]">
-                  <label className="block text-sm font-semibold text-[#0E1B33] mb-2">Bahasa</label>
+                  <label className="block text-sm font-semibold text-[#0E1B33] mb-2">{t.settings.language}</label>
                   <select
                     value={language}
                     onChange={(e) => setLanguage(e.target.value)}
@@ -592,15 +606,15 @@ export function SettingsPage({
               </div>
             </div>
 
-            {/* 6. TENTANG & BANTUAN Section */}
+            {/* 7. TENTANG & BANTUAN Section */}
             <div>
               <h3 className="text-sm font-bold text-[#6B7280] uppercase tracking-widest mb-3 flex items-center gap-2">
                 <span className="material-symbols-outlined text-lg">info</span>
-                Tentang & Bantuan
+                {language === 'id' ? 'TENTANG & BANTUAN' : 'ABOUT & SUPPORT'}
               </h3>
               <div className="bg-white rounded-2xl border border-[#E5E7EB] shadow-sm overflow-hidden">
                 <div className="p-4 md:p-5 border-b border-[#E5E7EB]">
-                  <p className="text-xs text-[#6B7280] mb-1">Versi Aplikasi</p>
+                  <p className="text-xs text-[#6B7280] mb-1">{t.settings.appVersion}</p>
                   <p className="text-sm font-bold text-[#0E1B33]">v1.0.0</p>
                 </div>
 
@@ -609,7 +623,7 @@ export function SettingsPage({
                   className="w-full flex items-center gap-3 md:gap-4 p-4 md:p-5 hover:bg-[#F8F9FA] transition-colors border-b border-[#E5E7EB]"
                 >
                   <div className="flex-1 text-left min-w-0">
-                    <p className="text-sm font-semibold text-[#0E1B33]">Syarat & Ketentuan</p>
+                    <p className="text-sm font-semibold text-[#0E1B33]">{t.settings.termsConditions}</p>
                   </div>
                   <span className="material-symbols-outlined text-[#6B7280] flex-shrink-0">chevron_right</span>
                 </button>
@@ -619,7 +633,7 @@ export function SettingsPage({
                   className="w-full flex items-center gap-3 md:gap-4 p-4 md:p-5 hover:bg-[#F8F9FA] transition-colors border-b border-[#E5E7EB]"
                 >
                   <div className="flex-1 text-left min-w-0">
-                    <p className="text-sm font-semibold text-[#0E1B33]">Kebijakan Privasi</p>
+                    <p className="text-sm font-semibold text-[#0E1B33]">{t.settings.privacyPolicy}</p>
                   </div>
                   <span className="material-symbols-outlined text-[#6B7280] flex-shrink-0">chevron_right</span>
                 </button>
@@ -629,7 +643,7 @@ export function SettingsPage({
                   className="w-full flex items-center gap-3 md:gap-4 p-4 md:p-5 hover:bg-[#F8F9FA] transition-colors border-b border-[#E5E7EB]"
                 >
                   <div className="flex-1 text-left min-w-0">
-                    <p className="text-sm font-semibold text-[#0E1B33]">Pusat Bantuan & FAQ</p>
+                    <p className="text-sm font-semibold text-[#0E1B33]">{language === 'id' ? 'Pusat Bantuan & FAQ' : 'Help Center & FAQ'}</p>
                   </div>
                   <span className="material-symbols-outlined text-[#6B7280] flex-shrink-0">chevron_right</span>
                 </button>
@@ -639,7 +653,7 @@ export function SettingsPage({
                   className="w-full flex items-center gap-3 md:gap-4 p-4 md:p-5 hover:bg-[#F8F9FA] transition-colors border-b border-[#E5E7EB]"
                 >
                   <div className="flex-1 text-left min-w-0">
-                    <p className="text-sm font-semibold text-[#0E1B33]">Hubungi Kami</p>
+                    <p className="text-sm font-semibold text-[#0E1B33]">{t.settings.contactUs}</p>
                   </div>
                   <span className="material-symbols-outlined text-[#6B7280] flex-shrink-0">chevron_right</span>
                 </button>
@@ -649,14 +663,14 @@ export function SettingsPage({
                   className="w-full flex items-center gap-3 md:gap-4 p-4 md:p-5 hover:bg-[#F8F9FA] transition-colors"
                 >
                   <div className="flex-1 text-left min-w-0">
-                    <p className="text-sm font-semibold text-[#0E1B33]">Laporkan Bug</p>
+                    <p className="text-sm font-semibold text-[#0E1B33]">{t.settings.reportBug}</p>
                   </div>
                   <span className="material-symbols-outlined text-[#6B7280] flex-shrink-0">chevron_right</span>
                 </button>
               </div>
             </div>
 
-            {/* 8. LOGOUT Section */}
+            {/* 9. LOGOUT Section */}
             <div>
               <div className="bg-white rounded-2xl border border-red-200 shadow-sm p-4 md:p-5">
                 <button
@@ -664,10 +678,10 @@ export function SettingsPage({
                   className="w-full flex items-center justify-center gap-2 py-3 rounded-xl font-bold text-red-600 hover:bg-red-50 transition-colors"
                 >
                   <span className="material-symbols-outlined">logout</span>
-                  <span>Keluar dari Akun</span>
+                  <span>{language === 'id' ? 'Keluar dari Akun' : 'Logout'}</span>
                 </button>
                 <p className="text-xs text-[#6B7280] text-center mt-3 italic">
-                  Anda dapat kembali kapan saja
+                  {language === 'id' ? 'Anda dapat kembali kapan saja' : 'You can come back anytime'}
                 </p>
               </div>
             </div>
@@ -1399,7 +1413,7 @@ export function SettingsPage({
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 backdrop-blur-sm overflow-y-auto">
           <div className="bg-white rounded-2xl max-w-2xl w-full my-8 shadow-2xl">
             <div className="sticky top-0 bg-gradient-to-r from-[#243D68] to-[#2B4468] px-6 py-4 rounded-t-2xl flex items-center justify-between">
-              <h3 className="text-lg font-bold text-white">Syarat & Ketentuan</h3>
+              <h3 className="text-lg font-bold text-white">{t.settings.termsConditions}</h3>
               <button 
                 onClick={() => setShowTerms(false)}
                 className="p-2 hover:bg-white/10 rounded-lg transition-colors"
@@ -1438,7 +1452,7 @@ export function SettingsPage({
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 backdrop-blur-sm overflow-y-auto">
           <div className="bg-white rounded-2xl max-w-2xl w-full my-8 shadow-2xl">
             <div className="sticky top-0 bg-gradient-to-r from-[#243D68] to-[#2B4468] px-6 py-4 rounded-t-2xl flex items-center justify-between">
-              <h3 className="text-lg font-bold text-white">Kebijakan Privasi</h3>
+              <h3 className="text-lg font-bold text-white">{t.settings.privacyPolicy}</h3>
               <button 
                 onClick={() => setShowPrivacyPolicy(false)}
                 className="p-2 hover:bg-white/10 rounded-lg transition-colors"
@@ -1523,7 +1537,7 @@ export function SettingsPage({
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
           <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl">
             <div className="bg-gradient-to-r from-[#243D68] to-[#2B4468] px-6 py-4 rounded-t-2xl flex items-center justify-between">
-              <h3 className="text-lg font-bold text-white">Hubungi Kami</h3>
+              <h3 className="text-lg font-bold text-white">{t.settings.contactUs}</h3>
               <button 
                 onClick={() => setShowContact(false)}
                 className="p-2 hover:bg-white/10 rounded-lg transition-colors"
@@ -1571,7 +1585,7 @@ export function SettingsPage({
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
           <div className="bg-white rounded-2xl max-w-md w-full shadow-2xl">
             <div className="bg-gradient-to-r from-[#243D68] to-[#2B4468] px-6 py-4 rounded-t-2xl flex items-center justify-between">
-              <h3 className="text-lg font-bold text-white">Laporkan Bug</h3>
+              <h3 className="text-lg font-bold text-white">{t.settings.reportBug}</h3>
               <button 
                 onClick={() => setShowBugReport(false)}
                 className="p-2 hover:bg-white/10 rounded-lg transition-colors"

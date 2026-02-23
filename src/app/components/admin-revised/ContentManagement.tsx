@@ -11,9 +11,10 @@ import { showToast } from '@/utils/toast';
 interface ContentManagementProps {
   currentUser: AdminUser;
   projectId: string;
+  onContentPublished?: (projectId: string, projectTitle: string, updateTitle: string, updateType: string, createdByName: string) => void;
 }
 
-export function ContentManagement({ currentUser, projectId }: ContentManagementProps) {
+export function ContentManagement({ currentUser, projectId, onContentPublished }: ContentManagementProps) {
   const [updates, setUpdates] = useState<ProgressUpdate[]>(getProjectUpdates(projectId));
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
@@ -51,6 +52,16 @@ export function ContentManagement({ currentUser, projectId }: ContentManagementP
 
     setUpdates([newUpdate, ...updates]);
     showToast.success('Update berhasil dipublish!');
+
+    // FASE 3: Trigger notification jika notifyMembers=true
+    if (notifyMembers && onContentPublished) {
+      const projectData = projectId === 'project-1' 
+        ? 'Rekonstruksi Masjid Al-Aqsa' 
+        : projectId === 'project-2'
+        ? 'Distribusi Pangan Gaza'
+        : 'Project Aktif';
+      onContentPublished(projectId, projectData, title, updateType, currentUser.name);
+    }
 
     // Reset form
     setTitle('');

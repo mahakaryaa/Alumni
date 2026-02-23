@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { DonationPage } from './DonationPage';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface ProjectDetailProps {
   onBack: () => void;
 }
 
 export function ProjectDetail({ onBack }: ProjectDetailProps) {
+  const { language } = useTranslation();
   const [activeTab, setActiveTab] = useState<'overview' | 'progress' | 'members'>('overview');
   const [showDonation, setShowDonation] = useState(false);
 
@@ -515,7 +517,7 @@ export function ProjectDetail({ onBack }: ProjectDetailProps) {
         <div className="fixed bottom-0 left-0 lg:left-64 right-0 w-full md:max-w-3xl mx-auto bg-white p-4 border-t border-[#E5E7EB] shadow-[0_-4px_12px_rgba(0,0,0,0.08)]">
           <button className="w-full flex items-center justify-center gap-3 rounded-xl h-14 bg-gradient-to-r from-[#243D68] to-[#30518B] text-white text-base font-bold leading-normal tracking-widest shadow-[6px_6px_0px_0px_rgba(250,192,110,1)] hover:shadow-[8px_8px_0px_0px_rgba(250,192,110,1)] active:shadow-none active:translate-x-1 active:translate-y-1 transition-all uppercase" onClick={() => setShowDonation(true)}>
             <span className="material-symbols-outlined text-2xl">volunteer_activism</span>
-            <span>Donasi Sekarang</span>
+            <span>{language === 'id' ? 'Donasi Sekarang' : 'Donate Now'}</span>
           </button>
         </div>
       </div>

@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { validateLoginForm } from '@/utils/validation';
 import { toastMessages } from '@/utils/toast';
+import { useTranslation } from '@/hooks/useTranslation';
+import { Logo } from './Logo';
 
 interface LoginProps {
   onBack: () => void;
@@ -13,6 +15,7 @@ interface FormErrors {
 }
 
 export function Login({ onBack, onLoginSuccess }: LoginProps) {
+  const { language } = useTranslation();
   const [role, setRole] = useState<'donatur' | 'alumni'>('donatur');
   const [showPassword, setShowPassword] = useState(false);
   const [mode, setMode] = useState<'login' | 'register'>('login');
@@ -62,14 +65,7 @@ export function Login({ onBack, onLoginSuccess }: LoginProps) {
         <div className="relative z-10 flex flex-col h-full">
           {/* Logo */}
           <div className="p-5">
-            <div className="bg-[#FAC06E] p-3 flex items-center gap-3 shadow-md">
-              <div className="w-8 h-8 border-2 border-[#2B4468] flex items-center justify-center">
-                <span className="material-symbols-outlined text-[#2B4468] text-xl font-bold">mosque</span>
-              </div>
-              <span className="font-['Archivo_Black'] text-base uppercase tracking-tight text-[#2B4468]">
-                PROJEKKITA
-              </span>
-            </div>
+            <Logo />
           </div>
 
           {/* Menu Navigation */}
@@ -136,7 +132,7 @@ export function Login({ onBack, onLoginSuccess }: LoginProps) {
             className="flex items-center gap-1 text-[#243D68] hover:text-[#183A74] transition-all duration-300 font-semibold"
           >
             <span className="material-symbols-outlined text-xl">close</span>
-            <span className="text-xs sm:text-sm uppercase tracking-wider">Tutup</span>
+            <span className="text-xs sm:text-sm uppercase tracking-wider">{language === 'id' ? 'Tutup' : 'Close'}</span>
           </button>
         </div>
 

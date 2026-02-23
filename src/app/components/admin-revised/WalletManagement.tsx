@@ -4,7 +4,7 @@
  */
 
 import { useState } from 'react';
-import { AdminUser } from '@/types/admin-revised';
+import { AdminUser, ProjectWallet, WalletTransaction } from '@/types/admin-revised';
 import {
   mockProjectWallets,
   mockWalletTransactions,
@@ -16,9 +16,16 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 
 interface WalletManagementProps {
   currentUser: AdminUser;
+  // FASE 2: Props untuk real-time wallet data
+  projectWallets?: ProjectWallet[];
+  walletTransactions?: WalletTransaction[];
 }
 
-export function WalletManagement({ currentUser }: WalletManagementProps) {
+export function WalletManagement({ 
+  currentUser,
+  projectWallets = [],
+  walletTransactions = []
+}: WalletManagementProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedWallet, setSelectedWallet] = useState<any>(null);
   const [showDetailModal, setShowDetailModal] = useState(false);
@@ -27,20 +34,24 @@ export function WalletManagement({ currentUser }: WalletManagementProps) {
   const [approvalNote, setApprovalNote] = useState('');
   const [rejectionReason, setRejectionReason] = useState('');
 
+  // FASE 2: Use real-time wallet data if available, otherwise use mock
+  const walletsData = projectWallets.length > 0 ? projectWallets : mockProjectWallets;
+  const transactionsData = walletTransactions.length > 0 ? walletTransactions : mockWalletTransactions;
+
   // Filter wallets
-  const filteredWallets = mockProjectWallets.filter(wallet =>
+  const filteredWallets = walletsData.filter(wallet =>
     wallet.projectTitle.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   // Get pending withdrawals
   const pendingWithdrawals = mockWithdrawalRequests.filter(w => w.status === 'pending');
 
-  // Calculate global stats
+  // FASE 2: Calculate global stats dari real-time data
   const globalStats = {
-    totalBalance: mockProjectWallets.reduce((sum, w) => sum + w.balance, 0),
-    totalIncome: mockProjectWallets.reduce((sum, w) => sum + w.totalIncome, 0),
-    totalExpense: mockProjectWallets.reduce((sum, w) => sum + w.totalExpense, 0),
-    totalPending: mockProjectWallets.reduce((sum, w) => sum + w.totalPending, 0),
+    totalBalance: walletsData.reduce((sum, w) => sum + w.balance, 0),
+    totalIncome: walletsData.reduce((sum, w) => sum + w.totalIncome, 0),
+    totalExpense: walletsData.reduce((sum, w) => sum + w.totalExpense, 0),
+    totalPending: walletsData.reduce((sum, w) => sum + w.totalPending, 0),
     pendingWithdrawals: pendingWithdrawals.length,
   };
 
@@ -90,9 +101,9 @@ export function WalletManagement({ currentUser }: WalletManagementProps) {
     setSelectedWithdrawal(null);
   };
 
-  // Get transactions for selected wallet
+  // FASE 2: Get transactions for selected wallet dari real-time data
   const getWalletTransactions = (walletId: string) => {
-    return mockWalletTransactions.filter(t => t.walletId === walletId);
+    return transactionsData.filter(t => t.walletId === walletId);
   };
 
   // Prepare chart data

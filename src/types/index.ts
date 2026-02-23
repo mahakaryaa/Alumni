@@ -88,6 +88,8 @@ export interface Event {
 export interface Donation {
   id: string;
   projectId: string;
+  projectTitle: string;
+  donorId?: string;
   donorName?: string;
   amount: number;
   isAnonymous: boolean;
@@ -95,9 +97,108 @@ export interface Donation {
   prayer?: string;
   paymentMethod: string;
   proofUrl?: string;
-  status: 'pending' | 'verified' | 'rejected';
+  status: 'pending' | 'approved' | 'rejected';
+  referenceNumber: string;
   uniqueCode: number;
+  submittedAt: string;
+  verifiedAt?: string;
+  rejectionReason?: string;
+  verifiedBy?: string;
   createdAt: Date;
+}
+
+/**
+ * Join Request related types
+ */
+export interface JoinRequest {
+  id: string;
+  projectId: string;
+  projectTitle: string;
+  alumniId: string;
+  alumniName: string;
+  alumniEmail?: string;
+  alumniPhoto?: string;
+  alumniAngkatan?: string;
+  alumniJurusan?: string;
+  alumniPekerjaan?: string;
+  alumniPerusahaan?: string;
+  alumniKota?: string;
+  reason: string;
+  commitment?: string; // e.g., '3m', '6m', '1y'
+  commitmentDuration: string; // Display text, e.g., "3 Bulan"
+  interestedPosition?: string;
+  previousProjects?: Array<{
+    projectName: string;
+    duration: string;
+    completedTasks: number;
+    rating: number;
+  }>;
+  status: 'pending' | 'approved' | 'rejected';
+  submittedAt: string;
+  reviewedAt?: string;
+  reviewedBy?: string;
+  reviewedByRole?: 'PIC' | 'Moderator' | 'Superadmin';
+  approvalMessage?: string; // Welcome message from reviewer
+  rejectionReason?: string;
+  rejectionAllowResubmit?: boolean;
+  assignedRole?: 'member' | 'contributor'; // Auto-assigned role after approval
+}
+
+/**
+ * Withdrawal related types
+ */
+export interface Withdrawal {
+  id: string;
+  projectId: string;
+  projectTitle: string;
+  picId: string;
+  picName: string;
+  amount: number;
+  reason: string;
+  bankAccount: string;
+  bankName: string;
+  accountHolder: string;
+  status: 'pending' | 'approved' | 'rejected';
+  requestedAt: string;
+  processedAt?: string;
+  processedBy?: string;
+  approvalNote?: string;
+  rejectionReason?: string;
+}
+
+/**
+ * Notification related types
+ */
+export type NotificationType = 
+  | 'donation_approved' 
+  | 'donation_rejected' 
+  | 'join_approved' 
+  | 'join_rejected' 
+  | 'progress_update' 
+  | 'task_assigned'
+  | 'task_completed'
+  | 'withdrawal_approved' 
+  | 'withdrawal_rejected'
+  | 'content_removed'
+  | 'event_registration_submitted'
+  | 'event_approved'
+  | 'event_rejected'
+  | 'event_reminder'
+  | 'event_cancelled'
+  | 'project_closed'
+  | 'project_closure_approved'
+  | 'project_closure_rejected'
+  | 'alumni_verified';
+
+export interface Notification {
+  id: string;
+  userId: string;
+  type: NotificationType;
+  title: string;
+  message: string;
+  link?: string;
+  isRead: boolean;
+  createdAt: string;
 }
 
 /**
@@ -208,3 +309,92 @@ export interface PaginatedResponse<T> extends ApiResponse<T[]> {
  */
 export type Optional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
 export type Required<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>;
+
+/**
+ * Event Registration related types
+ */
+export interface EventRegistration {
+  id: string;
+  eventId: string;
+  eventTitle: string;
+  eventDate: string;
+  eventTime: string;
+  eventLocation: string;
+  alumniId: string;
+  alumniName: string;
+  alumniEmail: string;
+  alumniPhone?: string;
+  alumniPhoto?: string;
+  alumniAngkatan?: string;
+  alumniKota?: string;
+  motivation: string;
+  hasAttendedBefore?: boolean;
+  dietaryRestrictions?: string;
+  emergencyContact?: string;
+  emergencyContactPhone?: string;
+  status: 'pending' | 'approved' | 'rejected' | 'attended' | 'cancelled';
+  submittedAt: string;
+  reviewedAt?: string;
+  reviewedBy?: string;
+  reviewedByRole?: 'PIC' | 'Moderator' | 'Superadmin';
+  approvalMessage?: string;
+  rejectionReason?: string;
+  attendedAt?: string;
+  cancelledAt?: string;
+  cancellationReason?: string;
+}
+
+/**
+ * Content Update (Progress Update) Notification types
+ */
+export interface ContentUpdateNotification {
+  id: string;
+  projectId: string;
+  projectTitle: string;
+  updateTitle: string;
+  updateType: 'progress' | 'announcement' | 'milestone' | 'meeting_reminder';
+  createdBy: string;
+  createdByName: string;
+  createdAt: string;
+}
+
+/**
+ * Task Assignment types
+ */
+export interface TaskAssignment {
+  id: string;
+  taskId: string;
+  taskTitle: string;
+  taskDescription?: string;
+  projectId: string;
+  projectTitle: string;
+  assignedTo: string;
+  assignedToName: string;
+  assignedBy: string;
+  assignedByName: string;
+  priority: 'low' | 'medium' | 'high' | 'urgent';
+  dueDate: string;
+  category: string;
+  status: 'pending' | 'in_progress' | 'completed' | 'cancelled';
+  createdAt: string;
+  completedAt?: string;
+}
+
+/**
+ * Project Closure Request types
+ */
+export interface ProjectClosureRequest {
+  id: string;
+  projectId: string;
+  projectTitle: string;
+  picId: string;
+  picName: string;
+  reason: string;
+  finalReport: string;
+  status: 'pending' | 'approved' | 'rejected';
+  requestedAt: string;
+  processedAt?: string;
+  processedBy?: string;
+  approvalNote?: string;
+  rejectionReason?: string;
+}

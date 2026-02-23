@@ -11,9 +11,11 @@ import { showToast } from '@/utils/toast';
 interface PICDelegationProps {
   currentUser: AdminUser;
   projectId: string;
+  onTaskAssigned?: (taskId: string, assignedToId: string, assignedToName: string, taskTitle: string, projectId: string, projectTitle: string, dueDate: string, priority: string) => void;
+  onTaskStatusUpdated?: (taskId: string, newStatus: string, taskTitle: string, assignedByName: string, projectId: string) => void;
 }
 
-export function PICDelegation({ currentUser, projectId }: PICDelegationProps) {
+export function PICDelegation({ currentUser, projectId, onTaskAssigned, onTaskStatusUpdated }: PICDelegationProps) {
   const [tasks, setTasks] = useState<DelegatedTask[]>(getDelegatedTasks(projectId));
   const [members] = useState<ProjectMember[]>(getProjectMembers(projectId));
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -66,6 +68,26 @@ export function PICDelegation({ currentUser, projectId }: PICDelegationProps) {
 
     setTasks([newTask, ...tasks]);
     showToast.success(`Task berhasil di-assign ke ${assignedMember.alumniName}`);
+
+    // FASE 3: Trigger task notification
+    if (onTaskAssigned) {
+      const projectTitle = projectId === 'project-1' 
+        ? 'Rekonstruksi Masjid Al-Aqsa' 
+        : projectId === 'project-2'
+        ? 'Distribusi Pangan Gaza'
+        : 'Project Aktif';
+      onTaskAssigned(
+        newTask.id,
+        assignedMember.id,
+        assignedMember.alumniName,
+        title,
+        projectId,
+        projectTitle,
+        dueDate,
+        priority
+      );
+    }
+
     resetForm();
     setShowCreateModal(false);
   };
@@ -74,6 +96,7 @@ export function PICDelegation({ currentUser, projectId }: PICDelegationProps) {
     taskId: string,
     newStatus: 'pending' | 'in_progress' | 'completed' | 'cancelled'
   ) => {
+    const task = tasks.find(t => t.id === taskId);
     const updatedTasks = tasks.map((t) =>
       t.id === taskId
         ? {
@@ -85,6 +108,11 @@ export function PICDelegation({ currentUser, projectId }: PICDelegationProps) {
     );
     setTasks(updatedTasks);
     showToast.success('Status task berhasil diupdate');
+
+    // FASE 3: Trigger task completion notification ke PIC
+    if (newStatus === 'completed' && task && onTaskStatusUpdated) {
+      onTaskStatusUpdated(taskId, newStatus, task.title, currentUser.name, projectId);
+    }
   };
 
   const handleDeleteTask = (taskId: string) => {

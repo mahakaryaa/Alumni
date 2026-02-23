@@ -12,7 +12,9 @@ import { ProjectFinance } from './ProjectFinance';
 import { ContentManagement } from './ContentManagement';
 import { PollingManagement } from './PollingManagement';
 import { PICDelegation } from './PICDelegation';
+import { PendingRequests } from './PendingRequests';
 import { ActivityLog } from './ActivityLog';
+import { CampaignDashboard } from '@/components/campaign/CampaignDashboard';
 import { ModeratorDashboard } from './ModeratorDashboard';
 import { ModeratorFinance } from './ModeratorFinance';
 import { ModeratorContent } from './ModeratorContent';
@@ -21,27 +23,112 @@ import { AlumniDataManagement } from './AlumniDataManagement';
 import { SuperadminFinancialDashboard } from './SuperadminFinancialDashboard';
 import { DonationVerification } from './DonationVerification';
 import { WalletManagement } from './WalletManagement';
+import { WithdrawalRequest } from './WithdrawalRequest';
+import { WithdrawalApproval } from './WithdrawalApproval';
+import { EventRegistrationApproval } from './EventRegistrationApproval';
+import { ProjectClosureManagement } from './ProjectClosureManagement';
 import { showToast } from '@/utils/toast';
 import { getProjectByPIC, calculateDashboardStats } from '@/data/mockAdminDataRevised';
 import { getCurrentAdminUser, clearAdminSession } from '@/utils/adminAuthRevised';
+import type { Donation, JoinRequest, Notification, Withdrawal, EventRegistration } from '@/types';
+import type { ProjectWallet, WalletTransaction } from '@/types/admin-revised';
 
 interface AdminPanelRevisedProps {
-  onBack: () => void;
+  onBack?: () => void;
+  onLogout?: () => void;
+  // FASE 1 & 2: Props untuk global state management
+  donations?: Donation[];
+  joinRequests?: JoinRequest[];
+  notifications?: Notification[];
+  withdrawals?: Withdrawal[];
+  projectWallets?: ProjectWallet[];
+  walletTransactions?: WalletTransaction[];
+  onDonationStatusUpdate?: (donationId: string, status: 'approved' | 'rejected', reason?: string, verifiedBy?: string) => void;
+  onJoinRequestStatusUpdate?: (
+    requestId: string, 
+    status: 'approved' | 'rejected', 
+    reason?: string, 
+    reviewedBy?: string, 
+    reviewedByRole?: 'PIC' | 'Moderator' | 'Superadmin',
+    approvalMessage?: string
+  ) => void;
+  onWithdrawalSubmitted?: (withdrawal: Withdrawal) => void;
+  onWithdrawalApproved?: (withdrawalId: string, note?: string, approvedBy?: string) => void;
+  onWithdrawalRejected?: (withdrawalId: string, reason: string, rejectedBy?: string) => void;
+  // FASE 2C: Event Registration
+  eventRegistrations?: EventRegistration[];
+  onEventRegistrationStatusUpdate?: (
+    registrationId: string,
+    status: 'approved' | 'rejected',
+    reason?: string,
+    reviewedBy?: string,
+    reviewedByRole?: 'PIC' | 'Moderator' | 'Superadmin',
+    approvalMessage?: string
+  ) => void;
+  // FASE 3: Content & Task notifications
+  onContentPublished?: (projectId: string, projectTitle: string, updateTitle: string, updateType: string, createdByName: string) => void;
+  onTaskAssigned?: (taskId: string, assignedToId: string, assignedToName: string, taskTitle: string, projectId: string, projectTitle: string, dueDate: string, priority: string) => void;
+  onTaskStatusUpdated?: (taskId: string, newStatus: string, taskTitle: string, assignedByName: string, projectId: string) => void;
+  // FASE 3A: Content Removal Notification
+  onContentRemoved?: (contentId: string, contentTitle: string, projectId: string, projectTitle: string, picId: string, picName: string, removalReason: string, removedBy: string) => void;
+  // FASE 3B: Project Closure Flow
+  onProjectCloseRequested?: (projectId: string, projectTitle: string, reason: string, finalReport: string, picName: string) => void;
+  onProjectClosureApproved?: (projectId: string, projectTitle: string, approvedBy: string, note?: string) => void;
+  onProjectClosureRejected?: (projectId: string, projectTitle: string, reason: string, rejectedBy: string) => void;
+  // FASE 3C: Alumni Verification
+  onAlumniAdded?: (alumniId: string, alumniName: string, alumniEmail: string, addedBy: string) => void;
+  // FASE 4: Polling Notifications
+  onPollCreated?: (pollId: string, pollQuestion: string, projectId: string, projectTitle: string, deadline: string, createdByName: string) => void;
+  onPollClosed?: (pollId: string, pollQuestion: string, projectId: string, projectTitle: string, totalVoters: number, closedByName: string) => void;
+  onPollDeadlineReminder?: (pollId: string, pollQuestion: string, projectId: string, projectTitle: string, deadline: string) => void;
 }
 
 type ActivePage = 
   | 'dashboard'
+  | 'campaign-management'
   | 'financial-dashboard'
   | 'donation-verification'
   | 'wallet-management'
   | 'alumni-data'
   | 'finance'
+  | 'withdrawal-request'
+  | 'withdrawal-approval'
+  | 'pending-requests'
+  | 'event-registration-approval'
+  | 'project-closure'
   | 'content'
   | 'polling'
   | 'delegation'
   | 'activity-log';
 
-export function AdminPanelRevised({ onBack }: AdminPanelRevisedProps) {
+export function AdminPanelRevised({ 
+  onBack, 
+  onLogout,
+  donations = [],
+  joinRequests = [],
+  notifications = [],
+  withdrawals = [],
+  projectWallets = [],
+  walletTransactions = [],
+  onDonationStatusUpdate,
+  onJoinRequestStatusUpdate,
+  onWithdrawalSubmitted,
+  onWithdrawalApproved,
+  onWithdrawalRejected,
+  eventRegistrations = [],
+  onEventRegistrationStatusUpdate,
+  onContentPublished,
+  onTaskAssigned,
+  onTaskStatusUpdated,
+  onContentRemoved,
+  onProjectCloseRequested,
+  onProjectClosureApproved,
+  onProjectClosureRejected,
+  onAlumniAdded,
+  onPollCreated,
+  onPollClosed,
+  onPollDeadlineReminder,
+}: AdminPanelRevisedProps) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [currentUser, setCurrentUser] = useState<AdminUser | null>(null);
   const [activePage, setActivePage] = useState<ActivePage>('dashboard');
@@ -73,7 +160,13 @@ export function AdminPanelRevised({ onBack }: AdminPanelRevisedProps) {
     setCurrentUser(null);
     setIsLoggedIn(false);
     setActivePage('dashboard');
-    onBack();
+    
+    // Call onLogout if provided, otherwise call onBack
+    if (onLogout) {
+      onLogout();
+    } else if (onBack) {
+      onBack();
+    }
   };
 
   const handleNavigate = (page: string) => {
@@ -199,11 +292,17 @@ export function AdminPanelRevised({ onBack }: AdminPanelRevisedProps) {
             />
           )}
 
+          {/* Campaign Management */}
+          {activePage === 'campaign-management' && (
+            <CampaignDashboard currentUserId={currentUser.id} />
+          )}
+
           {/* Finance */}
           {activePage === 'finance' && currentUser.role === 'pic' && project && (
             <ProjectFinance
               currentUser={currentUser}
               projectId={project.id}
+              onNavigateToWithdrawal={() => setActivePage('withdrawal-request')}
             />
           )}
 
@@ -218,12 +317,14 @@ export function AdminPanelRevised({ onBack }: AdminPanelRevisedProps) {
             <ContentManagement
               currentUser={currentUser}
               projectId={project.id}
+              onContentPublished={onContentPublished}
             />
           )}
 
           {activePage === 'content' && (currentUser.role === 'moderator' || currentUser.role === 'superadmin') && (
             <ModeratorContent
               currentUser={currentUser}
+              onContentRemoved={onContentRemoved}
             />
           )}
 
@@ -246,6 +347,10 @@ export function AdminPanelRevised({ onBack }: AdminPanelRevisedProps) {
             <PollingManagement
               currentUser={currentUser}
               projectId={project.id}
+              projectTitle={project.title}
+              onPollCreated={onPollCreated}
+              onPollClosed={onPollClosed}
+              onPollDeadlineReminder={onPollDeadlineReminder}
             />
           )}
 
@@ -253,6 +358,8 @@ export function AdminPanelRevised({ onBack }: AdminPanelRevisedProps) {
             <PICDelegation
               currentUser={currentUser}
               projectId={project.id}
+              onTaskAssigned={onTaskAssigned}
+              onTaskStatusUpdated={onTaskStatusUpdated}
             />
           )}
 
@@ -260,6 +367,7 @@ export function AdminPanelRevised({ onBack }: AdminPanelRevisedProps) {
           {activePage === 'alumni-data' && (
             <AlumniDataManagement
               currentUser={currentUser}
+              onAlumniAdded={onAlumniAdded}
             />
           )}
 
@@ -268,14 +376,130 @@ export function AdminPanelRevised({ onBack }: AdminPanelRevisedProps) {
             <SuperadminFinancialDashboard />
           )}
 
-          {/* Donation Verification (Superadmin Only) */}
+          {/* FASE 2: Donation Verification (Superadmin Only) */}
           {activePage === 'donation-verification' && currentUser.role === 'superadmin' && (
-            <DonationVerification currentUser={currentUser} />
+            <DonationVerification 
+              currentUser={currentUser} 
+              donations={donations}
+              onApprove={(donationId, verificationNote, verifiedBy) => {
+                onDonationStatusUpdate?.(donationId, 'approved', verificationNote, verifiedBy);
+              }}
+              onReject={(donationId, reason, verifiedBy) => {
+                onDonationStatusUpdate?.(donationId, 'rejected', reason, verifiedBy);
+              }}
+            />
           )}
 
-          {/* Wallet Management (Superadmin Only) */}
+          {/* FASE 2: Wallet Management (Superadmin Only) */}
           {activePage === 'wallet-management' && currentUser.role === 'superadmin' && (
-            <WalletManagement currentUser={currentUser} />
+            <WalletManagement 
+              currentUser={currentUser}
+              projectWallets={projectWallets}
+              walletTransactions={walletTransactions}
+            />
+          )}
+
+          {/* Withdrawal Request (PIC Only) */}
+          {activePage === 'withdrawal-request' && currentUser.role === 'pic' && project && (
+            <WithdrawalRequest
+              onBack={() => setActivePage('finance')}
+              picId={currentUser.id}
+              picName={currentUser.name}
+              projectId={project.id}
+              projectTitle={project.title}
+              availableBalance={stats?.totalBalance || 0}
+              onWithdrawalSubmit={(withdrawal) => {
+                onWithdrawalSubmitted?.(withdrawal);
+                showToast.success('Permintaan penarikan berhasil dikirim');
+              }}
+            />
+          )}
+
+          {/* Withdrawal Approval (Moderator & Superadmin) */}
+          {activePage === 'withdrawal-approval' && (currentUser.role === 'moderator' || currentUser.role === 'superadmin') && (
+            <WithdrawalApproval
+              role={currentUser.role}
+              withdrawals={withdrawals}
+              currentUserId={currentUser.id}
+              currentUserName={currentUser.name}
+              onApprove={(withdrawalId, note) => {
+                onWithdrawalApproved?.(withdrawalId, note, `${currentUser.role}: ${currentUser.name}`);
+              }}
+              onReject={(withdrawalId, reason) => {
+                onWithdrawalRejected?.(withdrawalId, reason, `${currentUser.role}: ${currentUser.name}`);
+              }}
+            />
+          )}
+
+          {/* Pending Join Requests (PIC, Moderator, Superadmin) */}
+          {activePage === 'pending-requests' && (
+            <PendingRequests
+              currentUser={currentUser}
+              projectId={currentUser.role === 'pic' && project ? project.id : undefined}
+              onNavigate={handleNavigate}
+              joinRequests={joinRequests}
+              onApprove={(requestId, approvalMessage) => {
+                // Pass reviewer info and approval message
+                onJoinRequestStatusUpdate?.(
+                  requestId, 
+                  'approved', 
+                  undefined, 
+                  currentUser.email,
+                  currentUser.role === 'pic' ? 'PIC' : currentUser.role === 'moderator' ? 'Moderator' : 'Superadmin',
+                  approvalMessage
+                );
+              }}
+              onReject={(requestId, reason) => {
+                // Pass reviewer info and rejection reason
+                onJoinRequestStatusUpdate?.(
+                  requestId, 
+                  'rejected', 
+                  reason, 
+                  currentUser.email,
+                  currentUser.role === 'pic' ? 'PIC' : currentUser.role === 'moderator' ? 'Moderator' : 'Superadmin'
+                );
+              }}
+            />
+          )}
+
+          {/* FASE 2C: Event Registration Approval */}
+          {activePage === 'event-registration-approval' && (
+            <EventRegistrationApproval
+              registrations={eventRegistrations}
+              onApprove={(registrationId, message, reviewedBy, reviewedByRole) => {
+                onEventRegistrationStatusUpdate?.(
+                  registrationId,
+                  'approved',
+                  undefined,
+                  reviewedBy,
+                  reviewedByRole === 'PIC' ? 'PIC' : reviewedByRole === 'Moderator' ? 'Moderator' : 'Superadmin',
+                  message
+                );
+              }}
+              onReject={(registrationId, reason, reviewedBy, reviewedByRole) => {
+                onEventRegistrationStatusUpdate?.(
+                  registrationId,
+                  'rejected',
+                  reason,
+                  reviewedBy,
+                  reviewedByRole === 'PIC' ? 'PIC' : reviewedByRole === 'Moderator' ? 'Moderator' : 'Superadmin'
+                );
+              }}
+              currentAdminName={currentUser.name}
+              currentAdminRole={currentUser.role}
+            />
+          )}
+
+          {/* FASE 3B: Project Closure Flow */}
+          {activePage === 'project-closure' && (
+            <ProjectClosureManagement
+              currentUser={currentUser}
+              projectId={project?.id}
+              projectTitle={project?.title}
+              onProjectCloseRequested={onProjectCloseRequested}
+              onProjectClosureApproved={onProjectClosureApproved}
+              onProjectClosureRejected={onProjectClosureRejected}
+            />
           )}
         </div>
       </div>

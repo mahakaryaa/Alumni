@@ -38,6 +38,12 @@ export function AdminSidebarRevised({
       roles: ['pic', 'moderator', 'superadmin'],
     },
     {
+      id: 'campaign-management',
+      label: 'Campaigns',
+      icon: 'campaign',
+      roles: ['pic', 'moderator', 'superadmin'],
+    },
+    {
       id: 'financial-dashboard',
       label: 'Financial Dashboard',
       icon: 'account_balance',
@@ -54,6 +60,24 @@ export function AdminSidebarRevised({
       label: 'Manajemen Dompet',
       icon: 'account_balance_wallet',
       roles: ['superadmin'],
+    },
+    {
+      id: 'withdrawal-approval',
+      label: 'Approval Penarikan',
+      icon: 'approval',
+      roles: ['moderator', 'superadmin'],
+    },
+    {
+      id: 'pending-requests',
+      label: 'Permintaan Join',
+      icon: 'person_add',
+      roles: ['pic', 'moderator', 'superadmin'],
+    },
+    {
+      id: 'event-registration-approval',
+      label: 'Pendaftaran Event',
+      icon: 'event_available',
+      roles: ['pic', 'moderator', 'superadmin'],
     },
     {
       id: 'alumni-data',
@@ -83,6 +107,12 @@ export function AdminSidebarRevised({
       id: 'delegation',
       label: 'Delegasi PIC',
       icon: 'swap_horiz',
+      roles: ['pic', 'superadmin'],
+    },
+    {
+      id: 'project-closure',
+      label: 'Tutup Project',
+      icon: 'archive',
       roles: ['pic', 'superadmin'],
     },
     {

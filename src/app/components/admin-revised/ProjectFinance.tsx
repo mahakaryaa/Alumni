@@ -11,9 +11,10 @@ import { showToast } from '@/utils/toast';
 interface ProjectFinanceProps {
   currentUser: AdminUser;
   projectId: string;
+  onNavigateToWithdrawal?: () => void;
 }
 
-export function ProjectFinance({ currentUser, projectId }: ProjectFinanceProps) {
+export function ProjectFinance({ currentUser, projectId, onNavigateToWithdrawal }: ProjectFinanceProps) {
   const [transactions, setTransactions] = useState<FinanceTransaction[]>(
     getProjectFinanceTransactions(projectId)
   );
@@ -130,13 +131,24 @@ export function ProjectFinance({ currentUser, projectId }: ProjectFinanceProps) 
           </h1>
           <p className="text-[#6B7280]">Kelola dana dan pengeluaran project</p>
         </div>
-        <button
-          onClick={() => setShowAddModal(true)}
-          className="flex items-center gap-2 px-6 py-3 bg-[#243D68] text-white rounded-lg font-semibold hover:bg-[#1a2d4d] transition-colors"
-        >
-          <span className="material-symbols-outlined">add</span>
-          Tambah Transaksi
-        </button>
+        <div className="flex gap-3">
+          {balance > 0 && onNavigateToWithdrawal && (
+            <button
+              onClick={onNavigateToWithdrawal}
+              className="flex items-center gap-2 px-6 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transition-colors"
+            >
+              <span className="material-symbols-outlined">arrow_circle_down</span>
+              Request Penarikan
+            </button>
+          )}
+          <button
+            onClick={() => setShowAddModal(true)}
+            className="flex items-center gap-2 px-6 py-3 bg-[#243D68] text-white rounded-lg font-semibold hover:bg-[#1a2d4d] transition-colors"
+          >
+            <span className="material-symbols-outlined">add</span>
+            Tambah Transaksi
+          </button>
+        </div>
       </div>
 
       {/* Finance Overview Cards */}

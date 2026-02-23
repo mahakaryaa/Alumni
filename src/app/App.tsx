@@ -1,30 +1,62 @@
-import { useState } from 'react';
-import { HomePage } from './components/HomePage';
+import { useState, useEffect } from 'react';
+import { Toaster } from 'sonner';
+import type { Donation, JoinRequest, Notification, Withdrawal, EventRegistration } from '@/types';
+import type { ProjectWallet, WalletTransaction } from '@/types/admin-revised';
+
+// Translation system
+import { getTranslation, type Language } from '@/translations';
+import { LanguageContext } from '@/hooks/useTranslation';
+
+// Component imports
+import { Login } from './components/Login';
+import { ProjectDetailAlumni } from './components/ProjectDetailAlumni';
 import { ProjectDetail } from './components/ProjectDetail';
 import { ExploreProject } from './components/ExploreProject';
 import { AlumniStoryDetail } from './components/AlumniStoryDetail';
 import { EventDetail } from './components/EventDetail';
-import { Login } from './components/Login';
-import { DonationPage } from './components/DonationPage';
+import { MessagesAlumni } from './components/MessagesAlumni';
 import { MessagePage } from './components/MessagePage';
 import { SettingsPage } from './components/SettingsPage';
-import { MessagesAlumni } from './components/MessagesAlumni';
-import { ProjectDetailAlumni } from './components/ProjectDetailAlumni';
-import { Logo } from './components/Logo';
-import { STORAGE_KEYS } from '@/constants';
-import { toastMessages } from '@/utils/toast';
+import { DonationPage } from './components/DonationPage';
+import { AdminLoginRevised } from './components/admin-revised/AdminLoginRevised';
+import { AdminPanelRevised } from './components/admin-revised/AdminPanelRevised';
+import { MyDonations } from './components/MyDonations';
+import { MyJoinRequests } from './components/MyJoinRequests';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { Logo } from './components/Logo';
 import { LoginWidget } from './components/LoginWidget';
-import { Toaster } from 'sonner';
+import { ImageWithFallback } from './components/figma/ImageWithFallback';
+import { NotificationCenter } from './components/NotificationCenter';
+import { QuoteSection } from './components/QuoteSection';
+import { CampaignProvider } from '@/context/CampaignContext';
+import { CampaignDashboard } from '@/components/campaign/CampaignDashboard';
+import { CampaignList } from '@/components/campaign/CampaignList';
+import { CampaignDetail } from '@/components/campaign/CampaignDetail';
 
-// Import images (using unsplash)
-const heroImage = 'https://images.unsplash.com/photo-1618083707215-bb3b870419a4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtb3NxdWUlMjBhbCUyMGFxc2ElMjBqZXJ1c2FsZW18ZW58MXx8fHwxNzY5NjUyMTI3fDA&ixlib=rb-4.1.0&q=80&w=1080';
+// Import mock data for initial wallet state
+import { mockProjectWallets } from '@/data/mockFinancialData';
 
-export default function App() {
+// Import images (using unsplash - updated for better reliability)
+const heroImage = 'https://images.unsplash.com/photo-1594970483994-d1dc35c12b6e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhbCUyMGFxc2ElMjBtb3NxdWUlMjBqZXJ1c2FsZW0lMjBkb21lfGVufDF8fHx8MTc3MTM3OTMzNnww&ixlib=rb-4.1.0&q=80&w=1080';
+
+// LocalStorage keys
+const STORAGE_KEYS = {
+  USER_ROLE: 'almaqdisi_user_role',
+};
+
+// Toast messages
+const toastMessages = {
+  logout: {
+    success: () => console.log('Logout berhasil'),
+  },
+};
+
+function AppContent() {
   const [activeNav, setActiveNav] = useState('home');
-  const [currentView, setCurrentView] = useState<'home' | 'project-detail' | 'explore' | 'alumni-story' | 'login' | 'event-detail' | 'messages' | 'settings' | 'donation'>('home');
-  const [exploreInitialTab, setExploreInitialTab] = useState<'open' | 'galeri'>('open');
+  const [currentView, setCurrentView] = useState<'home' | 'project-detail' | 'explore' | 'alumni-story' | 'login' | 'event-detail' | 'messages' | 'settings' | 'donation' | 'admin-panel-revised' | 'admin-login-revised' | 'my-donations' | 'my-join-requests' | 'notification-center' | 'campaigns' | 'admin-campaigns' | 'campaign-detail'>('home');
+  const [exploreInitialTab, setExploreInitialTab] = useState<'open' | 'galeri' | 'campaign'>('open');
   const [projectDetailInitialTab, setProjectDetailInitialTab] = useState<'overview' | 'progress' | 'members' | 'discussion' | 'wallet'>('overview');
+  const [selectedCampaignId, setSelectedCampaignId] = useState<string | null>(null);
   
   // User role with localStorage persistence
   const [userRole, setUserRole] = useState<'donatur' | 'alumni' | 'alumni-guest' | null>(() => {
@@ -35,15 +67,737 @@ export default function App() {
   // Login widget state
   const [showLoginWidget, setShowLoginWidget] = useState(false);
 
-  // Notification count state
-  const [notificationCount, setNotificationCount] = useState(3); // Mock data: 3 unread notifications
+  // Notification count - dynamic dari notifications state (dihitung saat render)
 
   // Category filter state
   const [activeCategory, setActiveCategory] = useState<'semua' | 'pendidikan' | 'lingkungan' | 'kesehatan'>('semua');
 
+  // Advanced Filter Modal State
+  const [showFilterModal, setShowFilterModal] = useState(false);
+  const [advancedFilters, setAdvancedFilters] = useState({
+    status: [] as string[], // 'aktif', 'mendesak', 'selesai'
+    location: [] as string[], // 'gaza', 'palestine', 'indonesia', 'global'
+    minAmount: '',
+    maxAmount: '',
+    projectType: [] as string[], // 'open', 'donation', 'campaign'
+  });
+
   // Mock user joined projects state (untuk demo)
   // Set ke true jika alumni sudah pernah join project, false jika belum
   const [hasJoinedProjects, setHasJoinedProjects] = useState(true); // Default: true untuk demo joined state
+
+  // ==============================
+  // FASE 1 & 2: GLOBAL STATE MANAGEMENT
+  // State untuk tracking donations, join requests, notifications, withdrawals, wallets
+  // ==============================
+  
+  // Donations state - Semua donation yang di-submit
+  const [donations, setDonations] = useState<Donation[]>([]);
+  
+  // Join Requests state - Semua join request dari alumni
+  const [joinRequests, setJoinRequests] = useState<JoinRequest[]>([]);
+  
+  // Notifications state - Semua notifikasi untuk users
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  
+  // Withdrawals state - Semua withdrawal request dari PIC
+  const [withdrawals, setWithdrawals] = useState<Withdrawal[]>([]);
+  
+  // FASE 2: Project Wallets state - Initialize dari mock data
+  const [projectWallets, setProjectWallets] = useState<ProjectWallet[]>(mockProjectWallets);
+  
+  // FASE 2: Wallet Transactions state
+  const [walletTransactions, setWalletTransactions] = useState<WalletTransaction[]>([]);
+
+  // FASE 2C: Event Registrations state
+  const [eventRegistrations, setEventRegistrations] = useState<EventRegistration[]>([]);
+
+  // Language state - persisted in localStorage
+  const [language, setLanguage] = useState<Language>(() => {
+    const saved = localStorage.getItem('almaqdisi_language');
+    return (saved as Language) || 'id';
+  });
+
+  // Update localStorage when language changes
+  useEffect(() => {
+    localStorage.setItem('almaqdisi_language', language);
+  }, [language]);
+
+  // Close filter modal on ESC key press
+  useEffect(() => {
+    const handleEscKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && showFilterModal) {
+        setShowFilterModal(false);
+      }
+    };
+    
+    window.addEventListener('keydown', handleEscKey);
+    return () => window.removeEventListener('keydown', handleEscKey);
+  }, [showFilterModal]);
+
+  // Get translations for current language
+  const t = getTranslation(language);
+
+  // ==============================
+  // FASE 1: HANDLERS FOR STATE UPDATES
+  // ==============================
+
+  // Handler: Donation submitted dari DonationPage
+  const handleDonationSubmitted = (donation: Donation) => {
+    setDonations(prev => [...prev, donation]);
+    
+    // Create notification untuk donatur
+    const notification: Notification = {
+      id: `notif-${Date.now()}`,
+      userId: donation.donorId || 'anonymous',
+      type: 'donation_approved',
+      title: 'Donasi Berhasil Dikirim',
+      message: `Donasi Anda untuk ${donation.projectTitle} sebesar Rp ${donation.amount.toLocaleString('id-ID')} sedang dalam proses verifikasi.`,
+      link: `/donations/${donation.id}`,
+      isRead: false,
+      createdAt: new Date().toISOString()
+    };
+    setNotifications(prev => [...prev, notification]);
+  };
+
+  // FASE 2: Handler - Donation approved/rejected dengan Wallet Update
+  const handleDonationStatusUpdate = (
+    donationId: string, 
+    status: 'approved' | 'rejected', 
+    reason?: string,
+    verifiedBy?: string
+  ) => {
+    // Update donation status
+    setDonations(prev => 
+      prev.map(d => 
+        d.id === donationId 
+          ? { 
+              ...d, 
+              status, 
+              verifiedAt: new Date().toISOString(),
+              verifiedBy,
+              rejectionReason: reason 
+            }
+          : d
+      )
+    );
+
+    // Get donation info
+    const donation = donations.find(d => d.id === donationId);
+    if (!donation) return;
+
+    // FASE 2: Update Project Wallet jika approved
+    if (status === 'approved') {
+      setProjectWallets(prev => 
+        prev.map(wallet => {
+          if (wallet.projectId === donation.projectId) {
+            const newBalance = wallet.balance + donation.amount;
+            const newTotalIncome = wallet.totalIncome + donation.amount;
+            const newTotalPending = wallet.totalPending - donation.amount;
+
+            // Create wallet transaction record
+            const transaction: WalletTransaction = {
+              id: `wtrans-${Date.now()}-${donationId}`,
+              walletId: wallet.id,
+              projectId: wallet.projectId,
+              type: 'income',
+              amount: donation.amount,
+              balanceBefore: wallet.balance,
+              balanceAfter: newBalance,
+              source: donation.donorName || (donation.isAnonymous ? 'Hamba Allah' : 'Donatur Anonim'),
+              description: donation.message || `Donasi untuk ${wallet.projectTitle}`,
+              reference: donationId,
+              createdBy: verifiedBy,
+              createdByName: 'Superadmin',
+              createdAt: new Date().toISOString()
+            };
+            
+            // Add transaction to wallet transactions
+            setWalletTransactions(prevTrans => [...prevTrans, transaction]);
+
+            return {
+              ...wallet,
+              balance: newBalance,
+              totalIncome: newTotalIncome,
+              totalPending: Math.max(0, newTotalPending),
+              lastTransactionAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString()
+            };
+          }
+          return wallet;
+        })
+      );
+    }
+
+    // Create notification untuk donatur
+    const notification: Notification = {
+      id: `notif-${Date.now()}-${donationId}`,
+      userId: donation.donorId || 'anonymous',
+      type: status === 'approved' ? 'donation_approved' : 'donation_rejected',
+      title: status === 'approved' ? 'Donasi Disetujui! 🎉' : 'Donasi Ditolak',
+      message: status === 'approved' 
+        ? `Donasi Anda untuk ${donation.projectTitle} sebesar Rp ${donation.amount.toLocaleString('id-ID')} telah diverifikasi dan disetujui!`
+        : `Donasi Anda untuk ${donation.projectTitle} ditolak. Alasan: ${reason}`,
+      link: `/donations/${donationId}`,
+      isRead: false,
+      createdAt: new Date().toISOString()
+    };
+    setNotifications(prev => [...prev, notification]);
+  };
+
+  // Handler: Join Request submitted dari ProjectDetailAlumni
+  const handleJoinRequestSubmitted = (joinRequest: JoinRequest) => {
+    setJoinRequests(prev => [...prev, joinRequest]);
+    
+    // Create notification
+    const notification: Notification = {
+      id: `notif-${Date.now()}`,
+      userId: joinRequest.alumniId,
+      type: 'join_approved',
+      title: 'Permintaan Bergabung Dikirim',
+      message: `Permintaan Anda untuk bergabung ke ${joinRequest.projectTitle} sedang dalam peninjauan.`,
+      link: `/projects/${joinRequest.projectId}`,
+      isRead: false,
+      createdAt: new Date().toISOString()
+    };
+    setNotifications(prev => [...prev, notification]);
+  };
+
+  // FASE 2B: Handler - Join Request approved/rejected dengan Automatic Role Assignment
+  const handleJoinRequestStatusUpdate = (
+    requestId: string,
+    status: 'approved' | 'rejected',
+    reason?: string,
+    reviewedBy?: string,
+    reviewedByRole?: 'PIC' | 'Moderator' | 'Superadmin',
+    approvalMessage?: string
+  ) => {
+    setJoinRequests(prev =>
+      prev.map(r =>
+        r.id === requestId
+          ? {
+              ...r,
+              status,
+              reviewedAt: new Date().toISOString(),
+              reviewedBy,
+              reviewedByRole,
+              approvalMessage,
+              rejectionReason: reason,
+              rejectionAllowResubmit: status === 'rejected',
+              // FASE 2B: Automatic Role Assignment saat approved
+              assignedRole: status === 'approved' ? ('member' as const) : undefined
+            }
+          : r
+      )
+    );
+
+    // Create notification
+    const request = joinRequests.find(r => r.id === requestId);
+    if (request) {
+      const notification: Notification = {
+        id: `notif-${Date.now()}-${requestId}`,
+        userId: request.alumniId,
+        type: status === 'approved' ? 'join_approved' : 'join_rejected',
+        title: status === 'approved' ? 'Permintaan Disetujui! 🎉' : 'Permintaan Ditolak',
+        message: status === 'approved'
+          ? `Selamat! Anda telah diterima sebagai member ${request.projectTitle}. ${approvalMessage || 'Selamat bergabung dan berkontribusi!'}`
+          : `Permintaan Anda untuk bergabung ke ${request.projectTitle} ditolak. ${reason ? `Alasan: ${reason}. ` : ''}Anda dapat mengajukan kembali setelah 30 hari.`,
+        link: `/projects/${request.projectId}`,
+        isRead: false,
+        createdAt: new Date().toISOString()
+      };
+      setNotifications(prev => [...prev, notification]);
+    }
+  };
+
+  // Handler: Withdrawal submitted dari PIC
+  const handleWithdrawalSubmitted = (withdrawal: Withdrawal) => {
+    setWithdrawals(prev => [...prev, withdrawal]);
+    
+    // Create notification untuk PIC
+    const notification: Notification = {
+      id: `notif-${Date.now()}`,
+      userId: withdrawal.picId,
+      type: 'withdrawal_approved',
+      title: 'Permintaan Penarikan Dikirim',
+      message: `Permintaan penarikan dana sebesar Rp ${withdrawal.amount.toLocaleString('id-ID')} untuk ${withdrawal.projectTitle} sedang dalam peninjauan Moderator.`,
+      link: `/admin/withdrawals/${withdrawal.id}`,
+      isRead: false,
+      createdAt: new Date().toISOString()
+    };
+    setNotifications(prev => [...prev, notification]);
+  };
+
+  // Handler: Withdrawal approved dari Moderator atau Superadmin
+  const handleWithdrawalApproved = (
+    withdrawalId: string,
+    note?: string,
+    approvedBy?: string
+  ) => {
+    const withdrawal = withdrawals.find(w => w.id === withdrawalId);
+    if (!withdrawal) return;
+
+    setWithdrawals(prev =>
+      prev.map(w =>
+        w.id === withdrawalId
+          ? {
+              ...w,
+              status: 'approved' as const,
+              processedAt: new Date().toISOString(),
+              processedBy: approvedBy,
+              approvalNote: note
+            }
+          : w
+      )
+    );
+
+    // Determine if this is moderator or superadmin approval
+    const isSuperadminApproval = approvedBy?.includes('Superadmin');
+    
+    // Create notification untuk PIC
+    const notification: Notification = {
+      id: `notif-${Date.now()}-${withdrawalId}`,
+      userId: withdrawal.picId,
+      type: 'withdrawal_approved',
+      title: isSuperadminApproval ? 'Penarikan Dana Disetujui! 🎉' : 'Menunggu Approval Superadmin',
+      message: isSuperadminApproval
+        ? `Permintaan penarikan dana sebesar Rp ${withdrawal.amount.toLocaleString('id-ID')} untuk ${withdrawal.projectTitle} telah disetujui Superadmin. Dana akan segera diproses.`
+        : `Permintaan penarikan dana Anda telah disetujui Moderator dan sedang menunggu approval final dari Superadmin.`,
+      link: `/admin/withdrawals/${withdrawalId}`,
+      isRead: false,
+      createdAt: new Date().toISOString()
+    };
+    setNotifications(prev => [...prev, notification]);
+  };
+
+  // Handler: Withdrawal rejected dari Moderator atau Superadmin
+  const handleWithdrawalRejected = (
+    withdrawalId: string,
+    reason: string,
+    rejectedBy?: string
+  ) => {
+    const withdrawal = withdrawals.find(w => w.id === withdrawalId);
+    if (!withdrawal) return;
+
+    setWithdrawals(prev =>
+      prev.map(w =>
+        w.id === withdrawalId
+          ? {
+              ...w,
+              status: 'rejected' as const,
+              processedAt: new Date().toISOString(),
+              processedBy: rejectedBy,
+              rejectionReason: reason
+            }
+          : w
+      )
+    );
+
+    // Create notification untuk PIC
+    const notification: Notification = {
+      id: `notif-${Date.now()}-${withdrawalId}`,
+      userId: withdrawal.picId,
+      type: 'withdrawal_rejected',
+      title: 'Permintaan Penarikan Ditolak',
+      message: `Permintaan penarikan dana sebesar Rp ${withdrawal.amount.toLocaleString('id-ID')} untuk ${withdrawal.projectTitle} ditolak. Alasan: ${reason}`,
+      link: `/admin/withdrawals/${withdrawalId}`,
+      isRead: false,
+      createdAt: new Date().toISOString()
+    };
+    setNotifications(prev => [...prev, notification]);
+  };
+
+  // ==============================
+  // FASE 2C: EVENT REGISTRATION HANDLERS
+  // ==============================
+
+  // Handler: Event Registration submitted dari EventDetail
+  const handleEventRegistrationSubmitted = (registration: EventRegistration) => {
+    setEventRegistrations(prev => [...prev, registration]);
+    const notification: Notification = {
+      id: `notif-event-${Date.now()}`,
+      userId: registration.alumniId,
+      type: 'event_registration_submitted',
+      title: 'Pendaftaran Event Dikirim',
+      message: `Pendaftaran Anda untuk event "${registration.eventTitle}" sedang dalam peninjauan panitia.`,
+      link: `/events/${registration.eventId}`,
+      isRead: false,
+      createdAt: new Date().toISOString(),
+    };
+    setNotifications(prev => [...prev, notification]);
+  };
+
+  // Handler: Event Registration status update dari Admin
+  const handleEventRegistrationStatusUpdate = (
+    registrationId: string,
+    status: 'approved' | 'rejected',
+    reason?: string,
+    reviewedBy?: string,
+    reviewedByRole?: 'PIC' | 'Moderator' | 'Superadmin',
+    approvalMessage?: string
+  ) => {
+    setEventRegistrations(prev =>
+      prev.map(r =>
+        r.id === registrationId
+          ? {
+              ...r,
+              status,
+              reviewedAt: new Date().toISOString(),
+              reviewedBy,
+              reviewedByRole,
+              approvalMessage,
+              rejectionReason: reason,
+            }
+          : r
+      )
+    );
+
+    const registration = eventRegistrations.find(r => r.id === registrationId);
+    if (registration) {
+      const notification: Notification = {
+        id: `notif-event-${Date.now()}-${registrationId}`,
+        userId: registration.alumniId,
+        type: status === 'approved' ? 'event_approved' : 'event_rejected',
+        title: status === 'approved' ? `Pendaftaran Event Disetujui! 🎉` : 'Pendaftaran Event Ditolak',
+        message: status === 'approved'
+          ? `Selamat! Pendaftaran Anda untuk event "${registration.eventTitle}" telah disetujui.${approvalMessage ? ` ${approvalMessage}` : ''} Tanggal: ${registration.eventDate}, ${registration.eventTime}.`
+          : `Pendaftaran Anda untuk event "${registration.eventTitle}" ditolak. Alasan: ${reason}`,
+        link: `/events/${registration.eventId}`,
+        isRead: false,
+        createdAt: new Date().toISOString(),
+      };
+      setNotifications(prev => [...prev, notification]);
+    }
+  };
+
+  // ==============================
+  // FASE 3: CONTENT & TASK NOTIFICATION HANDLERS
+  // ==============================
+
+  // Handler: PIC publish content update → notify all members
+  const handleContentPublished = (
+    projectId: string,
+    projectTitle: string,
+    updateTitle: string,
+    updateType: string,
+    createdByName: string
+  ) => {
+    const typeLabels: Record<string, string> = {
+      progress: 'Progress Update',
+      announcement: 'Pengumuman',
+      milestone: 'Milestone Baru',
+      meeting_reminder: 'Reminder Meeting',
+    };
+    const notification: Notification = {
+      id: `notif-content-${Date.now()}`,
+      userId: 'current-user-id', // Dalam produksi: broadcast ke semua member project
+      type: 'progress_update',
+      title: `${typeLabels[updateType] || 'Update Baru'}: ${updateTitle}`,
+      message: `${createdByName} baru saja mempublish update baru di project "${projectTitle}". Klik untuk melihat detailnya.`,
+      link: `/projects/${projectId}`,
+      isRead: false,
+      createdAt: new Date().toISOString(),
+    };
+    setNotifications(prev => [...prev, notification]);
+  };
+
+  // Handler: PIC assigns task → notify alumni member
+  const handleTaskAssigned = (
+    taskId: string,
+    assignedToId: string,
+    assignedToName: string,
+    taskTitle: string,
+    projectId: string,
+    projectTitle: string,
+    dueDate: string,
+    priority: string
+  ) => {
+    const priorityLabel: Record<string, string> = {
+      low: 'Low', medium: 'Medium', high: 'High', urgent: '🚨 URGENT',
+    };
+    const notification: Notification = {
+      id: `notif-task-${Date.now()}-${taskId}`,
+      userId: assignedToId,
+      type: 'task_assigned',
+      title: `Task Baru Ditugaskan: ${taskTitle}`,
+      message: `Anda mendapat task baru "${taskTitle}" di project "${projectTitle}". Priority: ${priorityLabel[priority] || priority}. Deadline: ${new Date(dueDate).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}.`,
+      link: `/projects/${projectId}/tasks/${taskId}`,
+      isRead: false,
+      createdAt: new Date().toISOString(),
+    };
+    setNotifications(prev => [...prev, notification]);
+  };
+
+  // Handler: Task status updated (completed) → notify PIC
+  const handleTaskStatusUpdated = (
+    taskId: string,
+    newStatus: string,
+    taskTitle: string,
+    assignedByName: string,
+    projectId: string
+  ) => {
+    if (newStatus === 'completed') {
+      const notification: Notification = {
+        id: `notif-task-done-${Date.now()}-${taskId}`,
+        userId: 'pic-user-id', // Dalam produksi: kirim ke PIC project
+        type: 'task_completed',
+        title: `Task Selesai: ${taskTitle}`,
+        message: `Task "${taskTitle}" telah diselesaikan. Periksa hasilnya dan tandai sebagai verified jika sudah memenuhi syarat.`,
+        link: `/admin/projects/${projectId}/tasks/${taskId}`,
+        isRead: false,
+        createdAt: new Date().toISOString(),
+      };
+      setNotifications(prev => [...prev, notification]);
+    }
+  };
+
+  // ==============================
+  // FASE 3A: CONTENT REMOVAL FLOW
+  // ==============================
+
+  // Handler: Moderator removes content → notify PIC
+  const handleContentRemoved = (
+    contentId: string,
+    contentTitle: string,
+    projectId: string,
+    projectTitle: string,
+    picId: string,
+    _picName: string,
+    removalReason: string,
+    removedBy: string
+  ) => {
+    const notification: Notification = {
+      id: `notif-content-removed-${Date.now()}-${contentId}`,
+      userId: picId,
+      type: 'content_removed',
+      title: 'Konten Dihapus oleh Moderator',
+      message: `Konten "${contentTitle}" dari project "${projectTitle}" telah dihapus oleh Moderator (${removedBy}). Alasan: ${removalReason}. Jika keberatan, silakan hubungi Moderator atau Superadmin.`,
+      link: `/admin/projects/${projectId}/content`,
+      isRead: false,
+      createdAt: new Date().toISOString(),
+    };
+    setNotifications(prev => [...prev, notification]);
+  };
+
+  // ==============================
+  // FASE 3B: PROJECT CLOSURE FLOW
+  // ==============================
+
+  // Handler: PIC requests project closure
+  const handleProjectCloseRequested = (
+    projectId: string,
+    projectTitle: string,
+    _reason: string,
+    _finalReport: string,
+    _picName: string
+  ) => {
+    const notification: Notification = {
+      id: `notif-closure-req-${Date.now()}-${projectId}`,
+      userId: 'current-pic-id',
+      type: 'project_closed',
+      title: 'Permintaan Penutupan Dikirim',
+      message: `Permintaan penutupan project "${projectTitle}" telah dikirim ke Superadmin. Anda akan mendapat notifikasi setelah permintaan diproses (1-3 hari kerja).`,
+      link: `/admin/projects/${projectId}/closure`,
+      isRead: false,
+      createdAt: new Date().toISOString(),
+    };
+    setNotifications(prev => [...prev, notification]);
+  };
+
+  // Handler: Superadmin approves project closure → notify PIC + all members
+  const handleProjectClosureApproved = (
+    projectId: string,
+    projectTitle: string,
+    _approvedBy: string,
+    note?: string
+  ) => {
+    const notifPIC: Notification = {
+      id: `notif-closure-approved-${Date.now()}-${projectId}`,
+      userId: 'current-pic-id',
+      type: 'project_closure_approved',
+      title: `Project "${projectTitle}" Resmi Ditutup ✅`,
+      message: `Permintaan penutupan telah disetujui oleh Superadmin. ${note ? `Catatan: ${note}` : ''} Seluruh member project akan segera dinotifikasi.`,
+      link: `/projects/${projectId}`,
+      isRead: false,
+      createdAt: new Date().toISOString(),
+    };
+    const notifMembers: Notification = {
+      id: `notif-closure-members-${Date.now()}-${projectId}`,
+      userId: 'all-members',
+      type: 'project_closed',
+      title: `Project "${projectTitle}" Telah Ditutup`,
+      message: `Project "${projectTitle}" telah resmi ditutup setelah berhasil menyelesaikan semua target. Terima kasih atas kontribusi dan keikhlasan kalian! Semoga Allah menerima amal ibadah kita.`,
+      link: `/projects/${projectId}`,
+      isRead: false,
+      createdAt: new Date().toISOString(),
+    };
+    setNotifications(prev => [...prev, notifPIC, notifMembers]);
+  };
+
+  // Handler: Superadmin rejects project closure → notify PIC
+  const handleProjectClosureRejected = (
+    projectId: string,
+    projectTitle: string,
+    reason: string,
+    _rejectedBy: string
+  ) => {
+    const notification: Notification = {
+      id: `notif-closure-rejected-${Date.now()}-${projectId}`,
+      userId: 'current-pic-id',
+      type: 'project_closure_rejected',
+      title: 'Permintaan Penutupan Ditolak',
+      message: `Permintaan penutupan project "${projectTitle}" ditolak oleh Superadmin. Alasan: ${reason}. Silakan perbaiki dan ajukan kembali setelah memenuhi syarat.`,
+      link: `/admin/projects/${projectId}/closure`,
+      isRead: false,
+      createdAt: new Date().toISOString(),
+    };
+    setNotifications(prev => [...prev, notification]);
+  };
+
+  // ==============================
+  // FASE 3C: ALUMNI VERIFICATION FLOW
+  // ==============================
+
+  // Handler: Moderator adds new alumni → welcome notification
+  const handleAlumniAdded = (
+    alumniId: string,
+    alumniName: string,
+    _alumniEmail: string,
+    addedBy: string
+  ) => {
+    const notification: Notification = {
+      id: `notif-alumni-verified-${Date.now()}-${alumniId}`,
+      userId: alumniId,
+      type: 'alumni_verified',
+      title: 'Selamat Datang di AlMaqdisi Project! 🎉',
+      message: `Akun alumni atas nama "${alumniName}" telah berhasil dibuat oleh tim Admin (${addedBy}). Sekarang Anda dapat login dan mulai berkontribusi untuk kemanusiaan Baitul Maqdis dan Gaza.`,
+      link: `/`,
+      isRead: false,
+      createdAt: new Date().toISOString(),
+    };
+    setNotifications(prev => [...prev, notification]);
+  };
+
+  // Handler: Mark notification as read
+  const handleMarkNotificationAsRead = (notificationId: string) => {
+    setNotifications(prev =>
+      prev.map(n => n.id === notificationId ? { ...n, isRead: true } : n)
+    );
+  };
+
+  // Handler: Mark all notifications as read
+  const handleMarkAllNotificationsAsRead = () => {
+    setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+  };
+
+  // Handler: Clear all notifications
+  const handleClearAllNotifications = () => {
+    setNotifications([]);
+  };
+
+  // ==============================
+  // FASE 4: POLLING NOTIFICATION HANDLERS
+  // ==============================
+
+  // Handler: PIC creates new poll → notify all members
+  const handlePollCreated = (
+    pollId: string,
+    pollQuestion: string,
+    projectId: string,
+    projectTitle: string,
+    deadline: string,
+    createdByName: string
+  ) => {
+    const notification: Notification = {
+      id: `notif-poll-created-${Date.now()}-${pollId}`,
+      userId: 'all-members', // Dalam produksi: broadcast ke semua member project
+      type: 'poll_created',
+      title: `📊 Polling Baru: ${pollQuestion}`,
+      message: `${createdByName} membuat polling baru di project \"${projectTitle}\". Jangan lupa berikan suara Anda! Deadline: ${new Date(deadline).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}.`,
+      link: `/projects/${projectId}/voting`,
+      isRead: false,
+      createdAt: new Date().toISOString(),
+    };
+    setNotifications(prev => [...prev, notification]);
+  };
+
+  // Handler: PIC closes poll → notify all members
+  const handlePollClosed = (
+    pollId: string,
+    pollQuestion: string,
+    projectId: string,
+    projectTitle: string,
+    totalVoters: number,
+    closedByName: string
+  ) => {
+    const notification: Notification = {
+      id: `notif-poll-closed-${Date.now()}-${pollId}`,
+      userId: 'all-members', // Dalam produksi: broadcast ke semua member project
+      type: 'poll_closed',
+      title: `Polling Ditutup: ${pollQuestion}`,
+      message: `Polling \"${pollQuestion}\" di project \"${projectTitle}\" telah ditutup oleh ${closedByName}. Total ${totalVoters} member telah memberikan suara. Lihat hasil lengkapnya!`,
+      link: `/projects/${projectId}/voting`,
+      isRead: false,
+      createdAt: new Date().toISOString(),
+    };
+    setNotifications(prev => [...prev, notification]);
+  };
+
+  // Handler: Poll deadline reminder (1 hari sebelum deadline)
+  const handlePollDeadlineReminder = (
+    pollId: string,
+    pollQuestion: string,
+    projectId: string,
+    projectTitle: string,
+    deadline: string
+  ) => {
+    const notification: Notification = {
+      id: `notif-poll-reminder-${Date.now()}-${pollId}`,
+      userId: 'all-members-who-havent-voted', // Dalam produksi: filter member yang belum vote
+      type: 'poll_reminder',
+      title: `⏰ Reminder: Polling Akan Ditutup Besok`,
+      message: `Polling \"${pollQuestion}\" di project \"${projectTitle}\" akan ditutup besok (${new Date(deadline).toLocaleDateString('id-ID', { day: 'numeric', month: 'long' })}). Segera berikan suara Anda!`,
+      link: `/projects/${projectId}/voting`,
+      isRead: false,
+      createdAt: new Date().toISOString(),
+    };
+    setNotifications(prev => [...prev, notification]);
+  };
+
+  // ==============================
+  // FASE 4: PAYMENT TIMER AUTO-EXPIRY HANDLER
+  // ==============================
+
+  // Handler: Donation expired after 24 hours
+  const handleDonationExpired = (donationId: string) => {
+    setDonations(prev =>
+      prev.map(d =>
+        d.id === donationId && d.status === 'pending'
+          ? { 
+              ...d, 
+              status: 'expired',
+              rejectionReason: 'Batas waktu pembayaran telah habis (24 jam). Silakan submit donasi baru jika ingin melanjutkan.'
+            }
+          : d
+      )
+    );
+
+    // Notify donatur if they have an account
+    const donation = donations.find(d => d.id === donationId);
+    if (donation && donation.donorName) {
+      const notification: Notification = {
+        id: `notif-donation-expired-${Date.now()}-${donationId}`,
+        userId: donation.donorName, // Dalam produksi: gunakan donorId
+        type: 'donation_expired',
+        title: 'Donasi Kadaluarsa',
+        message: `Donasi Anda senilai Rp ${donation.amount.toLocaleString('id-ID')} untuk ${donation.projectTitle} telah kadaluarsa karena belum ada konfirmasi pembayaran dalam 24 jam. Silakan submit donasi baru jika ingin melanjutkan.`,
+        link: `/my-donations`,
+        isRead: false,
+        createdAt: new Date().toISOString(),
+      };
+      setNotifications(prev => [...prev, notification]);
+    }
+  };
 
   // Logout handler
   const handleLogout = () => {
@@ -97,6 +851,7 @@ export default function App() {
         }}
         onLogout={handleLogout}
         activeNav={activeNav}
+        onJoinRequestSubmitted={handleJoinRequestSubmitted}
       />;
     }
     
@@ -108,6 +863,7 @@ export default function App() {
 
   if (currentView === 'explore') {
     return <ExploreProject 
+      key={exploreInitialTab} // Force re-render when initial tab changes
       onBack={() => {
         setCurrentView('home');
         setActiveNav('home');
@@ -121,6 +877,7 @@ export default function App() {
       onNavigateExplore={() => {
         setCurrentView('explore');
         setActiveNav('explore');
+        setExploreInitialTab('open');
       }}
       onNavigateMessages={() => {
         setCurrentView('messages');
@@ -130,7 +887,13 @@ export default function App() {
         setCurrentView('settings');
         setActiveNav('settings');
       }}
+      onCampaignClick={(id) => {
+        setSelectedCampaignId(id);
+        setCurrentView('campaign-detail');
+      }}
+      currentUserId="user-1"
       activeNav={activeNav}
+      userRole={userRole}
     />;
   }
 
@@ -142,10 +905,36 @@ export default function App() {
   }
 
   if (currentView === 'event-detail') {
-    return <EventDetail onBack={() => {
-      setCurrentView('home');
-      setActiveNav('home');
-    }} />;
+    return <EventDetail 
+      onBack={() => {
+        setCurrentView('home');
+        setActiveNav('home');
+      }}
+      userRole={userRole}
+      onEventRegistrationSubmitted={handleEventRegistrationSubmitted}
+    />;
+  }
+
+  // FASE 3: Notification Center
+  if (currentView === 'notification-center') {
+    return <NotificationCenter
+      notifications={notifications}
+      onBack={() => {
+        setCurrentView('home');
+        setActiveNav('home');
+      }}
+      onMarkAsRead={handleMarkNotificationAsRead}
+      onMarkAllAsRead={handleMarkAllNotificationsAsRead}
+      onClearAll={handleClearAllNotifications}
+      onNavigateHome={() => { setCurrentView('home'); setActiveNav('home'); }}
+      onNavigateExplore={() => { setCurrentView('explore'); setActiveNav('explore'); }}
+      onNavigateMessages={() => { setCurrentView('messages'); setActiveNav('pesan'); }}
+      onNavigateSettings={() => { setCurrentView('settings'); setActiveNav('settings'); }}
+      onNavigateMyDonations={() => setCurrentView('my-donations')}
+      onNavigateMyJoinRequests={() => setCurrentView('my-join-requests')}
+      onNavigateEventDetail={() => { setCurrentView('event-detail'); }}
+      activeNav={activeNav}
+    />;
   }
 
   if (currentView === 'messages') {
@@ -230,8 +1019,16 @@ export default function App() {
         setActiveNav('settings');
       }}
       onLogout={handleLogout}
+      onNavigateMyDonations={() => {
+        setCurrentView('my-donations');
+      }}
+      onNavigateMyJoinRequests={() => {
+        setCurrentView('my-join-requests');
+      }}
       activeNav={activeNav}
       userRole={userRole}
+      language={language}
+      onLanguageChange={setLanguage}
     />;
   }
 
@@ -260,13 +1057,191 @@ export default function App() {
         setActiveNav('settings');
       }}
       activeNav={activeNav}
+      onDonationSubmitted={handleDonationSubmitted}
     />;
   }
 
+  // Admin Panel Routes
+  if (currentView === 'admin-login-revised') {
+    return <AdminLoginRevised 
+      onLoginSuccess={() => {
+        setCurrentView('admin-panel-revised');
+      }}
+      onBack={() => {
+        setCurrentView('home');
+        setActiveNav('home');
+      }}
+    />;
+  }
+
+  if (currentView === 'admin-panel-revised') {
+    return <AdminPanelRevised 
+      onLogout={() => {
+        setCurrentView('home');
+        setActiveNav('home');
+      }}
+      donations={donations}
+      joinRequests={joinRequests}
+      notifications={notifications}
+      withdrawals={withdrawals}
+      projectWallets={projectWallets}
+      walletTransactions={walletTransactions}
+      onDonationStatusUpdate={handleDonationStatusUpdate}
+      onJoinRequestStatusUpdate={handleJoinRequestStatusUpdate}
+      onWithdrawalSubmitted={handleWithdrawalSubmitted}
+      onWithdrawalApproved={handleWithdrawalApproved}
+      onWithdrawalRejected={handleWithdrawalRejected}
+      eventRegistrations={eventRegistrations}
+      onEventRegistrationStatusUpdate={handleEventRegistrationStatusUpdate}
+      onContentPublished={handleContentPublished}
+      onTaskAssigned={handleTaskAssigned}
+      onTaskStatusUpdated={handleTaskStatusUpdated}
+      onContentRemoved={handleContentRemoved}
+      onProjectCloseRequested={handleProjectCloseRequested}
+      onProjectClosureApproved={handleProjectClosureApproved}
+      onProjectClosureRejected={handleProjectClosureRejected}
+      onAlumniAdded={handleAlumniAdded}
+      onPollCreated={handlePollCreated}
+      onPollClosed={handlePollClosed}
+      onPollDeadlineReminder={handlePollDeadlineReminder}
+    />;
+  }
+
+  // My Donations View
+  if (currentView === 'my-donations') {
+    return <MyDonations 
+      donations={donations.filter(d => d.donorId === 'current-user-id')} // Filter by current user
+      onBack={() => {
+        setCurrentView('settings');
+        setActiveNav('settings');
+      }}
+      onViewDetail={(donation) => {
+        // TODO: Navigate to donation detail
+        console.log('View donation detail:', donation);
+      }}
+      onResubmit={(donation) => {
+        // FASE 3D: Update donation status back to pending after resubmit
+        setDonations(prev =>
+          prev.map(d =>
+            d.id === donation.id
+              ? { ...d, status: 'pending' as const, rejectionReason: undefined, verifiedAt: undefined }
+              : d
+          )
+        );
+        // Notify user
+        const notification: Notification = {
+          id: `notif-resubmit-${Date.now()}-${donation.id}`,
+          userId: donation.donorId || 'current-user-id',
+          type: 'donation_approved',
+          title: 'Bukti Transfer Dikirim Ulang',
+          message: `Bukti transfer baru untuk donasi ${donation.projectTitle} telah dikirim ulang. Kami akan memverifikasi dalam 1×24 jam kerja.`,
+          link: `/donations/${donation.id}`,
+          isRead: false,
+          createdAt: new Date().toISOString(),
+        };
+        setNotifications(prev => [...prev, notification]);
+      }}
+      onNavigateHome={() => {
+        setCurrentView('home');
+        setActiveNav('home');
+      }}
+      onNavigateExplore={() => {
+        setCurrentView('explore');
+        setActiveNav('explore');
+      }}
+      onNavigateMessages={() => {
+        setCurrentView('messages');
+        setActiveNav('pesan');
+      }}
+      onNavigateSettings={() => {
+        setCurrentView('settings');
+        setActiveNav('settings');
+      }}
+      activeNav={activeNav}
+    />;
+  }
+
+  // My Join Requests View
+  if (currentView === 'my-join-requests') {
+    return <MyJoinRequests 
+      requests={joinRequests.filter(r => r.alumniId === 'current-user-id')} // Filter by current user
+      onBack={() => {
+        setCurrentView('settings');
+        setActiveNav('settings');
+      }}
+      onViewProject={(projectId) => {
+        setCurrentView('project-detail');
+        setActiveNav('home');
+      }}
+      onCancelRequest={(requestId) => {
+        // TODO: Implement cancel logic
+        setJoinRequests(prev => prev.filter(r => r.id !== requestId));
+      }}
+      onResubmit={(request) => {
+        // TODO: Implement resubmit logic
+        console.log('Resubmit request:', request);
+      }}
+      onNavigateHome={() => {
+        setCurrentView('home');
+        setActiveNav('home');
+      }}
+      onNavigateExplore={() => {
+        setCurrentView('explore');
+        setActiveNav('explore');
+      }}
+      onNavigateMessages={() => {
+        setCurrentView('messages');
+        setActiveNav('pesan');
+      }}
+      onNavigateSettings={() => {
+        setCurrentView('settings');
+        setActiveNav('settings');
+      }}
+      activeNav={activeNav}
+    />;
+  }
+
+  if (currentView === 'campaign-detail' && selectedCampaignId) {
+    return (
+      <CampaignDetail 
+        campaignId={selectedCampaignId}
+        userRole="alumni" // Assuming user is alumni for now, or use userRole variable
+        currentUserId="user-1"
+        onBack={() => {
+          if (activeNav === 'campaigns') {
+            setCurrentView('explore');
+            setExploreInitialTab('campaign');
+          } else {
+            // Default back behavior
+            setCurrentView('explore');
+            // If we came from explore, we ideally want to preserve the tab.
+            // Since we don't track tab state in App, we'll default to 'open' or current 'exploreInitialTab' value.
+            // If the user navigated via sidebar "Campaigns", exploreInitialTab is 'campaign'.
+            // If via sidebar "Explore", exploreInitialTab is 'open'.
+            // If they switched tabs inside Explore, exploreInitialTab is stale.
+            // But this is acceptable for now.
+          }
+          setSelectedCampaignId(null);
+        }}
+      />
+    );
+  }
+
+  /* 
+  if (currentView === 'campaigns') {
+    // Deprecated view - redirected to Explore
+    return null; 
+  }
+  */
+
+  if (currentView === 'admin-campaigns') {
+    return <CampaignDashboard currentUserId="admin-1" />;
+  }
+
   return (
-    <ErrorBoundary>
+      <ErrorBoundary>
       <Toaster position="top-center" richColors closeButton />
-      <div className="flex min-h-screen relative bg-[#F8F9FA]">
+      <div className="flex min-h-screen relative bg-[#F8F9FA] overflow-x-hidden">
       {/* Sidebar */}
       <aside className="w-64 bg-[#2B4468] border-r border-[#2B4468] fixed h-screen top-0 left-0 z-50 flex flex-col hidden lg:flex shadow-sm">
         {/* Decorative Background Elements */}
@@ -355,12 +1330,12 @@ export default function App() {
             <button
               className="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all w-full text-[#FAC06E] hover:bg-white/5 border border-[#FAC06E]/30 hover:border-[#FAC06E]"
               onClick={() => {
-                setCurrentView('admin-panel-revised');
+                setCurrentView('admin-login-revised');
                 setActiveNav('admin');
               }}
             >
               <span className="material-symbols-outlined text-xl">admin_panel_settings</span>
-              <span className="tracking-wide text-sm font-semibold">Admin Panel (NEW)</span>
+              <span className="tracking-wide text-sm font-semibold">Admin Panel</span>
             </button>
           </div>
 
@@ -380,65 +1355,71 @@ export default function App() {
       {/* Main Content */}
       <main className="flex-1 lg:ml-64 w-full pb-10 lg:pb-10 pb-20">
         {/* Header - Mobile Only */}
-        <header className="bg-white/90 sticky top-0 z-30 px-6 py-4 flex items-center justify-between backdrop-blur-sm md:hidden border-b border-[#E5E7EB] shadow-sm">
-          <div className="flex items-center gap-2">
-            <img
-              alt="ProjekKita Logo"
-              className="h-8 w-8"
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuC6G8ZKTEYF7uDrKB9iNHzELij-Ce_P4aVWbG01h9az5aKUlRf0ApXijGtvJFbNV70APZOi3DMM-RhwjVOza7kIPSiSFhc36dejx7W6CQKP536SdEWyEYZrZsKyHwp29FC4Zzrs5Eb0izefohfdDSa6ZfmNyUC5bCvfPj8e78pUsarCG56NVU4PNR9SEopecyZ4GvNeWKsPzsUMXKNWwOXfMSEG7cjxacIoFydo8Yan3srJZJhEN61VUH_VW3vjTgsiGI_zQXfv72Dx"
-            />
-            <span className="font-['Archivo_Black'] text-lg text-[#0E1B33] uppercase tracking-tight">ProjekKita</span>
-          </div>
+        {currentView === 'home' && (
+        <header className="bg-white/90 sticky top-0 z-30 px-3 py-3.5 flex items-center justify-between backdrop-blur-sm md:hidden border-b border-[#E5E7EB] shadow-sm overflow-hidden">
+          <Logo className="scale-[0.8] origin-left flex-shrink-0" />
           
-          <div className="flex items-center gap-3">
-            <button className="text-[#6B7280] hover:text-[#243D68] transition-colors relative w-11 h-11 flex items-center justify-center rounded-lg hover:bg-[#F8F9FA]">
+          <div className="flex items-center gap-2 flex-shrink-0 ml-auto">
+            <button 
+              onClick={() => setCurrentView('notification-center')}
+              className="text-[#6B7280] hover:text-[#243D68] transition-colors relative w-10 h-10 flex items-center justify-center rounded-lg hover:bg-[#F8F9FA] flex-shrink-0"
+            >
               <span className="material-symbols-outlined text-2xl">notifications</span>
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
+              {notifications.filter(n => !n.isRead).length > 0 && (
+                <span className="absolute top-1.5 right-1.5 min-w-[18px] h-[18px] bg-red-500 rounded-full border-2 border-white flex items-center justify-center text-white text-[9px] font-bold px-0.5">
+                  {notifications.filter(n => !n.isRead).length > 9 ? '9+' : notifications.filter(n => !n.isRead).length}
+                </span>
+              )}
             </button>
             
-            {userRole === null ? (
+            {userRole === null && (
               <button
                 onClick={() => setShowLoginWidget(true)}
-                className="bg-gradient-to-r from-[#243D68] to-[#30518B] text-white font-bold py-2.5 px-5 rounded-lg text-sm hover:shadow-lg transition shadow-md uppercase tracking-wide min-h-[44px]"
+                className="bg-gradient-to-r from-[#243D68] to-[#30518B] text-white font-bold py-2.5 px-4 rounded-lg text-sm hover:shadow-lg transition shadow-md uppercase tracking-wide whitespace-nowrap flex-shrink-0"
               >
                 Login
-              </button>
-            ) : (
-              <button
-                onClick={handleLogout}
-                className="bg-red-500 text-white font-bold py-2.5 px-5 rounded-lg text-sm hover:bg-red-600 transition shadow-md uppercase tracking-wide min-h-[44px] flex items-center gap-2"
-              >
-                <span className="material-symbols-outlined text-lg">logout</span>
-                <span>Logout</span>
               </button>
             )}
           </div>
         </header>
+        )}
 
-        <div className="px-6 lg:px-10 max-w-7xl mx-auto space-y-10">
+        {currentView === 'campaigns' ? (
+          <CampaignList 
+            currentUserId="user-1" 
+            onCampaignClick={(id) => {
+              setSelectedCampaignId(id);
+              setCurrentView('campaign-detail');
+            }}
+            onBack={() => {
+              setCurrentView('home');
+              setActiveNav('home');
+            }}
+          />
+        ) : (
+          <div className="px-6 lg:px-10 max-w-7xl mx-auto space-y-10">
           {/* Hero Section */}
           <section className="relative overflow-hidden rounded-3xl p-6 md:p-8 lg:p-16 mt-6">
             {/* Notification & Login - Top Right */}
             <div className="absolute top-4 right-4 md:top-6 md:right-6 lg:top-8 lg:right-8 flex items-center gap-2 md:gap-4 z-30">
-              <button className="hidden md:block text-[#61728F] hover:text-[#243D68] transition-colors relative">
+              <button 
+                className="hidden md:block text-[#61728F] hover:text-[#243D68] transition-colors relative"
+                onClick={() => setCurrentView('notification-center')}
+              >
                 <span className="material-symbols-outlined text-2xl">notifications</span>
-                <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
+                {notifications.filter(n => !n.isRead).length > 0 && (
+                  <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-red-500 rounded-full border-2 border-white flex items-center justify-center text-white text-[9px] font-bold px-0.5">
+                    {notifications.filter(n => !n.isRead).length > 9 ? '9+' : notifications.filter(n => !n.isRead).length}
+                  </span>
+                )}
               </button>
               
-              {userRole === null ? (
+              {userRole === null && (
                 <button
                   className="hidden md:block bg-[#243D68] text-white font-semibold py-2.5 px-6 rounded-[12px] text-sm hover:bg-[#183A74] transition shadow-md"
                   onClick={() => setShowLoginWidget(true)}
                 >
-                  Login
-                </button>
-              ) : (
-                <button
-                  className="hidden md:flex items-center gap-2 bg-red-500 text-white font-semibold py-2.5 px-6 rounded-[12px] text-sm hover:bg-red-600 transition shadow-md"
-                  onClick={handleLogout}
-                >
-                  <span className="material-symbols-outlined text-lg">logout</span>
-                  <span>Logout</span>
+                  {t.home.login}
                 </button>
               )}
             </div>
@@ -446,18 +1427,13 @@ export default function App() {
             <div className="grid md:grid-cols-2 gap-6 md:gap-8 lg:gap-16 items-center relative z-10">
               {/* Left Content */}
               <div className="space-y-6 max-w-xl">
-                <div>
-                  <p className="text-[#FAC06E] text-xs font-bold uppercase tracking-[0.2em] mb-3">
-                    Hello I'm
-                  </p>
-                </div>
                 
                 <h1 className="text-4xl lg:text-6xl font-['Archivo_Black'] text-[#0E1B33] leading-[0.95] uppercase tracking-tighter">
-                  Bersama Berjuang Untuk Al Aqsa
+                  {t.hero.title}
                 </h1>
                 
                 <p className="text-[#61728F] text-base lg:text-lg leading-relaxed font-light">
-                  Bergabung dengan ribuan alumni untuk mendukung saudara-saudara kita di Palestina. Mari bersatu dalam aksi nyata untuk Baitul Maqdis dan rakyat Palestina.
+                  {t.hero.description} <span className="font-bold text-[#243D68]">{t.hero.aqsaBaitulMaqdis}</span>
                 </p>
 
                 {/* CTA Buttons */}
@@ -471,7 +1447,7 @@ export default function App() {
                     className="bg-[#183A74] text-white font-bold uppercase tracking-widest px-8 py-3.5 rounded-lg hover:bg-[#243D68] transition-all duration-300 flex items-center gap-2 shadow-[6px_6px_0px_0px_rgba(250,192,110,1)] active:shadow-none active:translate-x-1 active:translate-y-1"
                   >
                     <span className="material-symbols-outlined text-xl">explore</span>
-                    <span>Explore Project</span>
+                    <span>{t.hero.exploreProjectBtn}</span>
                   </button>
                 </div>
               </div>
@@ -484,7 +1460,7 @@ export default function App() {
                 <div className="absolute w-72 h-72 md:w-[26rem] md:h-[26rem] lg:w-[30rem] lg:h-[30rem] rounded-full bg-[#FAC06E]/30 animate-ripple"></div>
                 
                 {/* Large Circle Background - replaced with Al-Aqsa image */}
-                <img
+                <ImageWithFallback
                   src={heroImage}
                   alt="Masjid Al-Aqsa Complex"
                   className="w-56 h-56 md:w-80 md:h-80 lg:w-96 lg:h-96 rounded-full object-cover opacity-90 relative z-10"
@@ -497,21 +1473,6 @@ export default function App() {
             <div className="absolute bottom-20 right-20 w-16 h-16 border-4 border-[#243D68]/10 rounded-full"></div>
           </section>
 
-          {/* Search Bar */}
-          <section className="relative max-w-2xl md:max-w-none mx-auto">
-            <span className="material-symbols-outlined absolute left-4 md:left-5 lg:left-6 top-1/2 -translate-y-1/2 text-[#919EB2] text-xl md:text-2xl">
-              search
-            </span>
-            <input
-              className="w-full h-12 md:h-14 lg:h-16 pl-12 md:pl-14 lg:pl-16 pr-12 md:pr-14 lg:pr-16 rounded-2xl border border-[#D6DCE8] bg-white text-[#0E1B33] placeholder-[#919EB2] focus:ring-2 focus:ring-[#243D68] focus:border-[#243D68] shadow-sm transition-all outline-none text-sm md:text-base lg:text-lg"
-              placeholder="Cari proyek impianmu..."
-              type="text"
-            />
-            <button className="absolute right-3 md:right-4 lg:right-5 top-1/2 -translate-y-1/2 p-2 text-[#61728F] hover:text-[#243D68] rounded-lg hover:bg-[#E5E8EC] transition-colors">
-              <span className="material-symbols-outlined text-xl md:text-2xl">tune</span>
-            </button>
-          </section>
-
           {/* Categories */}
           <section>
             <div className="flex overflow-x-auto gap-3 pb-2 hide-scrollbar">
@@ -522,8 +1483,7 @@ export default function App() {
                     ? 'bg-[#243D68] text-white border border-[#243D68]'
                     : 'bg-white border border-[#D6DCE8] text-[#61728F] hover:border-[#243D68] hover:text-[#243D68]'
                 }`}
-              >
-                <span className="material-symbols-outlined text-[20px]">star</span> Semua
+              >\n                <span className="material-symbols-outlined text-[20px]">star</span> {t.categories.all}
               </button>
               <button 
                 onClick={() => setActiveCategory('pendidikan')}
@@ -533,7 +1493,7 @@ export default function App() {
                     : 'bg-white border border-[#D6DCE8] text-[#61728F] hover:border-[#243D68] hover:text-[#243D68]'
                 }`}
               >
-                <span className="material-symbols-outlined text-[20px]">school</span> Pendidikan
+                <span className="material-symbols-outlined text-[20px]">school</span> {t.categories.education}
               </button>
               <button 
                 onClick={() => setActiveCategory('lingkungan')}
@@ -543,7 +1503,7 @@ export default function App() {
                     : 'bg-white border border-[#D6DCE8] text-[#61728F] hover:border-[#243D68] hover:text-[#243D68]'
                 }`}
               >
-                <span className="material-symbols-outlined text-[20px]">eco</span> Lingkungan
+                <span className="material-symbols-outlined text-[20px]">eco</span> {t.categories.environment}
               </button>
               <button 
                 onClick={() => setActiveCategory('kesehatan')}
@@ -554,7 +1514,7 @@ export default function App() {
                 }`}
               >
                 <span className="material-symbols-outlined text-[20px]">health_and_safety</span>{' '}
-                Kesehatan
+                {t.categories.health}
               </button>
             </div>
           </section>
@@ -563,10 +1523,10 @@ export default function App() {
           <section>
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold text-[#0E1B33]">
-                {activeCategory === 'semua' && 'Explore Proyek'}
-                {activeCategory === 'pendidikan' && 'Proyek Pendidikan'}
-                {activeCategory === 'lingkungan' && 'Proyek Lingkungan'}
-                {activeCategory === 'kesehatan' && 'Proyek Kesehatan'}
+                {activeCategory === 'semua' && t.home.exploreProjects}
+                {activeCategory === 'pendidikan' && t.home.educationProjects}
+                {activeCategory === 'lingkungan' && t.home.environmentProjects}
+                {activeCategory === 'kesehatan' && t.home.healthProjects}
               </h2>
               <button 
                 onClick={() => {
@@ -576,7 +1536,7 @@ export default function App() {
                 }}
                 className="text-[#243D68] font-semibold text-sm hover:underline whitespace-nowrap"
               >
-                Lihat Semua
+                {t.home.viewAll}
               </button>
             </div>
             
@@ -584,14 +1544,17 @@ export default function App() {
             {activeCategory !== 'semua' && (
               <div className="mb-4 flex items-center justify-between p-3 bg-[#FAC06E]/10 border border-[#FAC06E]/30 rounded-lg animate-in fade-in duration-300">
                 <span className="text-sm text-[#0E1B33]">
-                  Menampilkan proyek kategori <span className="font-semibold capitalize">{activeCategory}</span>
+                  {language === 'id' 
+                    ? `Menampilkan proyek kategori ` 
+                    : `Showing projects in category `}
+                  <span className="font-semibold capitalize">{activeCategory}</span>
                 </span>
                 <button 
                   onClick={() => setActiveCategory('semua')}
                   className="text-xs text-[#243D68] hover:underline font-semibold flex items-center gap-1"
                 >
                   <span className="material-symbols-outlined text-sm">close</span>
-                  Reset
+                  {language === 'id' ? 'Reset' : 'Reset'}
                 </button>
               </div>
             )}
@@ -623,7 +1586,7 @@ export default function App() {
                     }}
                     className="w-full bg-[#243D68] text-white font-semibold rounded-[12px] hover:bg-[#183A74] transition-colors py-3 px-6"
                   >
-                    Lihat Project
+                    {t.home.viewProject}
                   </button>
                 </div>
               </div>
@@ -653,92 +1616,21 @@ export default function App() {
                     }}
                     className="w-full mt-2 bg-[#243D68] text-white font-semibold py-3 rounded-[12px] hover:bg-[#183A74] transition-colors"
                   >
-                    Lihat Project
+                    {t.home.viewProject}
                   </button>
                 </div>
               </div>
             </div>
           </section>
 
-          {/* Quote Section */}
-          <section>
-            <div className="relative rounded-2xl overflow-hidden shadow-lg">
-              {/* Background with gradient */}
-              <div className="absolute inset-0 bg-gradient-to-br from-[#243D68] via-[#2B4468] to-[#1a2d4d]"></div>
-              
-              {/* Decorative elements */}
-              <div className="absolute top-0 right-0 w-64 h-64 bg-[#FAC06E] rounded-full opacity-10 blur-3xl"></div>
-              <div className="absolute bottom-0 left-0 w-48 h-48 bg-[#FAC06E] rounded-full opacity-10 blur-3xl"></div>
-              
-              {/* Content */}
-              <div className="relative z-10 px-6 py-12 lg:px-16 lg:py-16">
-                {/* Dome illustration */}
-                <div className="flex justify-center mb-8">
-                  <svg width="180" height="120" viewBox="0 0 180 120" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-[#FAC06E]">
-                    {/* Main dome */}
-                    <ellipse cx="90" cy="35" rx="35" ry="20" stroke="currentColor" strokeWidth="2" fill="none"/>
-                    <path d="M 55 35 Q 55 45 60 50 L 60 85" stroke="currentColor" strokeWidth="2" fill="none"/>
-                    <path d="M 125 35 Q 125 45 120 50 L 120 85" stroke="currentColor" strokeWidth="2" fill="none"/>
-                    <line x1="60" y1="50" x2="70" y2="50" stroke="currentColor" strokeWidth="2"/>
-                    <line x1="110" y1="50" x2="120" y2="50" stroke="currentColor" strokeWidth="2"/>
-                    
-                    {/* Center structure */}
-                    <rect x="70" y="45" width="40" height="40" stroke="currentColor" strokeWidth="2" fill="none"/>
-                    
-                    {/* Arches */}
-                    <path d="M 75 85 Q 80 75 85 85" stroke="currentColor" strokeWidth="1.5" fill="none"/>
-                    <path d="M 85 85 Q 90 75 95 85" stroke="currentColor" strokeWidth="1.5" fill="none"/>
-                    <path d="M 95 85 Q 100 75 105 85" stroke="currentColor" strokeWidth="1.5" fill="none"/>
-                    
-                    {/* Side arches */}
-                    <path d="M 30 70 Q 35 60 40 70 L 40 95" stroke="currentColor" strokeWidth="1.5" fill="none"/>
-                    <path d="M 45 70 Q 50 60 55 70 L 55 95" stroke="currentColor" strokeWidth="1.5" fill="none"/>
-                    
-                    <path d="M 125 70 Q 130 60 135 70 L 135 95" stroke="currentColor" strokeWidth="1.5" fill="none"/>
-                    <path d="M 140 70 Q 145 60 150 70 L 150 95" stroke="currentColor" strokeWidth="1.5" fill="none"/>
-                    
-                    {/* Base */}
-                    <line x1="25" y1="95" x2="155" y2="95" stroke="currentColor" strokeWidth="2"/>
-                    <line x1="20" y1="100" x2="160" y2="100" stroke="currentColor" strokeWidth="2.5"/>
-                    
-                    {/* Crescent */}
-                    <path d="M 88 15 Q 90 10 92 15" stroke="currentColor" strokeWidth="1.5" fill="none"/>
-                    <circle cx="90" cy="18" r="2" fill="currentColor"/>
-                  </svg>
-                </div>
-                
-                {/* Quote text */}
-                <blockquote className="text-center max-w-3xl mx-auto">
-                  <p className="text-white text-base lg:text-lg leading-relaxed mb-8 px-4">
-                    "Setiap langkah kecil yang kita ambil hari ini adalah fondasi untuk pembebasan Baitul Maqdis esok hari."
-                  </p>
-                  
-                  {/* Author section */}
-                  <div className="flex items-center justify-center gap-4 mb-6">
-                    <div className="h-px w-12 bg-[#FAC06E]"></div>
-                    <cite className="text-[#FAC06E] font-bold text-sm uppercase tracking-widest not-italic">
-                      Alumni Inspiratif
-                    </cite>
-                    <div className="h-px w-12 bg-[#FAC06E]"></div>
-                  </div>
-                  
-                  {/* Dots */}
-                  <div className="flex justify-center gap-2">
-                    <div className="w-2.5 h-2.5 rounded-full bg-[#FAC06E]"></div>
-                    <div className="w-2.5 h-2.5 rounded-full bg-[#FAC06E]"></div>
-                    <div className="w-2.5 h-2.5 rounded-full bg-[#FAC06E]"></div>
-                  </div>
-                </blockquote>
-              </div>
-            </div>
-          </section>
+          <QuoteSection />
 
           {/* Alumni Stories */}
           <section>
             <div className="mb-6">
-              <h2 className="text-[20px] font-semibold text-[#0E1B33]">Kisah Inspiratif Pejuang Al Aqsa</h2>
+              <h2 className="text-[20px] font-semibold text-[#0E1B33]">{t.home.inspiringStories}</h2>
               <p className="text-[#61728F] mt-1 text-sm">
-                Kisah nyata alumni yang berdedikasi untuk Baitul Maqdis dan Palestina!
+                {t.home.inspiringStoriesDesc}
               </p>
             </div>
             <div className="flex overflow-x-auto gap-5 pb-4 hide-scrollbar -mx-6 px-6 lg:mx-0 lg:px-0 snap-x">
@@ -803,7 +1695,7 @@ export default function App() {
 
           {/* Your Projects */}
           <section>
-            <h2 className="text-[20px] font-semibold text-[#0E1B33] mb-6">Project Pilihanmu</h2>
+            <h2 className="text-[20px] font-semibold text-[#0E1B33] mb-6">{t.home.yourProjects}</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div
                 onClick={() => {
@@ -874,7 +1766,7 @@ export default function App() {
                 }}
                 className="hidden lg:block text-[#243D68] font-semibold text-sm hover:underline"
               >
-                Lihat Semua
+                {t.home.viewAll}
               </button>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -943,13 +1835,15 @@ export default function App() {
               }}
               className="w-full mt-6 py-3 border border-[#D6DCE8] text-[#243D68] font-semibold rounded-[12px] bg-white hover:bg-[#E5E8EC] lg:hidden transition-colors"
             >
-              Lihat Semua
+              {t.home.viewAll}
             </button>
           </section>
 
           {/* Event Banner */}
           <section>
-            <h2 className="text-[20px] font-semibold text-[#0E1B33] mb-6">Kegiatan Offline Terbaru</h2>
+            <h2 className="text-[20px] font-semibold text-[#0E1B33] mb-6">
+              {language === 'id' ? 'Kegiatan Offline Terbaru' : 'Latest Offline Activities'}
+            </h2>
             <div className="relative w-full aspect-[16/9] md:aspect-[2.35/1] rounded-[16px] overflow-hidden shadow-[0_8px_24px_rgba(22,36,63,0.08)] group cursor-pointer">
               <img
                 alt="Event Banner"
@@ -971,13 +1865,14 @@ export default function App() {
                     onClick={() => setCurrentView('event-detail')}
                     className="bg-[#FAC06E] text-[#16243F] text-sm font-bold py-2.5 px-6 rounded-full hover:bg-white transition-colors shadow-lg self-start md:self-auto"
                   >
-                    Lihat Detail
+                    {language === 'id' ? 'Lihat Detail' : 'View Details'}
                   </button>
                 </div>
               </div>
             </div>
           </section>
         </div>
+        )}
       </main>
 
       {/* Mobile Bottom Navigation */}
@@ -995,7 +1890,7 @@ export default function App() {
             <span className={`material-symbols-outlined text-2xl ${activeNav === 'home' ? 'filled' : ''}`}>
               home
             </span>
-            <span className="text-xs font-medium">Home</span>
+            <span className="text-xs font-medium">{t.nav.home}</span>
           </button>
           <button
             onClick={() => {
@@ -1009,7 +1904,7 @@ export default function App() {
             <span className={`material-symbols-outlined text-2xl ${activeNav === 'explore' ? 'filled' : ''}`}>
               explore
             </span>
-            <span className="text-xs font-medium">Explore</span>
+            <span className="text-xs font-medium">{t.nav.explore}</span>
           </button>
           <button
             onClick={() => {
@@ -1023,7 +1918,7 @@ export default function App() {
             <span className={`material-symbols-outlined text-2xl ${activeNav === 'pesan' ? 'filled' : ''}`}>
               chat_bubble
             </span>
-            <span className="text-xs font-medium">Pesan</span>
+            <span className="text-xs font-medium">{t.nav.messages}</span>
             <span className="absolute top-1.5 right-1/4 w-2 h-2 bg-red-500 rounded-full border border-white"></span>
           </button>
           <button
@@ -1038,10 +1933,248 @@ export default function App() {
             <span className={`material-symbols-outlined text-2xl ${activeNav === 'settings' ? 'filled' : ''}`}>
               settings
             </span>
-            <span className="text-xs font-medium">Setting</span>
+            <span className="text-xs font-medium">{t.nav.settings}</span>
           </button>
         </div>
       </nav>
+
+      {/* Advanced Filter Modal */}
+      {showFilterModal && (
+        <div 
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setShowFilterModal(false);
+            }
+          }}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-in fade-in duration-200"
+        >
+          <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200">
+            {/* Header */}
+            <div className="flex items-center justify-between p-6 border-b border-[#E5E7EB]">
+              <div className="flex items-center gap-3">
+                <span className="material-symbols-outlined text-[#243D68] text-2xl">tune</span>
+                <h3 className="text-xl font-bold text-[#0E1B33]">
+                  {language === 'id' ? 'Filter Lanjutan' : 'Advanced Filters'}
+                </h3>
+              </div>
+              <button
+                onClick={() => setShowFilterModal(false)}
+                className="p-2 hover:bg-[#F8F9FA] rounded-lg transition-colors"
+              >
+                <span className="material-symbols-outlined text-[#6B7280]">close</span>
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="p-6 overflow-y-auto max-h-[calc(90vh-180px)]">
+              <div className="space-y-6">
+                {/* Status Filter */}
+                <div>
+                  <label className="block text-sm font-bold text-[#0E1B33] mb-3">
+                    {language === 'id' ? 'Status Project' : 'Project Status'}
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {['aktif', 'mendesak', 'selesai'].map((status) => {
+                      const isSelected = advancedFilters.status.includes(status);
+                      return (
+                        <button
+                          key={status}
+                          onClick={() => {
+                            setAdvancedFilters(prev => ({
+                              ...prev,
+                              status: isSelected
+                                ? prev.status.filter(s => s !== status)
+                                : [...prev.status, status]
+                            }));
+                          }}
+                          className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
+                            isSelected
+                              ? 'bg-[#243D68] text-white shadow-md'
+                              : 'bg-[#F8F9FA] text-[#6B7280] hover:bg-[#E5E7EB]'
+                          }`}
+                        >
+                          {status === 'aktif' && (language === 'id' ? '✓ Aktif' : '✓ Active')}
+                          {status === 'mendesak' && (language === 'id' ? '⚡ Mendesak' : '⚡ Urgent')}
+                          {status === 'selesai' && (language === 'id' ? '✔ Selesai' : '✔ Completed')}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Location Filter */}
+                <div>
+                  <label className="block text-sm font-bold text-[#0E1B33] mb-3">
+                    {language === 'id' ? 'Lokasi' : 'Location'}
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {['gaza', 'palestine', 'indonesia', 'global'].map((location) => {
+                      const isSelected = advancedFilters.location.includes(location);
+                      const locationLabel = {
+                        gaza: 'Gaza',
+                        palestine: language === 'id' ? 'Palestina' : 'Palestine',
+                        indonesia: 'Indonesia',
+                        global: 'Global'
+                      };
+                      return (
+                        <button
+                          key={location}
+                          onClick={() => {
+                            setAdvancedFilters(prev => ({
+                              ...prev,
+                              location: isSelected
+                                ? prev.location.filter(l => l !== location)
+                                : [...prev.location, location]
+                            }));
+                          }}
+                          className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
+                            isSelected
+                              ? 'bg-[#FAC06E] text-[#243D68] shadow-md'
+                              : 'bg-[#F8F9FA] text-[#6B7280] hover:bg-[#E5E7EB]'
+                          }`}
+                        >
+                          📍 {locationLabel[location]}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Project Type Filter */}
+                <div>
+                  <label className="block text-sm font-bold text-[#0E1B33] mb-3">
+                    {language === 'id' ? 'Tipe Project' : 'Project Type'}
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {['open', 'donation', 'campaign'].map((type) => {
+                      const isSelected = advancedFilters.projectType.includes(type);
+                      const typeLabel = {
+                        open: 'Open Volunteer',
+                        donation: language === 'id' ? 'Donasi' : 'Donation',
+                        campaign: language === 'id' ? 'Kampanye' : 'Campaign'
+                      };
+                      return (
+                        <button
+                          key={type}
+                          onClick={() => {
+                            setAdvancedFilters(prev => ({
+                              ...prev,
+                              projectType: isSelected
+                                ? prev.projectType.filter(t => t !== type)
+                                : [...prev.projectType, type]
+                            }));
+                          }}
+                          className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
+                            isSelected
+                              ? 'bg-green-500 text-white shadow-md'
+                              : 'bg-[#F8F9FA] text-[#6B7280] hover:bg-[#E5E7EB]'
+                          }`}
+                        >
+                          {typeLabel[type]}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Amount Range Filter */}
+                <div>
+                  <label className="block text-sm font-bold text-[#0E1B33] mb-3">
+                    {language === 'id' ? 'Rentang Target Donasi (Rp)' : 'Donation Target Range (Rp)'}
+                  </label>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs text-[#6B7280] mb-2">
+                        {language === 'id' ? 'Minimum' : 'Minimum'}
+                      </label>
+                      <input
+                        type="number"
+                        placeholder="0"
+                        value={advancedFilters.minAmount}
+                        onChange={(e) => {
+                          setAdvancedFilters(prev => ({
+                            ...prev,
+                            minAmount: e.target.value
+                          }));
+                        }}
+                        className="w-full px-4 py-2 border border-[#E5E7EB] rounded-lg focus:ring-2 focus:ring-[#243D68] focus:border-[#243D68] outline-none transition-all"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-[#6B7280] mb-2">
+                        {language === 'id' ? 'Maksimum' : 'Maximum'}
+                      </label>
+                      <input
+                        type="number"
+                        placeholder="999999999"
+                        value={advancedFilters.maxAmount}
+                        onChange={(e) => {
+                          setAdvancedFilters(prev => ({
+                            ...prev,
+                            maxAmount: e.target.value
+                          }));
+                        }}
+                        className="w-full px-4 py-2 border border-[#E5E7EB] rounded-lg focus:ring-2 focus:ring-[#243D68] focus:border-[#243D68] outline-none transition-all"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Active Filters Summary */}
+                {(advancedFilters.status.length > 0 ||
+                  advancedFilters.location.length > 0 ||
+                  advancedFilters.projectType.length > 0 ||
+                  advancedFilters.minAmount ||
+                  advancedFilters.maxAmount) && (
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                    <div className="flex items-start gap-2">
+                      <span className="material-symbols-outlined text-blue-600 text-lg mt-0.5">info</span>
+                      <div className="flex-1">
+                        <p className="text-sm font-semibold text-blue-900 mb-1">
+                          {language === 'id' ? 'Filter Aktif' : 'Active Filters'}
+                        </p>
+                        <p className="text-xs text-blue-700">
+                          {advancedFilters.status.length > 0 && `${advancedFilters.status.length} status, `}
+                          {advancedFilters.location.length > 0 && `${advancedFilters.location.length} lokasi, `}
+                          {advancedFilters.projectType.length > 0 && `${advancedFilters.projectType.length} tipe`}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Footer Actions */}
+            <div className="flex items-center gap-3 p-6 border-t border-[#E5E7EB]">
+              <button
+                onClick={() => {
+                  setAdvancedFilters({
+                    status: [],
+                    location: [],
+                    minAmount: '',
+                    maxAmount: '',
+                    projectType: [],
+                  });
+                }}
+                className="flex-1 py-3 px-4 border-2 border-[#E5E7EB] text-[#6B7280] font-bold rounded-xl hover:bg-[#F8F9FA] transition-colors"
+              >
+                {language === 'id' ? 'Reset Semua' : 'Reset All'}
+              </button>
+              <button
+                onClick={() => {
+                  setShowFilterModal(false);
+                  // Here you would apply the filters to your project list
+                  console.log('Applying filters:', advancedFilters);
+                }}
+                className="flex-1 py-3 px-4 bg-gradient-to-r from-[#243D68] to-[#1a2d4d] text-white font-bold rounded-xl hover:shadow-lg transition-all"
+              >
+                {language === 'id' ? 'Terapkan Filter' : 'Apply Filters'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <style>{`
         .hide-scrollbar::-webkit-scrollbar {
@@ -1073,6 +2206,38 @@ export default function App() {
         .animate-ripple {
           animation: ripple 3s ease-in-out infinite;
         }
+
+        @keyframes fade-in {
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
+        }
+
+        @keyframes zoom-in-95 {
+          from {
+            opacity: 0;
+            transform: scale(0.95);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+
+        .animate-in {
+          animation-fill-mode: both;
+        }
+
+        .fade-in {
+          animation: fade-in 0.2s ease-out;
+        }
+
+        .zoom-in-95 {
+          animation: zoom-in-95 0.2s ease-out;
+        }
       `}</style>
       </div>
 
@@ -1091,5 +2256,13 @@ export default function App() {
         />
       )}
     </ErrorBoundary>
+  );
+}
+
+export default function App() {
+  return (
+    <CampaignProvider>
+      <AppContent />
+    </CampaignProvider>
   );
 }

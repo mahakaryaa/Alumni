@@ -7,14 +7,24 @@ import { useState } from 'react';
 import { AdminUser } from '@/types/admin-revised';
 import { mockDonations } from '@/data/mockFinancialData';
 import { showToast } from '@/utils/toast';
+import type { Donation } from '@/types';
 
 interface DonationVerificationProps {
   currentUser: AdminUser;
+  // FASE 2: Props untuk global state dengan verification note
+  donations?: Donation[];
+  onApprove?: (donationId: string, verificationNote: string, verifiedBy: string) => void;
+  onReject?: (donationId: string, reason: string, verifiedBy: string) => void;
 }
 
 type TabType = 'pending' | 'history';
 
-export function DonationVerification({ currentUser }: DonationVerificationProps) {
+export function DonationVerification({ 
+  currentUser,
+  donations = [],
+  onApprove,
+  onReject
+}: DonationVerificationProps) {
   const [activeTab, setActiveTab] = useState<TabType>('pending');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedProject, setSelectedProject] = useState<string>('all');
@@ -25,9 +35,12 @@ export function DonationVerification({ currentUser }: DonationVerificationProps)
   const [verificationNote, setVerificationNote] = useState('');
   const [rejectionReason, setRejectionReason] = useState('');
 
+  // FASE 1: Use donations from props if available, otherwise use mock
+  const allDonations = donations.length > 0 ? donations : mockDonations;
+
   // Filter donations
-  const pendingDonations = mockDonations.filter(d => d.status === 'pending');
-  const verifiedDonations = mockDonations.filter(d => 
+  const pendingDonations = allDonations.filter(d => d.status === 'pending');
+  const verifiedDonations = allDonations.filter(d => 
     d.status === 'approved' || d.status === 'rejected'
   );
 
@@ -65,36 +78,50 @@ export function DonationVerification({ currentUser }: DonationVerificationProps)
     });
   };
 
-  // Handle approve
+  // FASE 2: Handle approve dengan verification note
   const handleApprove = () => {
     if (!verificationNote.trim()) {
       showToast.error('Catatan verifikasi wajib diisi');
       return;
     }
 
-    // Simulate approval
-    showToast.success(`Donasi dari ${selectedDonation.donorName} sebesar ${formatCurrency(selectedDonation.amount)} telah diapprove!`);
+    // Call parent callback with verification note
+    if (onApprove && selectedDonation) {
+      onApprove(selectedDonation.id, verificationNote, currentUser.id);
+      showToast.success(`Donasi dari ${selectedDonation.donorName} sebesar ${formatCurrency(selectedDonation.amount)} telah disetujui!`);
+    } else {
+      // Fallback: Simulate approval (legacy)
+      showToast.success(`Donasi dari ${selectedDonation.donorName} sebesar ${formatCurrency(selectedDonation.amount)} telah diapprove!`);
+    }
+    
     setShowApproveModal(false);
     setVerificationNote('');
     setSelectedDonation(null);
   };
 
-  // Handle reject
+  // FASE 2: Handle reject dengan rejection reason
   const handleReject = () => {
     if (!rejectionReason.trim()) {
       showToast.error('Alasan penolakan wajib diisi');
       return;
     }
 
-    // Simulate rejection
-    showToast.error(`Donasi dari ${selectedDonation.donorName} telah ditolak`);
+    // Call parent callback with rejection reason
+    if (onReject && selectedDonation) {
+      onReject(selectedDonation.id, rejectionReason, currentUser.id);
+      showToast.warning(`Donasi dari ${selectedDonation.donorName} telah ditolak`);
+    } else {
+      // Fallback: Simulate rejection (legacy)
+      showToast.error(`Donasi dari ${selectedDonation.donorName} telah ditolak`);
+    }
+    
     setShowRejectModal(false);
     setRejectionReason('');
     setSelectedDonation(null);
   };
 
   // Get unique projects
-  const projects = Array.from(new Set(mockDonations.map(d => ({
+  const projects = Array.from(new Set(allDonations.map(d => ({
     id: d.projectId,
     title: d.projectTitle
   })).map(p => JSON.stringify(p)))).map(p => JSON.parse(p));

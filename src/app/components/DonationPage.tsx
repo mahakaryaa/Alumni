@@ -2,11 +2,25 @@ import { useState } from 'react';
 import { validateDonationAmount, validateFile } from '@/utils/validation';
 import { showToast, toastMessages } from '@/utils/toast';
 import { DONATION } from '@/constants';
+import { Logo } from './Logo';
+import { PaymentTimer } from './PaymentTimer';
+import { useTranslation } from '@/hooks/useTranslation';
+import { 
+  addDonationTimer, 
+  updateDonationTimer, 
+  markDonationAsExpired, 
+  markProofSubmitted,
+  getDonationByReference 
+} from '@/utils/donationTimer';
+import type { Donation } from '@/types';
+import type { DonationTimerState } from '@/utils/donationTimer';
 
 interface DonationPageProps {
   onBack: () => void;
+  projectId?: string;
   projectTitle?: string;
   projectCategory?: string;
+  onDonationSubmitted?: (donation: Donation) => void;
   onNavigateHome?: () => void;
   onNavigateExplore?: () => void;
   onNavigateMessages?: () => void;
@@ -35,14 +49,17 @@ const generateUniqueCode = () => {
 
 export function DonationPage({ 
   onBack, 
+  projectId = 'PK001', 
   projectTitle = 'Pengembangan Aplikasi AlumniConnect', 
   projectCategory = 'Pendidikan',
+  onDonationSubmitted,
   onNavigateHome,
   onNavigateExplore,
   onNavigateMessages,
   onNavigateSettings,
   activeNav = 'home'
 }: DonationPageProps) {
+  const { language } = useTranslation();
   const [amount, setAmount] = useState('');
   const [customAmount, setCustomAmount] = useState('');
   const [selectedPayment, setSelectedPayment] = useState<PaymentMethod>('bca');
@@ -56,6 +73,8 @@ export function DonationPage({
   const [uniqueCode] = useState(generateUniqueCode());
   const [proofFile, setProofFile] = useState<File | null>(null);
   const [proofPreview, setProofPreview] = useState<string | null>(null);
+  const [donationCreatedAt] = useState(new Date().toISOString()); // Track when user confirms donation
+  const [isPaymentExpired, setIsPaymentExpired] = useState(false);
 
   const handleQuickAmount = (value: number) => {
     setAmount(value.toString());
@@ -133,6 +152,31 @@ export function DonationPage({
       return;
     }
     
+    // FASE 4: Save donation timer state to localStorage
+    const createdAt = new Date().toISOString();
+    const expiryAt = new Date(Date.now() + (24 * 60 * 60 * 1000)).toISOString();
+    const refNumber = `PK${Date.now().toString().slice(-8)}${uniqueCode}`;
+    
+    const donationTimer: DonationTimerState = {
+      donationId: `DN-${Date.now()}`,
+      projectId,
+      projectTitle,
+      amount: amount || customAmount,
+      createdAt,
+      expiryAt,
+      paymentMethod: selectedPayment,
+      uniqueCode,
+      referenceNumber: refNumber,
+      isExpired: false,
+      proofSubmitted: false,
+    };
+    
+    addDonationTimer(donationTimer);
+    
+    showToast.success('Sesi pembayaran dimulai', {
+      description: 'Anda memiliki waktu 24 jam untuk menyelesaikan pembayaran',
+    });
+    
     setShowConfirmation(true);
   };
 
@@ -142,6 +186,37 @@ export function DonationPage({
         description: 'Silakan upload bukti transfer terlebih dahulu',
       });
       return;
+    }
+    
+    // FASE 1: Create donation object and call parent callback
+    const donationAmount = amount || customAmount;
+    const referenceNumber = `PK${Date.now().toString().slice(-8)}${uniqueCode}`;
+    
+    const donationData: Donation = {
+      id: `DN-${Date.now()}`,
+      projectId: projectId,
+      projectTitle: projectTitle,
+      donorId: 'current-user-id', // TODO: Get from auth context
+      donorName: isAnonymous ? 'Hamba Allah' : 'Donatur', // Anonymous or default name
+      amount: donationAmount,
+      isAnonymous,
+      message: message || undefined,
+      prayer: prayer || undefined,
+      paymentMethod: selectedPayment,
+      proofUrl: URL.createObjectURL(proofFile), // Temporary URL for preview
+      status: 'pending',
+      referenceNumber,
+      uniqueCode,
+      submittedAt: new Date().toISOString(),
+      createdAt: new Date()
+    };
+
+    // FASE 4: Mark proof as submitted in localStorage
+    markProofSubmitted(referenceNumber);
+
+    // Call parent callback if provided
+    if (onDonationSubmitted) {
+      onDonationSubmitted(donationData);
     }
     
     // Simulate upload with loading toast
@@ -176,14 +251,7 @@ export function DonationPage({
           <div className="relative z-10 flex flex-col h-full">
             {/* Logo */}
             <div className="p-5">
-              <div className="bg-[#FAC06E] p-3 flex items-center gap-3 shadow-md">
-                <div className="w-8 h-8 border-2 border-[#2B4468] flex items-center justify-center">
-                  <span className="material-symbols-outlined text-[#2B4468] text-xl font-bold">mosque</span>
-                </div>
-                <span className="font-['Archivo_Black'] text-base uppercase tracking-tight text-[#2B4468]">
-                  PROJEKKITA
-                </span>
-              </div>
+              <Logo />
             </div>
 
             {/* Menu Navigation */}
@@ -296,7 +364,9 @@ export function DonationPage({
                   </button>
                 </div>
                 <p className="text-white/70 text-xs mt-3 text-center">
-                  Simpan nomor ini untuk melacak status donasi Anda
+                  {language === 'id' 
+                    ? 'Simpan nomor ini untuk melacak status donasi Anda' 
+                    : 'Save this number to track your donation status'}
                 </p>
               </div>
 
@@ -394,7 +464,7 @@ export function DonationPage({
                   className="w-full flex items-center justify-center gap-2 py-4 rounded-xl font-bold uppercase tracking-widest bg-white text-[#243D68] border-2 border-[#243D68] hover:bg-[#F8F9FA] transition-all"
                 >
                   <span className="material-symbols-outlined">share</span>
-                  <span>Bagikan Kebaikan</span>
+                  <span>{language === 'id' ? 'Bagikan Kebaikan' : 'Share Goodness'}</span>
                 </button>
               </div>
             </div>
@@ -417,14 +487,7 @@ export function DonationPage({
           <div className="relative z-10 flex flex-col h-full">
             {/* Logo */}
             <div className="p-5">
-              <div className="bg-[#FAC06E] p-3 flex items-center gap-3 shadow-md">
-                <div className="w-8 h-8 border-2 border-[#2B4468] flex items-center justify-center">
-                  <span className="material-symbols-outlined text-[#2B4468] text-xl font-bold">mosque</span>
-                </div>
-                <span className="font-['Archivo_Black'] text-base uppercase tracking-tight text-[#2B4468]">
-                  PROJEKKITA
-                </span>
-              </div>
+              <Logo />
             </div>
 
             {/* Menu Navigation */}
@@ -629,7 +692,7 @@ export function DonationPage({
                       <p className="text-sm font-semibold text-[#92400E] mb-2">Instruksi Pembayaran:</p>
                       <ol className="text-xs text-[#92400E] space-y-1 list-decimal list-inside">
                         <li>Transfer sesuai nominal yang tertera (termasuk kode unik)</li>
-                        <li>Simpan bukti transfer Anda</li>
+                        <li>{language === 'id' ? 'Simpan bukti transfer Anda' : 'Save your transfer receipt'}</li>
                         <li>Upload bukti transfer di bawah ini</li>
                         <li>Donasi akan diverifikasi dalam 1x24 jam</li>
                         <li>Anda akan menerima notifikasi konfirmasi via email</li>
@@ -638,6 +701,21 @@ export function DonationPage({
                   </div>
                 </div>
               </div>
+
+              {/* FASE 4: Payment Timer - 24 Hour Countdown */}
+              {!isPaymentExpired && (
+                <PaymentTimer 
+                  createdAt={donationCreatedAt}
+                  expiryHours={24}
+                  onExpired={() => {
+                    setIsPaymentExpired(true);
+                    showToast.error('Waktu pembayaran telah habis', {
+                      description: 'Silakan submit donasi baru jika ingin melanjutkan.'
+                    });
+                  }}
+                  className="mb-6"
+                />
+              )}
 
               {/* Upload Bukti Transfer */}
               <div className="bg-white rounded-2xl p-6 border border-[#E5E7EB] shadow-md mb-6">
@@ -673,22 +751,22 @@ export function DonationPage({
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    <div className="relative rounded-xl overflow-hidden border border-[#E5E7EB]">
+                    <div className="relative rounded-xl overflow-hidden border border-[#E5E7EB] max-w-full">
                       <img
                         src={proofPreview}
                         alt="Bukti Transfer"
-                        className="w-full h-auto max-h-96 object-contain bg-[#F8F9FA]"
+                        className="w-full h-auto max-h-[400px] object-contain bg-[#F8F9FA]"
                       />
                       <button
                         onClick={removeProofFile}
-                        className="absolute top-2 right-2 p-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors shadow-lg"
+                        className="absolute top-2 right-2 p-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors shadow-lg z-10"
                       >
-                        <span className="material-symbols-outlined">delete</span>
+                        <span className="material-symbols-outlined text-lg">delete</span>
                       </button>
                     </div>
                     <div className="flex items-center gap-2 p-3 bg-[#E8F5E9] rounded-lg border border-[#4CAF50]">
                       <span className="material-symbols-outlined text-[#4CAF50]">check_circle</span>
-                      <p className="text-sm text-[#4CAF50] font-medium">
+                      <p className="text-sm text-[#4CAF50] font-medium break-words">
                         Bukti transfer berhasil diupload: {proofFile?.name}
                       </p>
                     </div>
@@ -737,14 +815,7 @@ export function DonationPage({
         <div className="relative z-10 flex flex-col h-full">
           {/* Logo */}
           <div className="p-5">
-            <div className="bg-[#FAC06E] p-3 flex items-center gap-3 shadow-md">
-              <div className="w-8 h-8 border-2 border-[#2B4468] flex items-center justify-center">
-                <span className="material-symbols-outlined text-[#2B4468] text-xl font-bold">mosque</span>
-              </div>
-              <span className="font-['Archivo_Black'] text-base uppercase tracking-tight text-[#2B4468]">
-                ALMAQDISI PROJECT
-              </span>
-            </div>
+            <Logo />
           </div>
 
           {/* Menu Navigation */}

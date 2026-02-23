@@ -11,9 +11,20 @@ import { showToast } from '@/utils/toast';
 interface PollingManagementProps {
   currentUser: AdminUser;
   projectId: string;
+  projectTitle?: string;
+  onPollCreated?: (pollId: string, pollQuestion: string, projectId: string, projectTitle: string, deadline: string, createdByName: string) => void;
+  onPollClosed?: (pollId: string, pollQuestion: string, projectId: string, projectTitle: string, totalVoters: number, closedByName: string) => void;
+  onPollDeadlineReminder?: (pollId: string, pollQuestion: string, projectId: string, projectTitle: string, deadline: string) => void;
 }
 
-export function PollingManagement({ currentUser, projectId }: PollingManagementProps) {
+export function PollingManagement({ 
+  currentUser, 
+  projectId, 
+  projectTitle = 'Project',
+  onPollCreated,
+  onPollClosed,
+  onPollDeadlineReminder,
+}: PollingManagementProps) {
   const [polls, setPolls] = useState<Poll[]>(getProjectPolls(projectId));
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [filterStatus, setFilterStatus] = useState<'all' | 'active' | 'closed'>('all');
@@ -72,19 +83,45 @@ export function PollingManagement({ currentUser, projectId }: PollingManagementP
 
     setPolls([newPoll, ...polls]);
     showToast.success('Polling berhasil dibuat!');
+    
+    // FASE 4: Trigger notification untuk semua member
+    if (onPollCreated) {
+      onPollCreated(
+        newPoll.id,
+        newPoll.question,
+        projectId,
+        projectTitle,
+        newPoll.deadline,
+        currentUser.name
+      );
+    }
+    
     resetForm();
     setShowCreateModal(false);
   };
 
   const handleClosePoll = (pollId: string) => {
     if (confirm('Yakin ingin menutup polling ini? Setelah ditutup, member tidak bisa vote lagi.')) {
-      const updatedPolls = polls.map(poll =>
-        poll.id === pollId
-          ? { ...poll, status: 'closed' as const, closedAt: new Date().toISOString() }
-          : poll
+      const poll = polls.find(p => p.id === pollId);
+      const updatedPolls = polls.map(p =>
+        p.id === pollId
+          ? { ...p, status: 'closed' as const, closedAt: new Date().toISOString() }
+          : p
       );
       setPolls(updatedPolls);
       showToast.success('Polling berhasil ditutup');
+      
+      // FASE 4: Trigger notification untuk semua member
+      if (onPollClosed && poll) {
+        onPollClosed(
+          poll.id,
+          poll.question,
+          projectId,
+          projectTitle,
+          poll.totalVoters,
+          currentUser.name
+        );
+      }
     }
   };
 

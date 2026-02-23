@@ -4,7 +4,7 @@
  */
 
 import { useState } from 'react';
-import { AdminUser, JoinRequest } from '@/types/admin-revised';
+import { AdminUser, JoinRequest as AdminJoinRequest } from '@/types/admin-revised';
 import { getJoinRequestsByProject, mockJoinRequests } from '@/data/mockAdminDataRevised';
 import { 
   formatRelativeTime, 
@@ -12,17 +12,25 @@ import {
   getRatingStars,
 } from '@/utils/adminPermissions';
 import { showToast } from '@/utils/toast';
+import type { JoinRequest } from '@/types';
 
 interface PendingRequestsProps {
   currentUser: AdminUser;
-  projectId: string;
+  projectId?: string; // Made optional for moderator/superadmin view
   onNavigate: (page: string) => void;
+  // FASE 2B: Props untuk global state dengan enhanced parameters
+  joinRequests?: JoinRequest[];
+  onApprove?: (requestId: string, approvalMessage: string) => void;
+  onReject?: (requestId: string, reason: string) => void;
 }
 
-export function PendingRequests({ currentUser, projectId, onNavigate }: PendingRequestsProps) {
-  const [requests, setRequests] = useState<JoinRequest[]>(
-    getJoinRequestsByProject(projectId, 'pending')
-  );
+export function PendingRequests({ currentUser, projectId, onNavigate, joinRequests, onApprove, onReject }: PendingRequestsProps) {
+  // FASE 1: Use joinRequests from props if available, otherwise use mock
+  const initialRequests = joinRequests && joinRequests.length > 0 
+    ? joinRequests.filter(r => r.status === 'pending' && (!projectId || r.projectId === projectId))
+    : (projectId ? getJoinRequestsByProject(projectId, 'pending') : []);
+  
+  const [requests, setRequests] = useState<JoinRequest[]>(initialRequests);
   const [selectedRequest, setSelectedRequest] = useState<JoinRequest | null>(null);
   const [showApproveModal, setShowApproveModal] = useState(false);
   const [showRejectModal, setShowRejectModal] = useState(false);
@@ -55,6 +63,12 @@ export function PendingRequests({ currentUser, projectId, onNavigate }: PendingR
     showToast.success(`${selectedRequest.alumniName} berhasil disetujui sebagai member!`);
     setShowApproveModal(false);
     setSelectedRequest(null);
+
+    // FASE 2B: Update global state dengan approval message
+    if (onApprove) {
+      onApprove(selectedRequest.id, approveMessage);
+    }
+    
     setApproveMessage('');
   };
 
@@ -68,6 +82,21 @@ export function PendingRequests({ currentUser, projectId, onNavigate }: PendingR
     showToast.success(`Pengajuan ${selectedRequest.alumniName} ditolak`);
     setShowRejectModal(false);
     setSelectedRequest(null);
+
+    // FASE 2B: Update global state dengan rejection reason
+    if (onReject) {
+      // Build complete rejection message
+      const reasonMessages: Record<string, string> = {
+        'quota_full': 'Kuota member sudah penuh',
+        'skill_mismatch': 'Kompetensi tidak sesuai kebutuhan project',
+        'commitment_too_short': 'Komitmen waktu terlalu singkat',
+        'other': rejectMessage || 'Alasan lainnya'
+      };
+      
+      const fullReason = reasonMessages[rejectReason] + (rejectMessage && rejectReason !== 'other' ? `. ${rejectMessage}` : '');
+      onReject(selectedRequest.id, fullReason);
+    }
+    
     setRejectMessage('');
   };
 

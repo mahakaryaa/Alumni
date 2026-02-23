@@ -1,6 +1,7 @@
 /**
  * Alumni Data Management Component
  * For Moderator to manage all alumni data
+ * FASE 3C: Added onAlumniAdded callback for alumni verification notification
  */
 
 import { useState } from 'react';
@@ -9,6 +10,12 @@ import { showToast } from '@/utils/toast';
 
 interface AlumniDataManagementProps {
   currentUser: AdminUser;
+  onAlumniAdded?: (
+    alumniId: string,
+    alumniName: string,
+    alumniEmail: string,
+    addedBy: string
+  ) => void;
 }
 
 interface Alumni {
@@ -34,7 +41,7 @@ interface SaladinCampParticipation {
   level: string;
 }
 
-export function AlumniDataManagement({ currentUser }: AlumniDataManagementProps) {
+export function AlumniDataManagement({ currentUser, onAlumniAdded }: AlumniDataManagementProps) {
   const [showAddModal, setShowAddModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [filterBatch, setFilterBatch] = useState<string>('all');
@@ -263,6 +270,11 @@ export function AlumniDataManagement({ currentUser }: AlumniDataManagementProps)
       city: '',
     });
     setSaladinCampParticipations([{ batch: '', level: '' }]);
+    
+    // Notify alumni added
+    if (onAlumniAdded) {
+      onAlumniAdded(newAlumni.id, newAlumni.name, newAlumni.email, currentUser.name);
+    }
   };
 
   const handleDelete = (id: string) => {

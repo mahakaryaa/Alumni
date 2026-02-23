@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { useTranslation } from '@/hooks/useTranslation';
+import { Logo } from './Logo';
 
 interface MessagesAlumniProps {
   hasJoinedProjects: boolean; // New prop
@@ -23,6 +25,7 @@ export function MessagesAlumni({
   onLogout,
   activeNav = 'pesan'
 }: MessagesAlumniProps) {
+  const { language } = useTranslation();
   const [activeTab, setActiveTab] = useState<'chats' | 'teams' | 'tasks' | 'voting'>('chats');
   const [searchQuery, setSearchQuery] = useState('');
   const [votedPolls, setVotedPolls] = useState<{ [key: number]: number }>({}); // Store poll id and selected option id
@@ -271,14 +274,7 @@ export function MessagesAlumni({
         <div className="relative z-10 flex flex-col h-full">
           {/* Logo */}
           <div className="p-5">
-            <div className="bg-[#FAC06E] p-3 flex items-center gap-3 shadow-md rounded-lg">
-              <div className="w-8 h-8 border-2 border-[#2B4468] flex items-center justify-center rounded-md">
-                <span className="material-symbols-outlined text-[#2B4468] text-xl font-bold">mosque</span>
-              </div>
-              <span className="font-['Archivo_Black'] text-base uppercase tracking-tight text-[#2B4468]">
-                ALMAQDISI PROJECT
-              </span>
-            </div>
+            <Logo />
           </div>
           
           {/* Menu Navigation */}
@@ -711,7 +707,9 @@ export function MessagesAlumni({
                                     ? 'bg-green-100 text-green-700' 
                                     : 'bg-gray-100 text-gray-700'
                                 }`}>
-                                  {poll.status === 'active' ? 'Aktif' : 'Ditutup'}
+                                  {poll.status === 'active' 
+                                    ? (language === 'id' ? 'Aktif' : 'Active') 
+                                    : (language === 'id' ? 'Ditutup' : 'Closed')}
                                 </span>
                               </div>
                               <h3 className="font-bold text-[#0E1B33] text-base mb-2">{poll.question}</h3>
@@ -836,7 +834,9 @@ export function MessagesAlumni({
                             <div className="mt-4 pt-3 border-t border-[#E5E7EB]">
                               <div className="flex items-center justify-center gap-2 text-[#6B7280]">
                                 <span className="material-symbols-outlined text-lg">lock</span>
-                                <p className="text-xs font-semibold">Polling ini sudah ditutup</p>
+                                <p className="text-xs font-semibold">
+                                  {language === 'id' ? 'Polling ini sudah ditutup' : 'This poll is closed'}
+                                </p>
                               </div>
                             </div>
                           )}

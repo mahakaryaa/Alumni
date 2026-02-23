@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Logo } from './Logo';
 
 interface AlumniStoryDetailProps {
   onBack?: () => void;
@@ -55,14 +56,7 @@ export function AlumniStoryDetail({ onBack }: AlumniStoryDetailProps) {
         <div className="relative z-10 flex flex-col h-full">
           {/* Logo */}
           <div className="p-5">
-            <div className="bg-[#FAC06E] p-3 flex items-center gap-3 shadow-md">
-              <div className="w-8 h-8 border-2 border-[#2B4468] flex items-center justify-center">
-                <span className="material-symbols-outlined text-[#2B4468] text-xl font-bold">mosque</span>
-              </div>
-              <span className="font-['Archivo_Black'] text-base uppercase tracking-tight text-[#2B4468]">
-                ALMAQDISI PROJECT
-              </span>
-            </div>
+            <Logo />
           </div>
 
           {/* Menu Navigation */}
@@ -179,7 +173,7 @@ export function AlumniStoryDetail({ onBack }: AlumniStoryDetailProps) {
                   className="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-12 w-12 shrink-0"
                   style={{
                     backgroundImage:
-                      'url("https://images.unsplash.com/photo-1547567919-07728e7d2dc5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtdXNsaW0lMjB3b21hbiUyMGhpamFiJTIwdGVhY2hlciUyMHByb2Zlc3Npb25hbCUyMHBvcnRyYWl0fGVufDF8fHx8MTc3MTEyMTA5N3ww&ixlib=rb-4.1.0&q=80&w=1080")',
+                      'url("https://images.unsplash.com/photo-1547567919-07728e7d2dc5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtdXNsaW0lMjB3b21hbiUyMGhpamabiJTIwdGVhY2hlciUyMHByb2Zlc3Npb25hbCUyMHBvcnRyYWl0fGVufDF8fHx8MTc3MTEyMTA5N3ww&ixlib=rb-4.1.0&q=80&w=1080")',
                   }}
                 ></div>
                 <div className="flex-1">

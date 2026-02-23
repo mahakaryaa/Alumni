@@ -1,0 +1,17 @@
+Components used in App.tsx:
+1. Login
+2. ProjectDetailAlumni
+3. ProjectDetail
+4. ExploreProject
+5. AlumniStoryDetail
+6. EventDetail
+7. MessagesAlumni
+8. MessagePage
+9. SettingsPage
+10. DonationPage
+11. AdminLoginRevised
+12. AdminPanelRevised
+13. MyDonations
+14. MyJoinRequests
+15. ErrorBoundary
+16. Logo
