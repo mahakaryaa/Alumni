@@ -490,8 +490,8 @@ export function ProjectDetail({ onBack, projectType = 'open-volunteer', availabl
 
         {/* Bottom CTA - DONATUR HANYA BISA DONASI */}
         {(projectType === 'galeri-with-funding' || projectType === 'campaign') && (
-          <div className="fixed bottom-0 left-0 lg:left-64 right-0 w-full bg-white p-4 border-t border-[#E5E7EB] shadow-[0_-4px_12px_rgba(0,0,0,0.08)]">
-            <button className="w-full flex items-center justify-center gap-3 rounded-[20px] h-16 bg-[#2B4468] text-white text-base font-bold leading-normal tracking-wider border-4 border-[#FAC06E] hover:bg-[#243D68] transition-colors uppercase" onClick={() => setShowDonation(true)}>
+          <div className="fixed bottom-0 left-0 lg:left-64 right-0 w-full bg-white p-4 border-t border-[#E5E7EB] shadow-[0_-4px_12px_rgba(0,0,0,0.08)] flex items-center justify-center">
+            <button className="w-full lg:w-auto lg:min-w-[448px] flex items-center justify-center gap-2 py-4 rounded-xl bg-[#2B4468] text-white text-base font-bold leading-normal tracking-widest border-4 border-[#FAC06E] hover:bg-[#243D68] transition-colors uppercase" onClick={() => setShowDonation(true)}>
               <span className="material-symbols-outlined text-2xl">volunteer_activism</span>
               <span className="text-center">{language === 'id' ? 'Donasi Sekarang' : 'Donate Now'}</span>
             </button>

@@ -882,15 +882,20 @@ function AppContent() {
       />;
     }
     
-    return <ProjectDetail onBack={() => {
-      if (projectDetailOrigin === 'explore') {
-        setCurrentView('explore');
-        setActiveNav('explore');
-      } else {
-        setCurrentView('home');
-        setActiveNav('home');
-      }
-    }} availablePositions={mockAvailablePositions} onJoinRequestSubmitted={handleJoinRequestSubmitted} />;
+    return <ProjectDetail 
+      projectType="campaign"
+      onBack={() => {
+        if (projectDetailOrigin === 'explore') {
+          setCurrentView('explore');
+          setActiveNav('explore');
+        } else {
+          setCurrentView('home');
+          setActiveNav('home');
+        }
+      }} 
+      availablePositions={mockAvailablePositions} 
+      onJoinRequestSubmitted={handleJoinRequestSubmitted} 
+    />;
   }
 
   if (currentView === 'explore') {
