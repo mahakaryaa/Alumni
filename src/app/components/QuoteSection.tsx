@@ -6,8 +6,8 @@ export const QuoteSection = () => {
   const [activeTab, setActiveTab] = useState<'quote' | 'joke'>('quote');
 
   return (
-    <section className="bg-[#F8F9FA] px-[24px] py-[10px]">
-      <div className="max-w-md mx-auto">
+    <section className="bg-[#F8F9FA] py-[10px] overflow-hidden">
+      <div className="max-w-md mx-auto px-6 overflow-hidden">
         {/* Section Title - Moved outside card */}
         <div className="mb-6 flex items-center gap-3">
           <div className="h-px bg-[#243D68]/20 flex-1"></div>
@@ -22,13 +22,13 @@ export const QuoteSection = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, ease: "easeOut" }}
-          className="bg-white rounded-[32px] shadow-xl overflow-visible relative"
+          className="bg-white rounded-[32px] shadow-xl overflow-hidden relative"
         >
           {/* Pause Button - Floating - Gold Accent */}
           <motion.button 
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
-            className="absolute -right-4 top-12 z-20 w-14 h-14 bg-[#FAC06E] rounded-full flex items-center justify-center shadow-lg text-[#243D68] ring-4 ring-white"
+            className="absolute right-2 top-12 z-20 w-12 h-12 bg-[#FAC06E] rounded-full flex items-center justify-center shadow-lg text-[#243D68] ring-4 ring-white"
           >
             <span className="material-symbols-outlined text-3xl font-bold">pause</span>
           </motion.button>

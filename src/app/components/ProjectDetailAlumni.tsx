@@ -1,21 +1,33 @@
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { Logo } from './Logo';
+import type { JoinRequest } from '@/types';
+
+export interface AvailablePosition {
+  id: string;
+  title: string;
+  slots: number;
+}
 
 interface ProjectDetailAlumniProps {
   hasJoinedProjects?: boolean; // NEW: Indicate if alumni has joined any projects
+  projectImageUrl?: string; // Project cover image
+  availablePositions?: AvailablePosition[]; // NEW: Available positions for the project
   onBack: () => void;
-  initialTab?: 'overview' | 'progress' | 'members' | 'discussion' | 'wallet';
+  initialTab?: 'overview' | 'progress' | 'team' | 'members' | 'wallet';
   onNavigateHome?: () => void;
   onNavigateExplore?: () => void;
   onNavigateMessages?: () => void;
   onNavigateSettings?: () => void;
   onLogout?: () => void;
   activeNav?: string;
+  onJoinRequestSubmitted?: (joinRequest: JoinRequest) => void; // NEW: Handler for join request submission
 }
 
 export function ProjectDetailAlumni({ 
   hasJoinedProjects = false, // NEW: Default false
+  projectImageUrl,
+  availablePositions = [],
   onBack, 
   initialTab = 'overview',
   onNavigateHome,
@@ -23,7 +35,8 @@ export function ProjectDetailAlumni({
   onNavigateMessages,
   onNavigateSettings,
   onLogout,
-  activeNav = 'home'
+  activeNav = 'home',
+  onJoinRequestSubmitted
 }: ProjectDetailAlumniProps) {
   // Project membership state - true jika user sudah diterima PIC ke project
   // Initialize with hasJoinedProjects prop for demo purposes
@@ -32,11 +45,12 @@ export function ProjectDetailAlumni({
   // Join project application states
   const [showJoinModal, setShowJoinModal] = useState(false);
   const [applicationStatus, setApplicationStatus] = useState<'none' | 'pending' | 'approved'>('none');
-  const [commitmentDuration, setCommitmentDuration] = useState('1-month');
+  const [selectedPosition, setSelectedPosition] = useState(''); // NEW: Selected position
+  const [commitmentDuration, setCommitmentDuration] = useState('3-months'); // Changed default to 3-months
   const [customDuration, setCustomDuration] = useState('');
   const [joinReason, setJoinReason] = useState('');
   
-  const [activeTab, setActiveTab] = useState<'overview' | 'progress' | 'members' | 'discussion' | 'wallet'>(initialTab);
+  const [activeTab, setActiveTab] = useState<'overview' | 'progress' | 'team' | 'members' | 'wallet' | 'discussion'>(initialTab);
   const [showSearch, setShowSearch] = useState(false);
   const [message, setMessage] = useState('');
   const [expandedMessages, setExpandedMessages] = useState<number[]>([]);
@@ -72,6 +86,17 @@ export function ProjectDetailAlumni({
   };
 
   const handleJoinSubmit = () => {
+    console.log('🚀 Join Submit Started');
+    console.log('Selected Position:', selectedPosition);
+    console.log('Commitment Duration:', commitmentDuration);
+    console.log('Join Reason:', joinReason);
+    console.log('Available Positions:', availablePositions);
+    
+    // Validations
+    if (!selectedPosition) {
+      toast.error('Pilih posisi yang ingin Anda apply');
+      return;
+    }
     if (!joinReason.trim()) {
       toast.error('Alasan bergabung harus diisi');
       return;
@@ -81,13 +106,73 @@ export function ProjectDetailAlumni({
       return;
     }
     
+    // Format commitment duration for display
+    let durationDisplay = '';
+    switch (commitmentDuration) {
+      case '1-month':
+        durationDisplay = '1 Bulan';
+        break;
+      case '3-months':
+        durationDisplay = '3 Bulan';
+        break;
+      case '6-months':
+        durationDisplay = '6 Bulan';
+        break;
+      case '1-year':
+        durationDisplay = '1 Tahun';
+        break;
+      case 'custom':
+        durationDisplay = customDuration;
+        break;
+    }
+
+    // Find selected position details
+    const position = availablePositions.find(p => p.id === selectedPosition);
+    
+    console.log('Found Position:', position);
+    
+    // Create join request object
+    const joinRequest: JoinRequest = {
+      id: `join-${Date.now()}`,
+      projectId: 'current-project-id', // In real app, get from project data
+      projectTitle: 'Bantuan Pangan Gaza', // In real app, get from project data
+      alumniId: 'current-user-id', // In real app, get from auth context
+      alumniName: 'John Doe Alumni', // In real app, get from auth context
+      alumniEmail: 'alumni@example.com', // In real app, get from auth context
+      reason: joinReason,
+      commitment: commitmentDuration,
+      commitmentDuration: durationDisplay,
+      interestedPosition: position?.title || '',
+      status: 'pending',
+      submittedAt: new Date().toISOString(),
+    };
+
+    console.log('📤 Join Request Object:', joinRequest);
+
     // Submit application
     setApplicationStatus('pending');
     setShowJoinModal(false);
+    
+    // Call parent handler if provided
+    if (onJoinRequestSubmitted) {
+      console.log('✅ Calling onJoinRequestSubmitted handler');
+      onJoinRequestSubmitted(joinRequest);
+    } else {
+      console.warn('⚠️ No onJoinRequestSubmitted handler provided');
+    }
+    
+    // Reset form
+    setSelectedPosition('');
+    setJoinReason('');
+    setCommitmentDuration('3-months');
+    setCustomDuration('');
+    
     toast.success('Pengajuan berhasil dikirim!', {
       description: 'Menunggu persetujuan dari PIC project',
       duration: 4000,
     });
+    
+    console.log('✅ Join Submit Completed');
   };
 
   const handleApproveApplication = () => {
@@ -297,14 +382,15 @@ export function ProjectDetailAlumni({
           {/* Hero Image */}
           <div className="px-4 md:px-6 lg:px-8 pt-6 pb-4">
             <div
-              className="w-full bg-gradient-to-br from-[#243D68] to-[#30518B] flex flex-col justify-end overflow-hidden rounded-2xl min-h-[180px] p-4 relative shadow-lg"
+              className="w-full flex flex-col justify-end overflow-hidden rounded-2xl min-h-[180px] p-4 relative shadow-lg"
             >
               <div
-                className="absolute inset-0 z-0 opacity-10"
+                className="absolute inset-0 z-0"
                 style={{
-                  backgroundImage:
-                    "url('data:image/svg+xml,%3Csvg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\"%3E%3Cpath d=\"M12 2L2 12L12 22L22 12L12 2Z\" stroke=\"%23ffffff\" stroke-width=\"1.5\" stroke-linejoin=\"round\"/%3E%3Cpath d=\"M2 12L12 2L22 12\" stroke=\"%23ffffff\" stroke-width=\"1.5\" stroke-linejoin=\"round\"/%3E%3Cpath d=\"M12 22L22 12L12 2\" stroke=\"%23ffffff\" stroke-width=\"1.5\" stroke-linejoin=\"round\"/%3E%3C/svg%3E')",
-                  backgroundSize: '24px',
+                  backgroundImage: projectImageUrl ? `url(${projectImageUrl})` : 'none',
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  backgroundRepeat: 'no-repeat',
                 }}
               ></div>
             </div>
@@ -318,413 +404,29 @@ export function ProjectDetailAlumni({
           </div>
 
           {/* Tabs */}
-          <div className="sticky top-[73px] z-10 bg-white border-b border-[#E5E7EB] px-4 md:px-8 lg:px-12 pb-0 shadow-sm">
-            <div className="flex items-center gap-3 md:gap-6 lg:gap-8 overflow-x-auto no-scrollbar max-w-screen-xl mx-auto">
-              <button
-                className={`text-center py-3 px-2 md:px-4 text-sm font-semibold transition-colors whitespace-nowrap ${
-                  activeTab === 'overview' ? 'text-[#243D68] border-b-2 border-[#243D68]' : 'text-[#6B7280] hover:text-[#333333]'
-                }`}
-                onClick={() => setActiveTab('overview')}
-              >
-                Overview
-              </button>
-              <button
-                className={`text-center py-3 px-2 md:px-4 text-sm font-semibold transition-colors whitespace-nowrap ${
-                  activeTab === 'progress' ? 'text-[#243D68] border-b-2 border-[#243D68]' : 'text-[#6B7280] hover:text-[#333333]'
-                }`}
-                onClick={() => setActiveTab('progress')}
-              >
-                Progress
-              </button>
-              <button
-                className={`text-center py-3 px-2 md:px-4 text-sm font-semibold transition-colors whitespace-nowrap ${
-                  activeTab === 'members' ? 'text-[#243D68] border-b-2 border-[#243D68]' : 'text-[#6B7280] hover:text-[#333333]'
-                }`}
-                onClick={() => setActiveTab('members')}
-              >
-                Anggota
-              </button>
-              
-              {/* Tab Diskusi - Always visible */}
-              <button
-                className={`text-center py-3 px-2 md:px-4 text-sm font-semibold transition-colors whitespace-nowrap ${
-                  activeTab === 'discussion' ? 'text-[#243D68] border-b-2 border-[#243D68]' : 'text-[#6B7280] hover:text-[#333333]'
-                }`}
-                onClick={() => setActiveTab('discussion')}
-              >
-                Diskusi
-              </button>
-              
-              {/* Tab Wallet - Always visible */}
-              <button
-                className={`text-center py-3 px-2 md:px-4 text-sm font-semibold transition-colors whitespace-nowrap ${
-                  activeTab === 'wallet' ? 'text-[#243D68] border-b-2 border-[#243D68]' : 'text-[#6B7280] hover:text-[#333333]'
-                }`}
-                onClick={() => setActiveTab('wallet')}
-              >
-                Wallet
-              </button>
+          <div className="sticky top-[73px] z-10 bg-white border-b border-[#E5E7EB] shadow-sm overflow-x-auto scrollbar-hide">
+            <div className="flex items-center justify-start min-w-full px-2 md:px-6 lg:px-8">
+              {([
+                { key: 'overview' as const, label: 'Overview' },
+                { key: 'progress' as const, label: 'Progress' },
+                { key: 'team' as const, label: 'Team' },
+                { key: 'members' as const, label: 'Anggota' },
+                { key: 'wallet' as const, label: 'Wallet' },
+              ]).map((tab) => (
+                <button
+                  key={tab.key}
+                  className={`text-center py-3 px-2 sm:px-4 md:px-5 text-xs sm:text-sm font-semibold transition-colors whitespace-nowrap flex-shrink-0 ${
+                    activeTab === tab.key 
+                      ? 'text-[#243D68] border-b-2 border-[#243D68]' 
+                      : 'text-[#6B7280] hover:text-[#333333]'
+                  }`}
+                  onClick={() => setActiveTab(tab.key)}
+                >
+                  {tab.label}
+                </button>
+              ))}
             </div>
           </div>
-
-          {/* Tab Content - Discussion */}
-          {activeTab === 'discussion' && (
-            <div className="flex-1 bg-[#F8F9FA] pb-20 overflow-x-hidden max-w-full">
-              {/* Show info banner if not a project member */}
-              {!isProjectMember ? (
-                <div className="px-4 md:px-6 lg:px-8 py-8 flex items-center justify-center min-h-[400px]">
-                  <div className="bg-[#FFF9F0] border border-[#FAC06E]/30 rounded-xl p-6 max-w-lg w-full shadow-sm">
-                    <div className="flex items-start gap-4">
-                      <div className="flex-shrink-0 mt-1">
-                        <div className="w-8 h-8 rounded-full border-2 border-[#FAC06E] flex items-center justify-center">
-                          <span className="material-symbols-outlined text-[#FAC06E] text-lg">info</span>
-                        </div>
-                      </div>
-                      <div className="flex-1">
-                        <h4 className="text-[#243D68] font-bold text-base mb-2">
-                          Bergabung untuk Akses Penuh
-                        </h4>
-                        <p className="text-[#6B7280] text-sm leading-relaxed">
-                          Klik tombol <span className="font-semibold text-[#243D68]">"Join Project"</span> di bawah untuk mengajukan diri bergabung. Setelah diterima oleh PIC, Anda akan mendapatkan akses ke fitur <span className="font-semibold text-[#243D68]">Diskusi</span> dan <span className="font-semibold text-[#243D68]">Wallet</span> untuk berkolaborasi dengan tim.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <>
-                  {/* Voting Alert Card - ENHANCED FOR TABLET & DESKTOP */}
-                  <div className="bg-gradient-to-br from-[#243D68] via-[#2B4468] to-[#1a2d4d] mx-3 md:mx-6 lg:mx-8 my-4 md:my-6 rounded-xl md:rounded-2xl p-4 md:p-6 lg:p-8 shadow-2xl max-w-full relative overflow-hidden">
-                {/* Decorative Background Elements - Desktop Only */}
-                <div className="hidden md:block absolute top-0 right-0 w-64 h-64 bg-[#FAC06E] opacity-5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
-                <div className="hidden md:block absolute bottom-0 left-0 w-48 h-48 bg-white opacity-5 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2"></div>
-                
-                {/* Animated Border - Desktop Only */}
-                <div className="hidden lg:block absolute inset-0 bg-gradient-to-r from-[#FAC06E]/20 via-transparent to-[#FAC06E]/20 rounded-2xl opacity-50"></div>
-                
-                <div className="relative z-10">
-                  {/* Header Section */}
-                  <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-4 md:mb-6">
-                    <div className="flex items-start gap-3 md:gap-4">
-                      <div className="w-12 h-12 md:w-16 md:h-16 bg-[#FAC06E] rounded-xl md:rounded-2xl flex items-center justify-center shrink-0 shadow-lg">
-                        <span className="material-symbols-outlined text-[#243D68] text-2xl md:text-3xl font-bold">how_to_vote</span>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <span className="text-xs md:text-sm font-black text-[#FAC06E] uppercase tracking-wider block mb-1 md:mb-2">VOTING AKTIF</span>
-                        <h3 className="text-base md:text-xl lg:text-2xl font-black text-white leading-tight break-words">Meeting Teknis: Senin, 10:00 WIB</h3>
-                      </div>
-                    </div>
-                    
-                    {/* Deadline Badge */}
-                    <div className="bg-red-500 rounded-lg md:rounded-xl px-3 py-2 md:px-4 md:py-2.5 inline-flex items-center gap-2 shadow-lg shrink-0 animate-pulse">
-                      <span className="material-symbols-outlined text-white text-base md:text-lg">schedule</span>
-                      <div className="flex flex-col">
-                        <span className="text-[10px] md:text-xs text-white/80 font-semibold">DEADLINE</span>
-                        <span className="text-xs md:text-sm font-black text-white whitespace-nowrap">Hari ini, 23:59</span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* Stats Row - Enhanced for Desktop */}
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 lg:gap-6 mb-4 md:mb-6">
-                    {/* Main Percentage */}
-                    <div className="col-span-2 md:col-span-1 bg-white/10 backdrop-blur-sm rounded-xl md:rounded-2xl p-4 md:p-6 border border-white/20">
-                      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
-                        <div>
-                          <span className="text-xs md:text-sm text-white/70 font-semibold block mb-1">Persetujuan</span>
-                          <div className="flex items-baseline gap-2">
-                            <span className="text-4xl md:text-5xl lg:text-6xl font-black text-[#FAC06E]">70%</span>
-                            <span className="text-sm md:text-base text-white/90 font-bold">SETUJU</span>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-1.5 bg-green-500/20 rounded-full px-3 py-1.5 border border-green-400/30 ml-auto self-center md:self-auto">
-                          <span className="material-symbols-outlined text-green-400 text-lg md:text-xl">trending_up</span>
-                          <span className="text-sm md:text-base font-black text-green-400">+15%</span>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    {/* Total Votes - Desktop Only */}
-                    <div className="hidden md:block bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
-                      <span className="text-sm text-white/70 font-semibold block mb-2">Total Partisipasi</span>
-                      <div className="flex items-baseline gap-2">
-                        <span className="text-4xl lg:text-5xl font-black text-white">{voteResults.senin + voteResults.selasa}</span>
-                        <span className="text-base text-white/90 font-bold">VOTES</span>
-                      </div>
-                    </div>
-                    
-                    {/* Time Remaining - Desktop Only */}
-                    <div className="hidden md:block bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
-                      <span className="text-sm text-white/70 font-semibold block mb-2">Waktu Tersisa</span>
-                      <div className="flex items-baseline gap-2">
-                        <span className="text-4xl lg:text-5xl font-black text-orange-300">5</span>
-                        <span className="text-base text-white/90 font-bold">JAM</span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* CTA Button */}
-                  <button 
-                    onClick={() => hasVoted ? null : setShowVotingModal(true)}
-                    className={`w-full py-3 md:py-4 lg:py-5 rounded-lg md:rounded-xl font-black text-sm md:text-base lg:text-lg hover:shadow-2xl transition-all duration-200 shadow-xl border-2 ${
-                      hasVoted 
-                        ? 'bg-gradient-to-r from-green-500 to-green-600 text-white border-green-400/50 cursor-default' 
-                        : 'bg-gradient-to-r from-[#FAC06E] to-[#e8b05e] text-[#243D68] border-[#FAC06E]/50 hover:scale-[1.02] active:scale-[0.98]'
-                    }`}
-                  >
-                    <div className="flex items-center justify-center gap-2 md:gap-3">
-                      <span className="material-symbols-outlined text-xl md:text-2xl">
-                        {hasVoted ? 'check_circle' : 'how_to_vote'}
-                      </span>
-                      <span>{hasVoted ? 'Vote Berhasil!' : 'Vote Sekarang'}</span>
-                      {!hasVoted && <span className="material-symbols-outlined text-xl md:text-2xl">arrow_forward</span>}
-                    </div>
-                  </button>
-                </div>
-              </div>
-
-              {/* Messages Container */}
-              <div className="space-y-0 overflow-x-hidden max-w-full">
-                {/* Date Separator */}
-                <div className="flex justify-center py-3 bg-[#F8F9FA]">
-                  <span className="px-3 py-1 bg-white rounded-full text-xs font-bold text-[#6B7280] shadow-sm">
-                    Kemarin, 11 Jan 2026
-                  </span>
-                </div>
-
-                {/* Message 1 */}
-                <div className="bg-white px-3 py-3.5 border-b border-[#F3F4F6] overflow-hidden">
-                  <div className="flex gap-2.5 max-w-full">
-                    <div className="w-9 h-9 bg-gradient-to-br from-purple-400 to-purple-600 rounded-full flex items-center justify-center text-white font-bold text-xs shrink-0">
-                      AP
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-sm font-bold text-[#1F2937]">Andi Pratama</span>
-                        <span className="text-xs text-[#9CA3AF]">14:20</span>
-                      </div>
-                      <p className="text-sm text-[#374151] leading-relaxed mb-2 break-words">
-                        Halo tim! Untuk update desain landing page apakah sudah siap direview? Saya udah cek mockup yang kemarin, overall keren banget!
-                      </p>
-                      <div className="flex items-center gap-3">
-                        <button className="flex items-center gap-1 text-[#6B7280]">
-                          <span className="material-symbols-outlined text-base">favorite_border</span>
-                          <span className="text-xs">12</span>
-                        </button>
-                        <button className="flex items-center gap-1 text-[#6B7280]">
-                          <span className="material-symbols-outlined text-base">chat_bubble_outline</span>
-                          <span className="text-xs">3</span>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Message 2 - User */}
-                <div className="bg-[#F0F9FF] px-3 py-3.5 border-b border-[#E0F2FE] overflow-hidden">
-                  <div className="flex gap-2.5 flex-row-reverse max-w-full">
-                    <div className="w-9 h-9 bg-gradient-to-br from-blue-500 to-blue-700 rounded-full flex items-center justify-center text-white font-bold text-xs shrink-0">
-                      AK
-                    </div>
-                    <div className="flex-1 min-w-0 text-right">
-                      <div className="flex items-center gap-2 justify-end mb-1">
-                        <span className="text-xs text-[#9CA3AF]">14:35</span>
-                        <span className="text-sm font-bold text-[#1F2937]">Anda</span>
-                        <span className="material-symbols-outlined text-sm text-blue-600" style={{ fontVariationSettings: "'FILL' 1" }}>done_all</span>
-                      </div>
-                      <p className="text-sm text-[#374151] leading-relaxed mb-2 break-words">
-                        Siap Ndra, sudah aku upload di folder drive. Cek ya!
-                      </p>
-                      <div className="flex items-center gap-3 justify-end">
-                        <button className="flex items-center gap-1 text-[#6B7280]">
-                          <span className="text-xs">8</span>
-                          <span className="material-symbols-outlined text-base">favorite_border</span>
-                        </button>
-                        <button className="flex items-center gap-1 text-[#6B7280]">
-                          <span className="text-xs">1</span>
-                          <span className="material-symbols-outlined text-base">chat_bubble_outline</span>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Date Separator */}
-                <div className="flex justify-center py-3 bg-[#F8F9FA]">
-                  <span className="px-3 py-1 bg-white rounded-full text-xs font-bold text-[#6B7280] shadow-sm">
-                    Hari ini, 12 Jan 2026
-                  </span>
-                </div>
-
-                {/* Message 3 - Admin */}
-                <div className="bg-white px-3 py-3.5 border-b border-[#F3F4F6] overflow-hidden">
-                  <div className="flex gap-2.5 max-w-full">
-                    <div className="w-9 h-9 bg-gradient-to-br from-orange-400 to-orange-600 rounded-full flex items-center justify-center text-white font-bold text-xs shrink-0">
-                      SB
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1 flex-wrap">
-                        <span className="text-sm font-bold text-[#1F2937]">Siti Budiman</span>
-                        <span className="px-1.5 py-0.5 bg-amber-100 text-amber-700 text-[10px] font-bold rounded uppercase">Admin</span>
-                        <span className="text-xs text-[#9CA3AF]">09:15</span>
-                      </div>
-                      <p className="text-sm text-[#374151] leading-relaxed mb-2 break-words">
-                        Keren banget progressnya! Btw, besok kita meeting jam 10 pagi ya untuk bahas integrasi API. Jangan lupa siapin notes masing-masing.
-                      </p>
-                      <div className="flex items-center gap-3">
-                        <button className="flex items-center gap-1 text-[#6B7280]">
-                          <span className="material-symbols-outlined text-base">favorite_border</span>
-                          <span className="text-xs">24</span>
-                        </button>
-                        <button className="flex items-center gap-1 text-[#6B7280]">
-                          <span className="material-symbols-outlined text-base">chat_bubble_outline</span>
-                          <span className="text-xs">5</span>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Voting Card In Feed - SIMPLIFIED */}
-                <div className="bg-gradient-to-br from-indigo-50 to-blue-50 px-3 py-3.5 border-b-2 border-indigo-200 overflow-hidden">
-                  <div className="flex gap-2.5 mb-3 max-w-full">
-                    <div className="w-9 h-9 bg-gradient-to-br from-orange-400 to-orange-600 rounded-full flex items-center justify-center text-white font-bold text-xs shrink-0">
-                      SB
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-0.5">
-                        <span className="text-sm font-bold text-[#1F2937]">Siti Budiman</span>
-                        <span className="text-xs text-[#9CA3AF]">09:16</span>
-                      </div>
-                      <div className="flex items-center gap-1 text-indigo-600 font-bold text-xs">
-                        <span className="material-symbols-outlined text-base">poll</span>
-                        <span>Membuat voting</span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="bg-white rounded-xl p-3 shadow border border-indigo-100 max-w-full overflow-hidden">
-                    <h3 className="text-sm font-black text-[#1F2937] mb-2 break-words">
-                      Vote: Waktu Meeting Teknis
-                    </h3>
-                    
-                    <div className="bg-orange-100 text-orange-700 px-2 py-1 rounded-lg text-xs font-bold mb-3 inline-flex items-center gap-1">
-                      <span className="material-symbols-outlined text-xs">schedule</span>
-                      <span className="whitespace-nowrap">Deadline: 12 Okt, 15:00</span>
-                    </div>
-                    
-                    <div className="space-y-2 mb-3">
-                      <div className={`relative h-11 bg-[#F1F5F9] rounded-lg overflow-hidden border ${selectedVote === 'senin' ? 'border-indigo-500 ring-2 ring-indigo-300' : 'border-indigo-300'}`}>
-                        <div 
-                          className="absolute inset-0 bg-gradient-to-r from-indigo-500 to-indigo-400" 
-                          style={{ width: `${(voteResults.senin / (voteResults.senin + voteResults.selasa)) * 100}%` }}
-                        ></div>
-                        <div className="absolute inset-0 flex items-center justify-between px-2.5">
-                          <div className="flex items-center gap-1.5 z-10">
-                            <span className={`material-symbols-outlined text-base ${selectedVote === 'senin' ? 'text-white' : 'text-white'}`}>
-                              {selectedVote === 'senin' ? 'check_circle' : 'check_circle'}
-                            </span>
-                            <span className="text-sm font-bold text-white whitespace-nowrap">Senin, 10:00 WIB</span>
-                          </div>
-                          <span className="text-sm font-black text-white z-10 whitespace-nowrap">{voteResults.senin} votes</span>
-                        </div>
-                      </div>
-                      
-                      <div className={`relative h-11 bg-[#F1F5F9] rounded-lg overflow-hidden border ${selectedVote === 'selasa' ? 'border-indigo-500 ring-2 ring-indigo-300' : 'border-gray-200'}`}>
-                        <div 
-                          className="absolute inset-0 bg-gradient-to-r from-gray-300 to-gray-200" 
-                          style={{ width: `${(voteResults.selasa / (voteResults.senin + voteResults.selasa)) * 100}%` }}
-                        ></div>
-                        <div className="absolute inset-0 flex items-center justify-between px-2.5">
-                          <div className="flex items-center gap-1.5 z-10">
-                            <span className={`material-symbols-outlined text-base ${selectedVote === 'selasa' ? 'text-gray-700' : 'text-gray-400'}`}>
-                              {selectedVote === 'selasa' ? 'check_circle' : 'radio_button_unchecked'}
-                            </span>
-                            <span className="text-sm font-semibold text-gray-700 whitespace-nowrap">Selasa, 13:00 WIB</span>
-                          </div>
-                          <span className="text-sm font-bold text-gray-600 z-10 whitespace-nowrap">{voteResults.selasa} votes</span>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="flex justify-between items-center pt-2 border-t border-indigo-100 gap-2">
-                      <span className="text-xs text-[#6B7280] whitespace-nowrap">{voteResults.senin + voteResults.selasa} votes • 5 jam lagi</span>
-                      <button 
-                        onClick={() => setShowVotingModal(true)}
-                        className="text-xs font-bold text-indigo-600 hover:underline whitespace-nowrap"
-                      >
-                        {hasVoted ? 'Lihat Hasil' : 'Vote'}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Message 4 */}
-                <div className="bg-white px-3 py-3.5 border-b border-[#F3F4F6] overflow-hidden">
-                  <div className="flex gap-2.5 max-w-full">
-                    <div className="w-9 h-9 bg-gradient-to-br from-orange-400 to-orange-600 rounded-full flex items-center justify-center text-white font-bold text-xs shrink-0">
-                      SB
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="text-sm font-bold text-[#1F2937]">Siti Budiman</span>
-                        <span className="text-xs text-[#9CA3AF]">09:17</span>
-                      </div>
-                      <p className="text-sm text-[#374151] leading-relaxed mb-2 break-words">
-                        Jangan lupa siapin laporan masing-masing divisi ya!
-                      </p>
-                      <div className="flex items-center gap-3">
-                        <button className="flex items-center gap-1 text-[#6B7280]">
-                          <span className="material-symbols-outlined text-base">favorite_border</span>
-                          <span className="text-xs">6</span>
-                        </button>
-                        <button className="flex items-center gap-1 text-[#6B7280]">
-                          <span className="material-symbols-outlined text-base">chat_bubble_outline</span>
-                          <span className="text-xs">Reply</span>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Message 5 - With Mention */}
-                <div className="bg-[#F0F9FF] px-3 py-3.5 border-b border-[#E0F2FE] overflow-hidden">
-                  <div className="flex gap-2.5 flex-row-reverse max-w-full">
-                    <div className="w-9 h-9 bg-gradient-to-br from-blue-500 to-blue-700 rounded-full flex items-center justify-center text-white font-bold text-xs shrink-0">
-                      AK
-                    </div>
-                    <div className="flex-1 min-w-0 text-right">
-                      <div className="flex items-center gap-2 justify-end mb-1">
-                        <span className="text-xs text-[#9CA3AF]">09:45</span>
-                        <span className="text-sm font-bold text-[#1F2937]">Anda</span>
-                        <span className="material-symbols-outlined text-sm text-blue-600" style={{ fontVariationSettings: "'FILL' 1" }}>done_all</span>
-                      </div>
-                      <p className="text-sm text-[#374151] leading-relaxed mb-2 break-words">
-                        Oke siap <span className="inline-block bg-[#243D68] text-white px-1.5 py-0.5 rounded text-sm font-semibold">@Siti B</span>, notes sudah dicatat. Sampai jumpa besok!
-                      </p>
-                      <div className="flex items-center gap-3 justify-end">
-                        <button className="flex items-center gap-1 text-[#6B7280]">
-                          <span className="text-xs">15</span>
-                          <span className="material-symbols-outlined text-base">favorite_border</span>
-                        </button>
-                        <button className="flex items-center gap-1 text-[#6B7280]">
-                          <span className="text-xs">2</span>
-                          <span className="material-symbols-outlined text-base">chat_bubble_outline</span>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* End */}
-                <div className="flex justify-center py-5 bg-[#F8F9FA]">
-                  <span className="text-xs text-[#9CA3AF]">Anda sudah melihat semua pesan</span>
-                </div>
-              </div>
-                </>
-              )}
-            </div>
-          )}
 
           {/* Other tabs... */}
           {activeTab === 'overview' && (
@@ -1072,6 +774,120 @@ export function ProjectDetailAlumni({
             </div>
           )}
           
+          {activeTab === 'team' && (
+            <div className="px-4 md:px-6 lg:px-8 py-6 space-y-6">
+              {/* Project-in-Charge */}
+              <div className="bg-white rounded-xl p-5 border border-[#E5E7EB] shadow-sm">
+                <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2 bg-[#FAC06E] rounded-lg px-3 py-2 shadow-sm w-fit">
+                  <span className="material-symbols-outlined text-white">shield_person</span>
+                  Project-in-Charge
+                </h3>
+                <div className="flex items-center gap-4">
+                  <div
+                    className="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-16 w-16 shrink-0 ring-3 ring-[#FAC06E]/30"
+                    style={{
+                      backgroundImage:
+                        'url("https://images.unsplash.com/photo-1651596082255-bcb4993cee27?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwcm9mZXNzaW9uYWwlMjBtdXNsaW0lMjBtYW4lMjBoZWFkc2hvdCUyMHBvcnRyYWl0fGVufDF8fHx8MTc3MjI1MDcyNnww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral")',
+                    }}
+                  ></div>
+                  <div className="flex-1">
+                    <p className="text-[11px] text-[#FAC06E] font-semibold uppercase tracking-wider mb-0.5">Project-in-Charge</p>
+                    <p className="text-base font-semibold text-[#0E1B33]">Ahmad Zulfikar</p>
+                    <p className="text-sm text-[#6B7280]">Hubungan Internasional '14</p>
+                  </div>
+                  <span className="material-symbols-outlined text-[#4A90E2] text-xl">verified</span>
+                </div>
+              </div>
+
+              {/* Tim Inti */}
+              <div className="bg-white rounded-xl p-5 border border-[#E5E7EB] shadow-sm">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-sm font-bold text-white flex items-center gap-2 bg-[#243D68] rounded-lg px-3 py-2 shadow-sm w-fit">
+                    <span className="material-symbols-outlined text-white">groups</span>
+                    Tim Inti
+                  </h3>
+                  <span className="text-xs text-[#6B7280] bg-[#F3F4F6] px-2.5 py-1 rounded-full font-medium">3 orang</span>
+                </div>
+                <div className="space-y-0">
+                  {[
+                    { name: 'Siti Aminah', major: "Desain Komunikasi Visual '17", role: 'UI/UX Designer', color: 'from-rose-400 to-pink-500' },
+                    { name: 'Agus Setiawan', major: "Teknik Informatika '16", role: 'Mobile Developer', color: 'from-blue-400 to-indigo-500' },
+                    { name: 'Fatimah Zahra', major: "Sastra Arab '18", role: 'Content Writer', color: 'from-emerald-400 to-teal-500' },
+                  ].map((member, idx, arr) => (
+                    <div key={idx} className={`flex items-center gap-4 py-3.5 ${idx < arr.length - 1 ? 'border-b border-[#F3F4F6]' : ''}`}>
+                      <div className={`w-11 h-11 rounded-full bg-gradient-to-br ${member.color} flex items-center justify-center shrink-0 shadow-sm`}>
+                        <span className="text-white text-sm font-bold">{member.name.split(' ').map(n => n[0]).join('').slice(0, 2)}</span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-[#0E1B33] truncate">{member.name}</p>
+                        <p className="text-xs text-[#6B7280] truncate">{member.major}</p>
+                      </div>
+                      <span className="text-xs font-semibold text-[#243D68] bg-[#E8EDF5] px-2.5 py-1 rounded-full whitespace-nowrap">{member.role}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Volunteer */}
+              <div className="bg-white rounded-xl p-5 border border-[#E5E7EB] shadow-sm">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-sm font-bold text-white flex items-center gap-2 bg-emerald-600 rounded-lg px-3 py-2 shadow-sm w-fit">
+                    <span className="material-symbols-outlined text-white">volunteer_activism</span>
+                    Volunteer
+                  </h3>
+                  <span className="text-xs text-[#6B7280] bg-[#F3F4F6] px-2.5 py-1 rounded-full font-medium">8 orang</span>
+                </div>
+                <div className="space-y-0">
+                  {[
+                    { name: 'Rizky Pratama', role: 'Fotografer', color: 'from-purple-400 to-purple-600' },
+                    { name: 'Dewi Lestari', role: 'Desain Grafis', color: 'from-amber-400 to-orange-500' },
+                    { name: 'Hasan Abdullah', role: 'Videografer', color: 'from-cyan-400 to-blue-500' },
+                    { name: 'Nurul Hidayah', role: 'Social Media', color: 'from-pink-400 to-rose-500' },
+                    { name: 'Farhan Wijaya', role: 'Logistik', color: 'from-green-400 to-emerald-500' },
+                  ].map((vol, idx, arr) => (
+                    <div key={idx} className={`flex items-center gap-4 py-3 ${idx < arr.length - 1 ? 'border-b border-[#F3F4F6]' : ''}`}>
+                      <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${vol.color} flex items-center justify-center shrink-0`}>
+                        <span className="text-white text-xs font-bold">{vol.name.split(' ').map(n => n[0]).join('').slice(0, 2)}</span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-[#333333] truncate">{vol.name}</p>
+                      </div>
+                      <span className="text-xs text-[#6B7280] bg-[#F3F4F6] px-2.5 py-1 rounded-full whitespace-nowrap">{vol.role}</span>
+                    </div>
+                  ))}
+                  <div className="flex items-center gap-3 pt-3 border-t border-[#E5E7EB] mt-1">
+                    <div className="flex -space-x-2">
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-slate-300 to-slate-400 border-2 border-white"></div>
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-slate-300 to-slate-400 border-2 border-white"></div>
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-slate-300 to-slate-400 border-2 border-white flex items-center justify-center">
+                        <span className="text-[10px] font-bold text-white">+3</span>
+                      </div>
+                    </div>
+                    <span className="text-xs text-[#6B7280]">dan 3 volunteer lainnya</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Posisi Tersedia */}
+              {availablePositions.length > 0 && (
+                <div className="bg-[#FFF9F0] rounded-xl p-5 border border-[#FAC06E]/20 shadow-sm">
+                  <h3 className="text-sm font-bold text-[#243D68] mb-3 flex items-center gap-2">
+                    <span className="material-symbols-outlined text-[#FAC06E]">work</span>
+                    Posisi Masih Tersedia
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    {availablePositions.map((pos) => (
+                      <div key={pos.id} className="flex items-center justify-between bg-white rounded-lg px-3.5 py-2.5 border border-[#FAC06E]/15">
+                        <span className="text-sm text-[#333333] font-medium">{pos.title}</span>
+                        <span className="text-xs text-[#FAC06E] font-bold bg-[#FFF3E0] px-2 py-0.5 rounded-full">{pos.slots} slot</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
           {activeTab === 'members' && (
             <div className="px-4 md:px-6 lg:px-8 py-6 space-y-6">
               {/* Project-in-Charge */}
@@ -1338,32 +1154,6 @@ export function ProjectDetailAlumni({
             </div>
           )}
         </div>
-
-        {/* Bottom Input */}
-        {activeTab === 'discussion' && (
-          <div className="fixed bottom-0 left-0 lg:left-64 right-0 bg-white px-3 py-2.5 z-30 pb-5 lg:pb-3 border-t border-[#E5E7EB]">
-            <div className="flex items-center gap-2 max-w-screen-xl mx-auto">
-              <button className="p-2 text-[#6B7280] shrink-0">
-                <span className="material-symbols-outlined text-xl -rotate-45">attach_file</span>
-              </button>
-              <button className="p-2 text-[#6B7280] shrink-0">
-                <span className="material-symbols-outlined text-xl">bar_chart</span>
-              </button>
-              <div className="flex-1 bg-[#F8F9FA] rounded-full px-3.5 py-2 min-h-[40px] flex items-center">
-                <input 
-                  className="w-full bg-transparent border-none p-0 text-sm focus:ring-0 text-[#243D68] placeholder-[#6B7280]" 
-                  placeholder="Tulis pesan..." 
-                  type="text"
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                />
-              </div>
-              <button className="p-2 bg-[#243D68]/10 text-[#243D68] rounded-full shrink-0">
-                <span className="material-symbols-outlined text-xl">send</span>
-              </button>
-            </div>
-          </div>
-        )}
       </div>
 
       {/* Voting Modal */}
@@ -1599,7 +1389,7 @@ export function ProjectDetailAlumni({
 
       {/* Modal: Join Project Form */}
       {showJoinModal && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setShowJoinModal(false)}>
+        <div className="fixed inset-0 bg-black/50 z-[9999] flex items-center justify-center p-4" onClick={() => setShowJoinModal(false)}>
           <div className="bg-white rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
             <div className="sticky top-0 bg-white border-b border-[#E5E7EB] p-5 flex items-center justify-between z-10 rounded-t-2xl">
               <div>
@@ -1612,6 +1402,35 @@ export function ProjectDetailAlumni({
             </div>
             
             <div className="p-5 space-y-5">
+              {/* Available Position Dropdown */}
+              <div>
+                <label className="block text-sm font-bold text-[#0E1B33] mb-3">
+                  Pilih Posisi <span className="text-red-500">*</span>
+                </label>
+                <select
+                  value={selectedPosition}
+                  onChange={(e) => setSelectedPosition(e.target.value)}
+                  className="w-full px-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#243D68]/20 focus:border-[#243D68] text-sm bg-white appearance-none cursor-pointer"
+                  style={{
+                    backgroundImage: `url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%236B7280' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")`,
+                    backgroundRepeat: 'no-repeat',
+                    backgroundPosition: 'right 1rem center',
+                  }}
+                >
+                  <option value="">-- Pilih Posisi yang Diminati --</option>
+                  {availablePositions.map((position) => (
+                    <option key={position.id} value={position.id}>
+                      {position.title} ({position.slots} {position.slots === 1 ? 'posisi' : 'posisi'} tersedia)
+                    </option>
+                  ))}
+                </select>
+                {availablePositions.length === 0 && (
+                  <p className="text-xs text-[#6B7280] mt-2">
+                    Tidak ada posisi tersedia saat ini
+                  </p>
+                )}
+              </div>
+
               {/* Commitment Duration */}
               <div>
                 <label className="block text-sm font-bold text-[#0E1B33] mb-3">
@@ -1634,12 +1453,24 @@ export function ProjectDetailAlumni({
                     <input
                       type="radio"
                       name="duration"
-                      value="4-months"
-                      checked={commitmentDuration === '4-months'}
+                      value="3-months"
+                      checked={commitmentDuration === '3-months'}
                       onChange={(e) => setCommitmentDuration(e.target.value)}
                       className="w-4 h-4 text-[#243D68] focus:ring-[#243D68]"
                     />
-                    <span className="text-sm font-medium text-[#0E1B33]">4 Bulan</span>
+                    <span className="text-sm font-medium text-[#0E1B33]">3 Bulan</span>
+                  </label>
+                  
+                  <label className="flex items-center gap-3 p-3 border border-[#E5E7EB] rounded-xl hover:bg-[#F8F9FA] cursor-pointer transition-colors">
+                    <input
+                      type="radio"
+                      name="duration"
+                      value="6-months"
+                      checked={commitmentDuration === '6-months'}
+                      onChange={(e) => setCommitmentDuration(e.target.value)}
+                      className="w-4 h-4 text-[#243D68] focus:ring-[#243D68]"
+                    />
+                    <span className="text-sm font-medium text-[#0E1B33]">6 Bulan</span>
                   </label>
                   
                   <label className="flex items-center gap-3 p-3 border border-[#E5E7EB] rounded-xl hover:bg-[#F8F9FA] cursor-pointer transition-colors">
@@ -1652,18 +1483,6 @@ export function ProjectDetailAlumni({
                       className="w-4 h-4 text-[#243D68] focus:ring-[#243D68]"
                     />
                     <span className="text-sm font-medium text-[#0E1B33]">1 Tahun</span>
-                  </label>
-                  
-                  <label className="flex items-center gap-3 p-3 border border-[#E5E7EB] rounded-xl hover:bg-[#F8F9FA] cursor-pointer transition-colors">
-                    <input
-                      type="radio"
-                      name="duration"
-                      value="until-complete"
-                      checked={commitmentDuration === 'until-complete'}
-                      onChange={(e) => setCommitmentDuration(e.target.value)}
-                      className="w-4 h-4 text-[#243D68] focus:ring-[#243D68]"
-                    />
-                    <span className="text-sm font-medium text-[#0E1B33]">Sampai Project Selesai</span>
                   </label>
                   
                   <label className="flex items-center gap-3 p-3 border border-[#E5E7EB] rounded-xl hover:bg-[#F8F9FA] cursor-pointer transition-colors">
@@ -1702,9 +1521,6 @@ export function ProjectDetailAlumni({
                   rows={5}
                   className="w-full px-4 py-3 border border-[#E5E7EB] rounded-xl focus:outline-none focus:ring-2 focus:ring-[#243D68]/20 focus:border-[#243D68] text-sm resize-none"
                 />
-                <p className="text-xs text-[#6B7280] mt-2">
-                  Minimal 50 karakter. Jelaskan dengan detail untuk meningkatkan peluang diterima.
-                </p>
               </div>
 
               {/* Info Box */}

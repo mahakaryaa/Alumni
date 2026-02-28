@@ -55,8 +55,9 @@ function AppContent() {
   const [activeNav, setActiveNav] = useState('home');
   const [currentView, setCurrentView] = useState<'home' | 'project-detail' | 'explore' | 'alumni-story' | 'login' | 'event-detail' | 'messages' | 'settings' | 'donation' | 'admin-panel-revised' | 'admin-login-revised' | 'my-donations' | 'my-join-requests' | 'notification-center' | 'campaigns' | 'admin-campaigns' | 'campaign-detail'>('home');
   const [exploreInitialTab, setExploreInitialTab] = useState<'open' | 'galeri' | 'campaign'>('open');
-  const [projectDetailInitialTab, setProjectDetailInitialTab] = useState<'overview' | 'progress' | 'members' | 'discussion' | 'wallet'>('overview');
+  const [projectDetailInitialTab, setProjectDetailInitialTab] = useState<'overview' | 'progress' | 'team' | 'members' | 'discussion' | 'wallet'>('overview');
   const [selectedCampaignId, setSelectedCampaignId] = useState<string | null>(null);
+  const [projectDetailOrigin, setProjectDetailOrigin] = useState<'home' | 'explore'>('home'); // Track where user came from
   
   // User role with localStorage persistence
   const [userRole, setUserRole] = useState<'donatur' | 'alumni' | 'alumni-guest' | null>(() => {
@@ -84,7 +85,18 @@ function AppContent() {
 
   // Mock user joined projects state (untuk demo)
   // Set ke true jika alumni sudah pernah join project, false jika belum
-  const [hasJoinedProjects, setHasJoinedProjects] = useState(true); // Default: true untuk demo joined state
+  const [hasJoinedProjects, setHasJoinedProjects] = useState(false); // Default: false agar CTA Join Project terlihat
+
+  // Selected project state - untuk pass gambar ke detail
+  const [selectedProject, setSelectedProject] = useState<{
+    title: string;
+    imageUrl: string;
+    category: string;
+  } | null>({
+    title: 'Pengembangan Aplikasi AlumniConnect',
+    imageUrl: 'https://images.unsplash.com/photo-1757165792338-b4e8a88ae1c7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtb2JpbGUlMjBhcHAlMjBkZXZlbG9wbWVudCUyMGNvZGluZyUyMHRlY2hub2xvZ3l8ZW58MXx8fHwxNzcyMTg2MDk1fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
+    category: 'Pendidikan'
+  });
 
   // ==============================
   // FASE 1 & 2: GLOBAL STATE MANAGEMENT
@@ -824,13 +836,28 @@ function AppContent() {
   }
 
   if (currentView === 'project-detail') {
+    // Mock available positions data
+    const mockAvailablePositions = [
+      { id: '1', title: 'UI/UX Designer', slots: 1 },
+      { id: '2', title: 'Mobile Developer (React Native)', slots: 2 },
+      { id: '3', title: 'Backend Developer', slots: 1 },
+      { id: '4', title: 'Content Writer', slots: 1 },
+    ];
+
     // Show different detail page based on user role
     if (userRole === 'alumni') {
       return <ProjectDetailAlumni 
         hasJoinedProjects={hasJoinedProjects}
+        projectImageUrl={selectedProject?.imageUrl || "https://images.unsplash.com/photo-1757165792338-b4e8a88ae1c7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtb2JpbGUlMjBhcHAlMjBkZXZlbG9wbWVudCUyMGNvZGluZyUyMHRlY2hub2xvZ3l8ZW58MXx8fHwxNzcyMTg2MDk1fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"}
+        availablePositions={mockAvailablePositions}
         onBack={() => {
-          setCurrentView('home');
-          setActiveNav('home');
+          if (projectDetailOrigin === 'explore') {
+            setCurrentView('explore');
+            setActiveNav('explore');
+          } else {
+            setCurrentView('home');
+            setActiveNav('home');
+          }
         }} 
         initialTab={projectDetailInitialTab}
         onNavigateHome={() => {
@@ -856,9 +883,14 @@ function AppContent() {
     }
     
     return <ProjectDetail onBack={() => {
-      setCurrentView('home');
-      setActiveNav('home');
-    }} initialTab={projectDetailInitialTab} />;
+      if (projectDetailOrigin === 'explore') {
+        setCurrentView('explore');
+        setActiveNav('explore');
+      } else {
+        setCurrentView('home');
+        setActiveNav('home');
+      }
+    }} availablePositions={mockAvailablePositions} onJoinRequestSubmitted={handleJoinRequestSubmitted} />;
   }
 
   if (currentView === 'explore') {
@@ -869,7 +901,10 @@ function AppContent() {
         setActiveNav('home');
       }} 
       initialTab={exploreInitialTab} 
-      onNavigateToDetail={() => setCurrentView('project-detail')}
+      onNavigateToDetail={() => {
+        setProjectDetailOrigin('explore'); // Set origin to explore
+        setCurrentView('project-detail');
+      }}
       onNavigateHome={() => {
         setCurrentView('home');
         setActiveNav('home');
@@ -951,6 +986,7 @@ function AppContent() {
           setActiveNav('home');
         }}
         onNavigateToProject={() => {
+          setProjectDetailOrigin('home'); // Set origin to home
           setProjectDetailInitialTab('overview');
           setCurrentView('project-detail');
         }}
@@ -972,6 +1008,7 @@ function AppContent() {
         }}
         onLogout={handleLogout}
         activeNav={activeNav}
+        eventRegistrations={eventRegistrations}
       />;
     }
     
@@ -997,6 +1034,7 @@ function AppContent() {
         setActiveNav('settings');
       }}
       activeNav={activeNav}
+      eventRegistrations={eventRegistrations}
     />;
   }
 
@@ -1174,6 +1212,7 @@ function AppContent() {
         setActiveNav('settings');
       }}
       onViewProject={(projectId) => {
+        setProjectDetailOrigin('home'); // Set origin to home
         setCurrentView('project-detail');
         setActiveNav('home');
       }}
@@ -1243,6 +1282,7 @@ function AppContent() {
   }
 
   return (
+    <LanguageContext.Provider value={{ language, setLanguage, t }}>
       <ErrorBoundary>
       <Toaster position="top-center" richColors closeButton />
       <div className="flex min-h-screen relative bg-[#F8F9FA] overflow-x-hidden">
@@ -1357,7 +1397,7 @@ function AppContent() {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 lg:ml-64 w-full pb-10 lg:pb-10 pb-20">
+      <main className="flex-1 lg:ml-64 w-full pb-10 lg:pb-10 pb-20 overflow-x-hidden">
         {/* Header - Mobile Only */}
         {currentView === 'home' && (
         <header className="bg-white/90 sticky top-0 z-30 px-3 py-3.5 flex items-center justify-between backdrop-blur-sm md:hidden border-b border-[#E5E7EB] shadow-sm overflow-hidden">
@@ -1401,7 +1441,7 @@ function AppContent() {
             }}
           />
         ) : (
-          <div className="px-6 lg:px-10 max-w-7xl mx-auto space-y-10">
+          <div className="px-6 lg:px-10 max-w-7xl mx-auto space-y-10 overflow-x-hidden">
           {/* Hero Section */}
           <section className="relative overflow-hidden rounded-3xl p-6 md:p-8 lg:p-16 mt-6">
             {/* Notification & Login - Top Right */}
@@ -1525,7 +1565,7 @@ function AppContent() {
           </section>
 
           {/* Featured Projects */}
-          <section>
+          <section className="overflow-hidden">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold text-[#0E1B33]">
                 {activeCategory === 'semua' && t.home.exploreProjects}
@@ -1586,7 +1626,13 @@ function AppContent() {
                   </p>
                   <button
                     onClick={() => {
-                      setProjectDetailInitialTab('overview'); // Reset to overview tab
+                      setSelectedProject({
+                        title: 'Bantuan Pangan Gaza',
+                        imageUrl: 'https://images.unsplash.com/photo-1637826397913-68af81f4d14a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwYWxlc3RpbmUlMjBmb29kJTIwYWlkJTIwaHVtYW5pdGFyaWFufGVufDF8fHx8MTc2OTY1MjEyN3ww&ixlib=rb-4.1.0&q=80&w=1080',
+                        category: 'Kemanusiaan'
+                      });
+                      setProjectDetailOrigin('home'); // Set origin to home
+                      setProjectDetailInitialTab('overview');
                       setCurrentView('project-detail');
                     }}
                     className="w-full bg-[#243D68] text-white font-semibold rounded-[12px] hover:bg-[#183A74] transition-colors py-3 px-6"
@@ -1616,7 +1662,13 @@ function AppContent() {
                   </p>
                   <button
                     onClick={() => {
-                      setProjectDetailInitialTab('overview'); // Reset to overview tab
+                      setSelectedProject({
+                        title: 'Sekolah Online Anak Gaza',
+                        imageUrl: 'https://images.unsplash.com/photo-1661860890799-ae6cac7c71b0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjaGlsZHJlbiUyMGxlYXJuaW5nJTIwYXJhYmljJTIwZWR1Y2F0aW9ufGVufDF8fHx8MTc2OTY1MjEyN3ww&ixlib=rb-4.1.0&q=80&w=1080',
+                        category: 'Pendidikan'
+                      });
+                      setProjectDetailOrigin('home'); // Set origin to home
+                      setProjectDetailInitialTab('overview');
                       setCurrentView('project-detail');
                     }}
                     className="w-full mt-2 bg-[#243D68] text-white font-semibold py-3 rounded-[12px] hover:bg-[#183A74] transition-colors"
@@ -1628,72 +1680,196 @@ function AppContent() {
             </div>
           </section>
 
-          <QuoteSection />
-
-          {/* Alumni Stories */}
-          <section>
-            <div className="mb-6">
-              <h2 className="text-[20px] font-semibold text-[#0E1B33]">{t.home.inspiringStories}</h2>
-              <p className="text-[#61728F] mt-1 text-sm">
-                {t.home.inspiringStoriesDesc}
-              </p>
+          {/* Today Quote & Alumni Stories - 2 Grid Desktop */}
+          <div className="grid lg:grid-cols-2 gap-6">
+            {/* Today Quote */}
+            <div>
+              <QuoteSection />
             </div>
-            <div className="flex overflow-x-auto gap-5 pb-4 hide-scrollbar -mx-6 px-6 lg:mx-0 lg:px-0 snap-x">
-              <div
-                onClick={() => setCurrentView('alumni-story')}
-                className="snap-center shrink-0 w-[200px] bg-white rounded-[16px] p-4 border border-[#D6DCE8] shadow-[0_8px_24px_rgba(22,36,63,0.08)] hover:-translate-y-1 transition-transform cursor-pointer"
-              >
-                <img
-                  alt="Story 1"
-                  className="w-full aspect-[4/5] object-cover rounded-[12px] mb-3"
-                  src="https://images.unsplash.com/photo-1547567919-07728e7d2dc5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtdXNsaW0lMjB3b21hbiUyMGhpamabiJTIwcHJvZmVzc2lvbmFsJTIwdGVhY2hlcnxlbnwxfHx8fDE3Njk2NTIxMzJ8MA&ixlib=rb-4.1.0&q=80&w=1080"
-                />
-                <h3 className="font-semibold text-[#0E1B33] text-sm leading-snug">
-                  Rina & Virtual Tour Sejarah Masjid Al-Aqsa
-                </h3>
-                <span className="block mt-2 text-xs text-[#61728F] font-medium">#EdukasiAlAqsa</span>
+
+            {/* Alumni Stories */}
+            <section className="overflow-hidden">
+              <div className="mb-6">
+                <h2 className="text-[20px] font-semibold text-[#0E1B33]">{t.home.inspiringStories}</h2>
+                <p className="text-[#61728F] mt-1 text-sm">
+                  {t.home.inspiringStoriesDesc}
+                </p>
               </div>
-              <div
-                onClick={() => setCurrentView('alumni-story')}
-                className="snap-center shrink-0 w-[200px] bg-white rounded-[16px] p-4 border border-[#D6DCE8] shadow-[0_8px_24px_rgba(22,36,63,0.08)] hover:-translate-y-1 transition-transform cursor-pointer"
-              >
-                <img
-                  alt="Story 2"
-                  className="w-full aspect-[4/5] object-cover rounded-[12px] mb-3"
-                  src="https://images.unsplash.com/photo-1769636929231-3cd7f853d038?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwcm9mZXNzaW9uYWwlMjBtYW4lMjBmb3JtYWwlMjBidXNpbmVzcyUyMHBvcnRyYWl0fGVufDF8fHx8MTc3MTEyMTAzMXww&ixlib=rb-4.1.0&q=80&w=1080"
-                />
-                <h3 className="font-semibold text-[#0E1B33] text-sm leading-snug">
-                  Budi mengajar Bahasa Arab untuk Solidaritas Palestina
-                </h3>
-                <span className="block mt-2 text-xs text-[#61728F] font-medium">#BahasaArabAlQuds</span>
+              
+              {/* Mobile: Horizontal Scroll */}
+              <div className="flex lg:hidden overflow-x-auto gap-5 pb-4 hide-scrollbar -mx-6 px-6 snap-x">
+                <div
+                  onClick={() => setCurrentView('alumni-story')}
+                  className="snap-center shrink-0 w-[200px] bg-white rounded-[16px] p-4 border border-[#D6DCE8] shadow-[0_8px_24px_rgba(22,36,63,0.08)] hover:-translate-y-1 transition-transform cursor-pointer"
+                >
+                  <img
+                    alt="Story 1"
+                    className="w-full aspect-[4/5] object-cover rounded-[12px] mb-3"
+                    src="https://images.unsplash.com/photo-1547567919-07728e7d2dc5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtdXNsaW0lMjB3b21hbiUyMGhpamabiJTIwcHJvZmVzc2lvbmFsJTIwdGVhY2hlcnxlbnwxfHx8fDE3Njk2NTIxMzJ8MA&ixlib=rb-4.1.0&q=80&w=1080"
+                  />
+                  <h3 className="font-semibold text-[#0E1B33] text-sm leading-snug">
+                    Rina & Virtual Tour Sejarah Masjid Al-Aqsa
+                  </h3>
+                  <span className="block mt-2 text-xs text-[#61728F] font-medium">#EdukasiAlAqsa</span>
+                </div>
+                <div
+                  onClick={() => setCurrentView('alumni-story')}
+                  className="snap-center shrink-0 w-[200px] bg-white rounded-[16px] p-4 border border-[#D6DCE8] shadow-[0_8px_24px_rgba(22,36,63,0.08)] hover:-translate-y-1 transition-transform cursor-pointer"
+                >
+                  <img
+                    alt="Story 2"
+                    className="w-full aspect-[4/5] object-cover rounded-[12px] mb-3"
+                    src="https://images.unsplash.com/photo-1769636929231-3cd7f853d038?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwcm9mZXNzaW9uYWwlMjBtYW4lMjBmb3JtYWwlMjBidXNpbmVzcyUyMHBvcnRyYWl0fGVufDF8fHx8MTc3MTEyMTAzMXww&ixlib=rb-4.1.0&q=80&w=1080"
+                  />
+                  <h3 className="font-semibold text-[#0E1B33] text-sm leading-snug">
+                    Budi mengajar Bahasa Arab untuk Solidaritas Palestina
+                  </h3>
+                  <span className="block mt-2 text-xs text-[#61728F] font-medium">#BahasaArabAlQuds</span>
+                </div>
+                <div
+                  onClick={() => setCurrentView('alumni-story')}
+                  className="snap-center shrink-0 w-[200px] bg-white rounded-[16px] p-4 border border-[#D6DCE8] shadow-[0_8px_24px_rgba(22,36,63,0.08)] hover:-translate-y-1 transition-transform cursor-pointer"
+                >
+                  <img
+                    alt="Story 3"
+                    className="w-full aspect-[4/5] object-cover rounded-[12px] mb-3"
+                    src="https://images.unsplash.com/photo-1647187977218-12de72a8830d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtdXNsaW0lMjB3b21hbiUyMGhpamabiJTIwYWN0aXZpc3QlMjB2b2x1bnRlZXJ8ZW58MXx8fHwxNzcxMTIxMDMyfDA&ixlib=rb-4.1.0&q=80&w=1080"
+                  />
+                  <h3 className="font-semibold text-[#0E1B33] text-sm leading-snug">
+                    Siti & Kampanye Digital Free Palestine
+                  </h3>
+                  <span className="block mt-2 text-xs text-[#61728F] font-medium">#FreePalestine</span>
+                </div>
+                <div
+                  onClick={() => setCurrentView('alumni-story')}
+                  className="snap-center shrink-0 w-[200px] bg-white rounded-[16px] p-4 border border-[#D6DCE8] shadow-[0_8px_24px_rgba(22,36,63,0.08)] hover:-translate-y-1 transition-transform cursor-pointer"
+                >
+                  <img
+                    alt="Story 4"
+                    className="w-full aspect-[4/5] object-cover rounded-[12px] mb-3"
+                    src="https://images.unsplash.com/photo-1645066928295-2506defde470?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwcm9mZXNzaW9uYWwlMjBtYW4lMjBkb2N0b3IlMjBtZWRpY2FsJTIwZm9ybWFsfGVufDF8fHx8MTc3MTEyMTAzMnww&ixlib=rb-4.1.0&q=80&w=1080"
+                  />
+                  <h3 className="font-semibold text-[#0E1B33] text-sm leading-snug">
+                    Andi menggalang Dana Medis untuk Korban Gaza
+                  </h3>
+                  <span className="block mt-2 text-xs text-[#61728F] font-medium">#MedisGaza</span>
+                </div>
               </div>
-              <div
-                onClick={() => setCurrentView('alumni-story')}
-                className="snap-center shrink-0 w-[200px] bg-white rounded-[16px] p-4 border border-[#D6DCE8] shadow-[0_8px_24px_rgba(22,36,63,0.08)] hover:-translate-y-1 transition-transform cursor-pointer"
-              >
-                <img
-                  alt="Story 3"
-                  className="w-full aspect-[4/5] object-cover rounded-[12px] mb-3"
-                  src="https://images.unsplash.com/photo-1647187977218-12de72a8830d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtdXNsaW0lMjB3b21hbiUyMGhpamabiJTIwYWN0aXZpc3QlMjB2b2x1bnRlZXJ8ZW58MXx8fHwxNzcxMTIxMDMyfDA&ixlib=rb-4.1.0&q=80&w=1080"
-                />
-                <h3 className="font-semibold text-[#0E1B33] text-sm leading-snug">
-                  Siti & Kampanye Digital Free Palestine
-                </h3>
-                <span className="block mt-2 text-xs text-[#61728F] font-medium">#FreePalestine</span>
+
+              {/* Desktop: Vertical List */}
+              <div className="hidden lg:flex flex-col gap-4">
+                <div
+                  onClick={() => setCurrentView('alumni-story')}
+                  className="bg-white rounded-[16px] p-4 border border-[#D6DCE8] shadow-[0_8px_24px_rgba(22,36,63,0.08)] hover:shadow-lg hover:-translate-y-0.5 transition-all cursor-pointer flex gap-4 group"
+                >
+                  <img
+                    alt="Story 1"
+                    className="w-24 h-24 object-cover rounded-[12px] flex-shrink-0"
+                    src="https://images.unsplash.com/photo-1547567919-07728e7d2dc5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtdXNsaW0lMjB3b21hbiUyMGhpamabiJTIwcHJvZmVzc2lvbmFsJTIwdGVhY2hlcnxlbnwxfHx8fDE3Njk2NTIxMzJ8MA&ixlib=rb-4.1.0&q=80&w=1080"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-[#0E1B33] text-sm leading-snug mb-2 group-hover:text-[#243D68] transition-colors">
+                      Rina & Virtual Tour Sejarah Masjid Al-Aqsa
+                    </h3>
+                    <span className="text-xs text-[#61728F] font-medium">#EdukasiAlAqsa</span>
+                  </div>
+                  <div className="flex items-center">
+                    <span className="material-symbols-outlined text-[#243D68] opacity-0 group-hover:opacity-100 transition-opacity">arrow_forward</span>
+                  </div>
+                </div>
+                
+                <div
+                  onClick={() => setCurrentView('alumni-story')}
+                  className="bg-white rounded-[16px] p-4 border border-[#D6DCE8] shadow-[0_8px_24px_rgba(22,36,63,0.08)] hover:shadow-lg hover:-translate-y-0.5 transition-all cursor-pointer flex gap-4 group"
+                >
+                  <img
+                    alt="Story 2"
+                    className="w-24 h-24 object-cover rounded-[12px] flex-shrink-0"
+                    src="https://images.unsplash.com/photo-1769636929231-3cd7f853d038?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwcm9mZXNzaW9uYWwlMjBtYW4lMjBmb3JtYWwlMjBidXNpbmVzcyUyMHBvcnRyYWl0fGVufDF8fHx8MTc3MTEyMTAzMXww&ixlib=rb-4.1.0&q=80&w=1080"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-[#0E1B33] text-sm leading-snug mb-2 group-hover:text-[#243D68] transition-colors">
+                      Budi mengajar Bahasa Arab untuk Solidaritas Palestina
+                    </h3>
+                    <span className="text-xs text-[#61728F] font-medium">#BahasaArabAlQuds</span>
+                  </div>
+                  <div className="flex items-center">
+                    <span className="material-symbols-outlined text-[#243D68] opacity-0 group-hover:opacity-100 transition-opacity">arrow_forward</span>
+                  </div>
+                </div>
+                
+                <div
+                  onClick={() => setCurrentView('alumni-story')}
+                  className="bg-white rounded-[16px] p-4 border border-[#D6DCE8] shadow-[0_8px_24px_rgba(22,36,63,0.08)] hover:shadow-lg hover:-translate-y-0.5 transition-all cursor-pointer flex gap-4 group"
+                >
+                  <img
+                    alt="Story 3"
+                    className="w-24 h-24 object-cover rounded-[12px] flex-shrink-0"
+                    src="https://images.unsplash.com/photo-1647187977218-12de72a8830d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtdXNsaW0lMjB3b21hbiUyMGhpamabiJTIwYWN0aXZpc3QlMjB2b2x1bnRlZXJ8ZW58MXx8fHwxNzcxMTIxMDMyfDA&ixlib=rb-4.1.0&q=80&w=1080"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-[#0E1B33] text-sm leading-snug mb-2 group-hover:text-[#243D68] transition-colors">
+                      Siti & Kampanye Digital Free Palestine
+                    </h3>
+                    <span className="text-xs text-[#61728F] font-medium">#FreePalestine</span>
+                  </div>
+                  <div className="flex items-center">
+                    <span className="material-symbols-outlined text-[#243D68] opacity-0 group-hover:opacity-100 transition-opacity">arrow_forward</span>
+                  </div>
+                </div>
+                
+                <div
+                  onClick={() => setCurrentView('alumni-story')}
+                  className="bg-white rounded-[16px] p-4 border border-[#D6DCE8] shadow-[0_8px_24px_rgba(22,36,63,0.08)] hover:shadow-lg hover:-translate-y-0.5 transition-all cursor-pointer flex gap-4 group"
+                >
+                  <img
+                    alt="Story 4"
+                    className="w-24 h-24 object-cover rounded-[12px] flex-shrink-0"
+                    src="https://images.unsplash.com/photo-1645066928295-2506defde470?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwcm9mZXNzaW9uYWwlMjBtYW4lMjBkb2N0b3IlMjBtZWRpY2FsJTIwZm9ybWFsfGVufDF8fHx8MTc3MTEyMTAzMnww&ixlib=rb-4.1.0&q=80&w=1080"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-[#0E1B33] text-sm leading-snug mb-2 group-hover:text-[#243D68] transition-colors">
+                      Andi menggalang Dana Medis untuk Korban Gaza
+                    </h3>
+                    <span className="text-xs text-[#61728F] font-medium">#MedisGaza</span>
+                  </div>
+                  <div className="flex items-center">
+                    <span className="material-symbols-outlined text-[#243D68] opacity-0 group-hover:opacity-100 transition-opacity">arrow_forward</span>
+                  </div>
+                </div>
               </div>
-              <div
-                onClick={() => setCurrentView('alumni-story')}
-                className="snap-center shrink-0 w-[200px] bg-white rounded-[16px] p-4 border border-[#D6DCE8] shadow-[0_8px_24px_rgba(22,36,63,0.08)] hover:-translate-y-1 transition-transform cursor-pointer"
-              >
-                <img
-                  alt="Story 4"
-                  className="w-full aspect-[4/5] object-cover rounded-[12px] mb-3"
-                  src="https://images.unsplash.com/photo-1645066928295-2506defde470?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwcm9mZXNzaW9uYWwlMjBtYW4lMjBkb2N0b3IlMjBtZWRpY2FsJTIwZm9ybWFsfGVufDF8fHx8MTc3MTEyMTAzMnww&ixlib=rb-4.1.0&q=80&w=1080"
-                />
-                <h3 className="font-semibold text-[#0E1B33] text-sm leading-snug">
-                  Andi menggalang Dana Medis untuk Korban Gaza
-                </h3>
-                <span className="block mt-2 text-xs text-[#61728F] font-medium">#MedisGaza</span>
+            </section>
+          </div>
+
+          {/* Event Banner */}
+          <section>
+            <h2 className="text-[20px] font-semibold text-[#0E1B33] mb-6">
+              {language === 'id' ? 'Kegiatan Offline Terbaru' : 'Latest Offline Activities'}
+            </h2>
+            <div className="relative w-full aspect-[16/9] md:aspect-[2.35/1] rounded-[16px] overflow-hidden shadow-[0_8px_24px_rgba(22,36,63,0.08)] group cursor-pointer">
+              <img
+                alt="Event Banner"
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                src="https://images.unsplash.com/photo-1762612723097-a61ccb617a77?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwZXJzb24lMjB3ZWFyaW5nJTIwa2VmZml5ZWglMjBwYWxlc3RpbmlhbiUyMHNjYXJmfGVufDF8fHx8MTc3MjIzMjgyN3ww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent p-6 lg:p-10 flex flex-col justify-end">
+                <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-4">
+                  <div>
+                    <h3 className="text-white text-xl md:text-2xl lg:text-3xl font-bold mb-2">
+                      Workshop Alumni di Surabaya!
+                    </h3>
+                    <p className="text-white/90 text-sm md:text-base flex items-center gap-2">
+                      <span className="material-symbols-outlined text-[18px]">calendar_today</span> 12 November
+                      2025
+                    </p>
+                  </div>
+                  <button 
+                    onClick={() => setCurrentView('event-detail')}
+                    className="bg-[#FAC06E] text-[#16243F] text-sm font-bold py-2.5 px-6 rounded-full hover:bg-white transition-colors shadow-lg self-start md:self-auto"
+                  >
+                    {language === 'id' ? 'Lihat Detail' : 'View Details'}
+                  </button>
+                </div>
               </div>
             </div>
           </section>
@@ -1842,39 +2018,6 @@ function AppContent() {
             >
               {t.home.viewAll}
             </button>
-          </section>
-
-          {/* Event Banner */}
-          <section>
-            <h2 className="text-[20px] font-semibold text-[#0E1B33] mb-6">
-              {language === 'id' ? 'Kegiatan Offline Terbaru' : 'Latest Offline Activities'}
-            </h2>
-            <div className="relative w-full aspect-[16/9] md:aspect-[2.35/1] rounded-[16px] overflow-hidden shadow-[0_8px_24px_rgba(22,36,63,0.08)] group cursor-pointer">
-              <img
-                alt="Event Banner"
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuA8SmFgeNYy36LFLNB19PYMFgDizekyt5iqu3G9c8CI4dsJxfM2gKR6YaCcPuDHRcipHwNf8dIZq29QeGMnQbTFtTjUtsj92TMZxF-Y7hbiPa8osv6hM-cDDpPFosc9mEL19N4fHcpohxJ6xOFA4jlqkHloXCGm4LK1lvslhIj5mxQyjeFIcW9-fu2qiPU94mbDJy8Hzt5fp-Un1Pro5GIilncogrJ_gEj6CbmbQ7xO497w_ibP1U614Bkz5F7pbozz0F1goS1GKtjh"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent p-6 lg:p-10 flex flex-col justify-end">
-                <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-4">
-                  <div>
-                    <h3 className="text-white text-xl md:text-2xl lg:text-3xl font-bold mb-2">
-                      Workshop Alumni di Surabaya!
-                    </h3>
-                    <p className="text-white/90 text-sm md:text-base flex items-center gap-2">
-                      <span className="material-symbols-outlined text-[18px]">calendar_today</span> 12 November
-                      2025
-                    </p>
-                  </div>
-                  <button 
-                    onClick={() => setCurrentView('event-detail')}
-                    className="bg-[#FAC06E] text-[#16243F] text-sm font-bold py-2.5 px-6 rounded-full hover:bg-white transition-colors shadow-lg self-start md:self-auto"
-                  >
-                    {language === 'id' ? 'Lihat Detail' : 'View Details'}
-                  </button>
-                </div>
-              </div>
-            </div>
           </section>
         </div>
         )}
@@ -2261,6 +2404,7 @@ function AppContent() {
         />
       )}
     </ErrorBoundary>
+    </LanguageContext.Provider>
   );
 }
 

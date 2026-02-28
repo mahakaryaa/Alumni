@@ -1,15 +1,92 @@
 import { useState } from 'react';
+import { toast } from 'sonner';
 import { DonationPage } from './DonationPage';
-import { useTranslation } from '@/hooks/useTranslation';
+import { useTranslation } from '../../hooks/useTranslation';
+import type { JoinRequest } from '@/types';
+
+export interface AvailablePositionDonatur {
+  id: string;
+  title: string;
+  slots: number;
+}
 
 interface ProjectDetailProps {
   onBack: () => void;
+  projectType?: 'open-volunteer' | 'galeri-with-funding' | 'galeri-documentation' | 'campaign';
+  availablePositions?: AvailablePositionDonatur[];
+  onJoinRequestSubmitted?: (joinRequest: JoinRequest) => void;
 }
 
-export function ProjectDetail({ onBack }: ProjectDetailProps) {
+export function ProjectDetail({ onBack, projectType = 'open-volunteer', availablePositions = [], onJoinRequestSubmitted }: ProjectDetailProps) {
   const { language } = useTranslation();
-  const [activeTab, setActiveTab] = useState<'overview' | 'progress' | 'members'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'progress'>('overview');
   const [showDonation, setShowDonation] = useState(false);
+  
+  // Join project states
+  const [showJoinModal, setShowJoinModal] = useState(false);
+  const [applicationStatus, setApplicationStatus] = useState<'none' | 'pending' | 'approved'>('none');
+  const [selectedPosition, setSelectedPosition] = useState('');
+  const [commitmentDuration, setCommitmentDuration] = useState('3-months');
+  const [customDuration, setCustomDuration] = useState('');
+  const [joinReason, setJoinReason] = useState('');
+
+  const handleJoinSubmit = () => {
+    if (!selectedPosition) {
+      toast.error('Pilih posisi yang ingin Anda apply');
+      return;
+    }
+    if (!joinReason.trim()) {
+      toast.error('Alasan bergabung harus diisi');
+      return;
+    }
+    if (commitmentDuration === 'custom' && !customDuration.trim()) {
+      toast.error('Mohon isi durasi komitmen custom');
+      return;
+    }
+
+    let durationDisplay = '';
+    switch (commitmentDuration) {
+      case '1-month': durationDisplay = '1 Bulan'; break;
+      case '3-months': durationDisplay = '3 Bulan'; break;
+      case '6-months': durationDisplay = '6 Bulan'; break;
+      case '1-year': durationDisplay = '1 Tahun'; break;
+      case 'custom': durationDisplay = customDuration; break;
+    }
+
+    const position = availablePositions.find(p => p.id === selectedPosition);
+
+    const joinRequest: JoinRequest = {
+      id: `join-${Date.now()}`,
+      projectId: 'current-project-id',
+      projectTitle: 'Bantuan Pangan Gaza',
+      alumniId: 'current-user-id',
+      alumniName: 'Donatur User',
+      alumniEmail: 'donatur@example.com',
+      reason: joinReason,
+      commitment: commitmentDuration,
+      commitmentDuration: durationDisplay,
+      interestedPosition: position?.title || '',
+      status: 'pending',
+      submittedAt: new Date().toISOString(),
+    };
+
+    setApplicationStatus('pending');
+    setShowJoinModal(false);
+
+    if (onJoinRequestSubmitted) {
+      onJoinRequestSubmitted(joinRequest);
+    }
+
+    setSelectedPosition('');
+    setJoinReason('');
+    setCommitmentDuration('3-months');
+    setCustomDuration('');
+
+    toast.success('Pengajuan berhasil dikirim!', {
+      description: 'Menunggu persetujuan dari PIC project',
+      duration: 4000,
+    });
+  };
 
   // Project info for donation
   const projectTitle = "Bantuan Pangan Gaza";
@@ -113,17 +190,12 @@ export function ProjectDetail({ onBack }: ProjectDetailProps) {
           {/* Hero Image */}
           <div className="px-6 md:px-8 pt-6 pb-4">
             <div
-              className="w-full bg-gradient-to-br from-[#243D68] to-[#30518B] flex flex-col justify-end overflow-hidden rounded-2xl min-h-[200px] md:min-h-[320px] p-4 relative shadow-lg"
-              aria-label="Abstract geometric pattern representing the project's theme"
+              className="w-full bg-cover bg-center flex flex-col justify-end overflow-hidden rounded-2xl min-h-[200px] md:min-h-[320px] relative shadow-lg"
+              style={{
+                backgroundImage: "url('https://images.unsplash.com/photo-1637826397913-68af81f4d14a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwYWxlc3RpbmUlMjBmb29kJTIwYWlkJTIwaHVtYW5pdGFyaWFufGVufDF8fHx8MTc2OTY1MjEyN3ww&ixlib=rb-4.1.0&q=80&w=1080')"
+              }}
+              aria-label="Project cover image"
             >
-              <div
-                className="absolute inset-0 z-0 opacity-10"
-                style={{
-                  backgroundImage:
-                    "url('data:image/svg+xml,%3Csvg width=\"24\" height=\"24\" viewBox=\"0 0 24 24\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\"%3E%3Cpath d=\"M12 2L2 12L12 22L22 12L12 2Z\" stroke=\"%23ffffff\" stroke-width=\"1.5\" stroke-linejoin=\"round\"/%3E%3Cpath d=\"M2 12L12 2L22 12\" stroke=\"%23ffffff\" stroke-width=\"1.5\" stroke-linejoin=\"round\"/%3E%3Cpath d=\"M12 22L22 12L12 2\" stroke=\"%23ffffff\" stroke-width=\"1.5\" stroke-linejoin=\"round\"/%3E%3C/svg%3E')",
-                  backgroundSize: '24px',
-                }}
-              ></div>
             </div>
           </div>
 
@@ -160,33 +232,23 @@ export function ProjectDetail({ onBack }: ProjectDetailProps) {
           </div>
 
           {/* Tabs */}
-          <div className="sticky top-[57px] z-10 bg-white border-b border-[#E5E7EB] px-6 md:px-8 pb-0 shadow-sm">
-            <div className="flex items-center gap-8">
-              <button
-                className={`text-center py-3 text-sm font-semibold transition-colors ${
-                  activeTab === 'overview' ? 'text-[#243D68] border-b-2 border-[#243D68]' : 'text-[#6B7280] hover:text-[#333333]'
-                }`}
-                onClick={() => setActiveTab('overview')}
-              >
-                Overview
-              </button>
-              <button
-                className={`text-center py-3 text-sm font-semibold transition-colors ${
-                  activeTab === 'progress' ? 'text-[#243D68] border-b-2 border-[#243D68]' : 'text-[#6B7280] hover:text-[#333333]'
-                }`}
-                onClick={() => setActiveTab('progress')}
-              >
-                Progress
-              </button>
-              <button
-                className={`text-center py-3 text-sm font-semibold transition-colors ${
-                  activeTab === 'members' ? 'text-[#243D68] border-b-2 border-[#243D68]' : 'text-[#6B7280] hover:text-[#333333]'
-                }`}
-                onClick={() => setActiveTab('members')}
-              >
-                Members
-              </button>
-            </div>
+          <div className="grid grid-cols-2 text-center border-b border-[#E5E7EB] bg-white">
+            <button
+              className={`text-center py-3 text-sm font-semibold transition-colors ${
+                activeTab === 'overview' ? 'text-[#243D68] border-b-2 border-[#243D68]' : 'text-[#6B7280] hover:text-[#333333]'
+              }`}
+              onClick={() => setActiveTab('overview')}
+            >
+              Overview
+            </button>
+            <button
+              className={`text-center py-3 text-sm font-semibold transition-colors ${
+                activeTab === 'progress' ? 'text-[#243D68] border-b-2 border-[#243D68]' : 'text-[#6B7280] hover:text-[#333333]'
+              }`}
+              onClick={() => setActiveTab('progress')}
+            >
+              Progress
+            </button>
           </div>
 
           {/* Content Cards */}
@@ -423,103 +485,18 @@ export function ProjectDetail({ onBack }: ProjectDetailProps) {
                 </div>
               </>
             )}
-
-            {activeTab === 'members' && (
-              <>
-                {/* Project-in-Charge */}
-                <div className="bg-[#F8F9FA] rounded-xl p-5 border border-[#E5E7EB]">
-                  <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2 bg-[#FAC06E] rounded-lg px-3 py-2 shadow-sm w-fit">
-                    <span className="material-symbols-outlined text-white">person</span>
-                    Project-in-Charge
-                  </h3>
-                  <div className="flex items-center gap-4">
-                    <div
-                      className="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-14 w-14 shrink-0"
-                      style={{
-                        backgroundImage:
-                          'url("https://lh3.googleusercontent.com/aida-public/AB6AXuCdGdNRPdJTq7rYpI57MpyJAbrSzME4063Cv_eMCLbsbiX9dr1pAWJ-x2jtf9FUGMvNLmaD7OnFNquRX_2qWE9w_g_Cao9dkoNjDXClNwSVxd0KVd1quE2fKWPIUyyQa8e7YS-sU5n7-Qujeartl5LnjAc8otjPS2CPInJpxfiKdxwgGHevu3k6Ae2UZ5bS98LmB3QZUWRyZsx8xo3-eL_WkfzdY3Ar5UJkj5RMf-jP94L3kJbYozRZnMr3F0byq8Dj6iSBjDygsbaI")',
-                      }}
-                    ></div>
-                    <div className="flex-1">
-                      <p className="text-base font-semibold text-[#333333]">Budi Hartono</p>
-                      <p className="text-sm text-[#6B7280]">Teknik Informatika '15</p>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="material-symbols-outlined text-[#4A90E2] text-xl">verified</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Tim Inti */}
-                <div className="bg-[#F8F9FA] rounded-xl p-5 border border-[#E5E7EB]">
-                  <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2 bg-[#FAC06E] rounded-lg px-3 py-2 shadow-sm w-fit">
-                    <span className="material-symbols-outlined text-white">groups</span>
-                    Tim Inti
-                  </h3>
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-4 pb-4 border-b border-[#D6DCE8]">
-                      <div
-                        className="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-12 w-12 shrink-0"
-                        style={{
-                          backgroundImage:
-                            'url("https://lh3.googleusercontent.com/aida-public/AB6AXuDiTCni6xCVaBuSHYW9yXo4lhDCML_Cp6QKgGXN6fU4Sxwl-E-6K_4bLGC0gu_nS-I8pGEEyTEqzf9XY8MH_bBN_5dJy36wNXq4gUzT5bGqXQpwpRJRv84P9LBSg8HppXOV8WYGYe-oYIbBk8LEO8HJuUaVq4bGaGDf0rJL74OqYJzLAw7cg1iA15o9uHDZV-c5l8xf3u7OX-FPJJzcBR_qAnbWgK8TXiRWuUt_p8a4Gex_pUKCJoN4Fk6Rn9vWDhWL8FBhUBmB")',
-                        }}
-                      ></div>
-                      <div className="flex-1">
-                        <p className="text-sm font-semibold text-[#333333]">Siti Aminah</p>
-                        <p className="text-xs text-[#6B7280]">Desain Komunikasi Visual '17</p>
-                        <p className="text-xs text-[#4A90E2] mt-1 font-medium">UI/UX Designer</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-4">
-                      <div
-                        className="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-12 w-12 shrink-0"
-                        style={{
-                          backgroundImage:
-                            'url("https://lh3.googleusercontent.com/aida-public/AB6AXuAYNLi_7xA-cI8wq9jF0m-oUqGH3gq4yjHu8RBv8F4UfyVEBk7KdPULbS_QzOcdLtSLH4P-kE1Q0Lk0rkVZYzJLfbfGsqNEiSEhbcO4O_8aJhGqQ3TGVklWAHJqgQmFz4GmSBvIqAYu8sD_L_QfzYqTjH2VzGjpLsGzGqvFn8QyHbXpSQzHBLqDTcB9cLRvJqHbO4wE6tQTzP5F_QmBVpZQqGzF3tQKlVqB3fJzVqD8sHtQxL4FyQzT)")',
-                        }}
-                      ></div>
-                      <div className="flex-1">
-                        <p className="text-sm font-semibold text-[#333333]">Agus Setiawan</p>
-                        <p className="text-xs text-[#6B7280]">Teknik Informatika '16</p>
-                        <p className="text-xs text-[#4A90E2] mt-1 font-medium">Mobile Developer</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Volunteer */}
-                <div className="bg-[#F8F9FA] rounded-xl p-5 border border-[#E5E7EB]">
-                  <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2 bg-[#FAC06E] rounded-lg px-3 py-2 shadow-sm w-fit">
-                    <span className="material-symbols-outlined text-white">volunteer_activism</span>
-                    Volunteer
-                  </h3>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-[#4A90E2]">8 Orang</span>
-                  </div>
-                  <div className="flex -space-x-2">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 border-2 border-white"></div>
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 border-2 border-white"></div>
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-green-600 border-2 border-white"></div>
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-yellow-400 to-yellow-600 border-2 border-white"></div>
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-red-400 to-red-600 border-2 border-white"></div>
-                    <div className="w-10 h-10 rounded-full bg-[#D6DCE8] border-2 border-white flex items-center justify-center">
-                      <span className="text-xs font-semibold text-[#6B7280]">+3</span>
-                    </div>
-                  </div>
-                </div>
-              </>
-            )}
           </div>
         </div>
 
-        {/* Bottom CTA */}
-        <div className="fixed bottom-0 left-0 lg:left-64 right-0 w-full md:max-w-3xl mx-auto bg-white p-4 border-t border-[#E5E7EB] shadow-[0_-4px_12px_rgba(0,0,0,0.08)]">
-          <button className="w-full flex items-center justify-center gap-3 rounded-xl h-14 bg-gradient-to-r from-[#243D68] to-[#30518B] text-white text-base font-bold leading-normal tracking-widest shadow-[6px_6px_0px_0px_rgba(250,192,110,1)] hover:shadow-[8px_8px_0px_0px_rgba(250,192,110,1)] active:shadow-none active:translate-x-1 active:translate-y-1 transition-all uppercase" onClick={() => setShowDonation(true)}>
-            <span className="material-symbols-outlined text-2xl">volunteer_activism</span>
-            <span>{language === 'id' ? 'Donasi Sekarang' : 'Donate Now'}</span>
-          </button>
-        </div>
+        {/* Bottom CTA - DONATUR HANYA BISA DONASI */}
+        {(projectType === 'galeri-with-funding' || projectType === 'campaign') && (
+          <div className="fixed bottom-0 left-0 lg:left-64 right-0 w-full bg-white p-4 border-t border-[#E5E7EB] shadow-[0_-4px_12px_rgba(0,0,0,0.08)]">
+            <button className="w-full flex items-center justify-center gap-3 rounded-[20px] h-16 bg-[#2B4468] text-white text-base font-bold leading-normal tracking-wider border-4 border-[#FAC06E] hover:bg-[#243D68] transition-colors uppercase" onClick={() => setShowDonation(true)}>
+              <span className="material-symbols-outlined text-2xl">volunteer_activism</span>
+              <span className="text-center">{language === 'id' ? 'Donasi Sekarang' : 'Donate Now'}</span>
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -18,6 +18,11 @@ const EVENT_DATA = {
   date: '12 November 2025',
   time: '09:00 - 17:00 WIB',
   location: 'Surabaya Convention Hall',
+  isPrivateEvent: false, // false = terbuka untuk umum, true = alumni only
+  isFree: true, // true = gratis, false = berbayar
+  ticketPrice: null, // null jika gratis, atau nominal jika berbayar (misal: 50000)
+  facilities: ['Sertifikat kehadiran', 'Konsumsi (snack & lunch)', 'Materi digital', 'Goodie bag'],
+  dresscode: 'Smart Casual', // null jika tidak ada
 };
 
 export function EventDetail({ onBack, userRole, onEventRegistrationSubmitted, onNavigateToLogin }: EventDetailProps) {
@@ -26,33 +31,34 @@ export function EventDetail({ onBack, userRole, onEventRegistrationSubmitted, on
   const [showRegisterModal, setShowRegisterModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Form state
-  const [phone, setPhone] = useState('');
-  const [motivation, setMotivation] = useState('');
-  const [dietaryRestrictions, setDietaryRestrictions] = useState('');
-  const [emergencyContact, setEmergencyContact] = useState('');
-  const [emergencyPhone, setEmergencyPhone] = useState('');
+  // Form state - simplified
+  const [whatsapp, setWhatsapp] = useState('');
   const [hasAttendedBefore, setHasAttendedBefore] = useState(false);
 
   const isAlumni = userRole === 'alumni';
-  const motivationValid = motivation.trim().length >= 50;
+  const isLoggedIn = userRole !== null;
 
   const handleOpenRegister = () => {
-    if (!isAlumni) {
-      toast.error('Silakan login sebagai alumni untuk mendaftar event');
+    // Jika event private dan user bukan alumni, redirect ke login
+    if (EVENT_DATA.isPrivateEvent && !isAlumni) {
+      toast.error('Event ini khusus untuk alumni. Silakan login sebagai alumni.');
       onNavigateToLogin?.();
       return;
     }
+    
+    // Jika event public dan user belum login, redirect ke login
+    if (!EVENT_DATA.isPrivateEvent && !isLoggedIn) {
+      toast.info('Silakan login terlebih dahulu untuk mendaftar event.');
+      onNavigateToLogin?.();
+      return;
+    }
+    
     setShowRegisterModal(true);
   };
 
   const handleSubmitRegistration = async () => {
-    if (!phone.trim()) {
-      toast.error('Nomor telepon wajib diisi');
-      return;
-    }
-    if (!motivationValid) {
-      toast.error('Motivasi minimal 50 karakter');
+    if (!whatsapp.trim()) {
+      toast.error('Nomor WhatsApp wajib diisi');
       return;
     }
 
@@ -69,14 +75,10 @@ export function EventDetail({ onBack, userRole, onEventRegistrationSubmitted, on
       alumniId: 'current-user-id',
       alumniName: 'Alumni User',
       alumniEmail: 'alumni@example.com',
-      alumniPhone: phone,
+      alumniPhone: whatsapp,
       alumniAngkatan: '2019',
       alumniKota: 'Surabaya',
-      motivation,
       hasAttendedBefore,
-      dietaryRestrictions: dietaryRestrictions || undefined,
-      emergencyContact: emergencyContact || undefined,
-      emergencyContactPhone: emergencyPhone || undefined,
       status: 'pending',
       submittedAt: new Date().toISOString(),
     };
@@ -92,7 +94,18 @@ export function EventDetail({ onBack, userRole, onEventRegistrationSubmitted, on
     if (registrationStatus === 'pending') return { label: 'Menunggu Konfirmasi', icon: 'schedule', disabled: true, color: 'bg-yellow-100 text-yellow-700 border-2 border-yellow-300' };
     if (registrationStatus === 'approved') return { label: 'Sudah Terdaftar ✓', icon: 'check_circle', disabled: true, color: 'bg-green-100 text-green-700 border-2 border-green-300' };
     if (registrationStatus === 'rejected') return { label: 'Pendaftaran Ditolak', icon: 'cancel', disabled: true, color: 'bg-red-100 text-red-700 border-2 border-red-300' };
-    if (!isAlumni) return { label: 'Login Alumni untuk Daftar', icon: 'lock', disabled: false, color: 'bg-[#E5E8EC] text-[#6B7280] border-2 border-[#D6DCE8]' };
+    
+    // Jika event PRIVATE dan user bukan alumni
+    if (EVENT_DATA.isPrivateEvent && !isAlumni) {
+      return { label: 'Login Alumni untuk Daftar', icon: 'lock', disabled: false, color: 'bg-[#E5E8EC] text-[#6B7280] border-2 border-[#D6DCE8]' };
+    }
+    
+    // Jika event PUBLIC dan user belum login
+    if (!EVENT_DATA.isPrivateEvent && !isLoggedIn) {
+      return { label: 'Daftar Acara', icon: 'how_to_reg', disabled: false, color: 'bg-[#183A74] text-white shadow-[6px_6px_0px_0px_rgba(250,192,110,1)] active:shadow-none active:translate-x-1 active:translate-y-1' };
+    }
+    
+    // Jika sudah login (alumni atau donatur), tampilkan Daftar Sekarang
     return { label: 'Daftar Sekarang', icon: 'how_to_reg', disabled: false, color: 'bg-[#183A74] text-white shadow-[6px_6px_0px_0px_rgba(250,192,110,1)] active:shadow-none active:translate-x-1 active:translate-y-1' };
   };
 
@@ -355,87 +368,84 @@ export function EventDetail({ onBack, userRole, onEventRegistrationSubmitted, on
 
             {/* Modal Body - Scrollable */}
             <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
-              {/* Pre-filled info */}
+              {/* Pre-filled info - Nama Lengkap */}
               <div className="bg-[#F8F9FA] rounded-xl p-4 border border-[#E5E7EB]">
                 <p className="text-xs text-[#6B7280] font-semibold uppercase tracking-wide mb-2">Data Anda</p>
                 <p className="font-semibold text-[#0E1B33]">Alumni User</p>
                 <p className="text-sm text-[#6B7280]">alumni@example.com • Angkatan 2019</p>
               </div>
 
-              {/* Phone */}
+              {/* WhatsApp */}
               <div>
                 <label className="block text-sm font-semibold text-[#0E1B33] mb-1.5">
-                  No. Telepon <span className="text-red-500">*</span>
+                  No. WhatsApp <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="tel"
-                  value={phone}
-                  onChange={e => setPhone(e.target.value)}
+                  value={whatsapp}
+                  onChange={e => setWhatsapp(e.target.value)}
                   placeholder="+62 8xx-xxxx-xxxx"
                   className="w-full px-4 py-3 border-2 border-[#E5E7EB] rounded-xl focus:border-[#243D68] focus:outline-none"
                 />
               </div>
 
-              {/* Motivation */}
-              <div>
-                <label className="block text-sm font-semibold text-[#0E1B33] mb-1.5">
-                  Motivasi Hadir <span className="text-red-500">*</span>
-                </label>
-                <textarea
-                  value={motivation}
-                  onChange={e => setMotivation(e.target.value)}
-                  placeholder="Tuliskan motivasi Anda menghadiri event ini (min. 50 karakter)..."
-                  rows={4}
-                  className={`w-full px-4 py-3 border-2 rounded-xl focus:outline-none resize-none transition-colors ${
-                    motivation.length > 0 && !motivationValid ? 'border-red-300 focus:border-red-500' : 'border-[#E5E7EB] focus:border-[#243D68]'
-                  }`}
-                />
-                <div className="flex justify-between mt-1">
-                  <span className={`text-xs ${motivationValid ? 'text-green-600' : 'text-[#6B7280]'}`}>
-                    {motivationValid ? '✓ Valid' : `${motivation.length}/50 karakter minimum`}
-                  </span>
-                  <span className="text-xs text-[#6B7280]">{motivation.length} karakter</span>
+              {/* Informasi Event */}
+              <div className="bg-gradient-to-br from-[#243D68] to-[#30518B] rounded-xl p-5 text-white space-y-4">
+                <div className="flex items-center justify-between pb-3 border-b border-white/20">
+                  <h4 className="font-bold text-sm uppercase tracking-wide">Informasi Event</h4>
+                  {EVENT_DATA.isFree ? (
+                    <span className="bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full">GRATIS</span>
+                  ) : (
+                    <span className="bg-[#FAC06E] text-[#16243F] text-xs font-bold px-3 py-1 rounded-full">
+                      Rp {EVENT_DATA.ticketPrice?.toLocaleString('id-ID')}
+                    </span>
+                  )}
                 </div>
-              </div>
 
-              {/* Dietary */}
-              <div>
-                <label className="block text-sm font-semibold text-[#0E1B33] mb-1.5">
-                  Pantangan Makanan <span className="text-[#6B7280] font-normal">(opsional)</span>
-                </label>
-                <input
-                  type="text"
-                  value={dietaryRestrictions}
-                  onChange={e => setDietaryRestrictions(e.target.value)}
-                  placeholder="Contoh: vegetarian, tidak makan seafood, dll."
-                  className="w-full px-4 py-3 border-2 border-[#E5E7EB] rounded-xl focus:border-[#243D68] focus:outline-none"
-                />
-              </div>
+                {/* Tanggal & Jam */}
+                <div className="flex gap-3">
+                  <span className="material-symbols-outlined text-[#FAC06E]">event</span>
+                  <div className="flex-1">
+                    <p className="text-xs opacity-80">Tanggal & Jam</p>
+                    <p className="font-semibold text-sm">{EVENT_DATA.date} • {EVENT_DATA.time}</p>
+                  </div>
+                </div>
 
-              {/* Emergency Contact */}
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-sm font-semibold text-[#0E1B33] mb-1.5">
-                    Kontak Darurat <span className="text-[#6B7280] font-normal text-xs">(opsional)</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={emergencyContact}
-                    onChange={e => setEmergencyContact(e.target.value)}
-                    placeholder="Nama"
-                    className="w-full px-3 py-2.5 border-2 border-[#E5E7EB] rounded-xl focus:border-[#243D68] focus:outline-none text-sm"
-                  />
+                {/* Lokasi */}
+                <div className="flex gap-3">
+                  <span className="material-symbols-outlined text-[#FAC06E]">location_on</span>
+                  <div className="flex-1">
+                    <p className="text-xs opacity-80">Lokasi</p>
+                    <p className="font-semibold text-sm">{EVENT_DATA.location}</p>
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-semibold text-[#0E1B33] mb-1.5 invisible">No. Telepon</label>
-                  <input
-                    type="tel"
-                    value={emergencyPhone}
-                    onChange={e => setEmergencyPhone(e.target.value)}
-                    placeholder="No. Telepon"
-                    className="w-full px-3 py-2.5 border-2 border-[#E5E7EB] rounded-xl focus:border-[#243D68] focus:outline-none text-sm"
-                  />
+
+                {/* Fasilitas */}
+                <div className="flex gap-3">
+                  <span className="material-symbols-outlined text-[#FAC06E]">workspace_premium</span>
+                  <div className="flex-1">
+                    <p className="text-xs opacity-80 mb-2">Fasilitas</p>
+                    <div className="space-y-1.5">
+                      {EVENT_DATA.facilities.map((facility, idx) => (
+                        <div key={idx} className="flex items-center gap-2">
+                          <div className="w-1 h-1 bg-[#FAC06E] rounded-full"></div>
+                          <p className="text-sm">{facility}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
+
+                {/* Dresscode */}
+                {EVENT_DATA.dresscode && (
+                  <div className="flex gap-3">
+                    <span className="material-symbols-outlined text-[#FAC06E]">checkroom</span>
+                    <div className="flex-1">
+                      <p className="text-xs opacity-80">Dresscode</p>
+                      <p className="font-semibold text-sm">{EVENT_DATA.dresscode}</p>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Has attended before */}
@@ -463,35 +473,27 @@ export function EventDetail({ onBack, userRole, onEventRegistrationSubmitted, on
 
             {/* Modal Footer */}
             <div className="sticky bottom-0 bg-white border-t border-[#E5E7EB] px-6 py-4">
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setShowRegisterModal(false)}
-                  className="flex-1 py-3.5 border-2 border-[#E5E7EB] text-[#6B7280] rounded-xl font-semibold hover:bg-[#F8F9FA] transition-colors"
-                >
-                  {language === 'id' ? 'Batal' : 'Cancel'}
-                </button>
-                <button
-                  onClick={handleSubmitRegistration}
-                  disabled={isSubmitting || !phone.trim() || !motivationValid}
-                  className={`flex-2 flex-[2] py-3.5 rounded-xl font-bold uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${
-                    isSubmitting || !phone.trim() || !motivationValid
-                      ? 'bg-[#E5E8EC] text-[#6B7280] cursor-not-allowed'
-                      : 'bg-[#243D68] text-white hover:bg-[#183A74] shadow-lg'
-                  }`}
-                >
-                  {isSubmitting ? (
-                    <>
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                      <span>Mengirim...</span>
-                    </>
-                  ) : (
-                    <>
-                      <span className="material-symbols-outlined text-xl">send</span>
-                      <span>Kirim Pendaftaran</span>
-                    </>
-                  )}
-                </button>
-              </div>
+              <button
+                onClick={handleSubmitRegistration}
+                disabled={isSubmitting || !whatsapp.trim()}
+                className={`w-full py-4 rounded-xl font-bold uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${
+                  isSubmitting || !whatsapp.trim()
+                    ? 'bg-[#E5E8EC] text-[#6B7280] cursor-not-allowed'
+                    : 'bg-[#243D68] text-white hover:bg-[#183A74] shadow-[4px_4px_0px_0px_rgba(250,192,110,1)] hover:shadow-[2px_2px_0px_0px_rgba(250,192,110,1)] active:shadow-none active:translate-x-1 active:translate-y-1'
+                }`}
+              >
+                {isSubmitting ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <span>Mengirim...</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="material-symbols-outlined text-xl">send</span>
+                    <span>Kirim Pendaftaran</span>
+                  </>
+                )}
+              </button>
             </div>
           </div>
         </div>

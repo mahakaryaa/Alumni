@@ -1,4 +1,6 @@
+import { useState } from 'react';
 import { Logo } from './Logo';
+import type { EventRegistration } from '@/types';
 
 interface MessagePageProps {
   onBack: () => void;
@@ -7,9 +9,12 @@ interface MessagePageProps {
   onNavigateSettings?: () => void;
   onNavigateMessages?: () => void;
   activeNav?: string;
+  eventRegistrations?: EventRegistration[];
 }
 
-export function MessagePage({ onBack, onNavigateHome, onNavigateExplore, onNavigateSettings, onNavigateMessages, activeNav = 'pesan' }: MessagePageProps) {
+export function MessagePage({ onBack, onNavigateHome, onNavigateExplore, onNavigateSettings, onNavigateMessages, activeNav = 'pesan', eventRegistrations = [] }: MessagePageProps) {
+  const [activeTab, setActiveTab] = useState<'pesan' | 'laporan' | 'event'>('pesan');
+  
   // Mock data - laporan donasi dengan berbagai status
   const donations = [
     {
@@ -186,8 +191,38 @@ export function MessagePage({ onBack, onNavigateHome, onNavigateExplore, onNavig
 
         {/* Content */}
         <div className="flex-1 px-6 md:px-8 py-6 pb-24 lg:pb-10 space-y-8 max-w-4xl mx-auto w-full">
+          {/* Tab Navigation */}
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-4">
+              <button
+                className={`px-4 py-2 rounded-lg font-medium ${
+                  activeTab === 'pesan' ? 'bg-[#243D68] text-white' : 'bg-[#F8F9FA] text-[#243D68]'
+                }`}
+                onClick={() => setActiveTab('pesan')}
+              >
+                Pesan
+              </button>
+              <button
+                className={`px-4 py-2 rounded-lg font-medium ${
+                  activeTab === 'laporan' ? 'bg-[#243D68] text-white' : 'bg-[#F8F9FA] text-[#243D68]'
+                }`}
+                onClick={() => setActiveTab('laporan')}
+              >
+                Laporan Donasi
+              </button>
+              <button
+                className={`px-4 py-2 rounded-lg font-medium ${
+                  activeTab === 'event' ? 'bg-[#243D68] text-white' : 'bg-[#F8F9FA] text-[#243D68]'
+                }`}
+                onClick={() => setActiveTab('event')}
+              >
+                Event
+              </button>
+            </div>
+          </div>
+
           {/* Pesan Personal - Conditional */}
-          {hasPersonalMessages && (
+          {activeTab === 'pesan' && hasPersonalMessages && (
             <section>
               <h3 className="text-xl font-bold text-[#333333] mb-4 flex items-center gap-2">
                 <span className="material-symbols-outlined text-[#243D68]">mail</span>
@@ -223,215 +258,381 @@ export function MessagePage({ onBack, onNavigateHome, onNavigateExplore, onNavig
             </section>
           )}
 
-          {/* Laporan Donasi */}
-          <section>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-bold text-[#333333] flex items-center gap-2">
-                <span className="material-symbols-outlined text-[#243D68]">receipt_long</span>
-                Laporan Donasi
+          {/* Pengumuman - Only on Pesan Tab */}
+          {activeTab === 'pesan' && (
+            <section>
+              <h3 className="text-xl font-bold text-[#333333] mb-4 flex items-center gap-2">
+                <span className="material-symbols-outlined text-[#243D68]">campaign</span>
+                Pengumuman
               </h3>
-            </div>
+              <div className="space-y-4">
+                {announcements.map((announcement) => (
+                  <div
+                    key={announcement.id}
+                    className="bg-white rounded-xl p-5 border border-[#E5E7EB] hover:shadow-md transition-shadow"
+                  >
+                    <div className="flex gap-4">
+                      <div className={`shrink-0 w-12 h-12 ${announcement.bgColor} rounded-xl flex items-center justify-center`}>
+                        <span className={`material-symbols-outlined ${announcement.color}`}>
+                          {announcement.icon}
+                        </span>
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-start justify-between mb-2">
+                          <h4 className="font-semibold text-[#333333]">{announcement.title}</h4>
+                          <span className="text-xs text-[#6B7280] whitespace-nowrap ml-2">
+                            {announcement.date}
+                          </span>
+                        </div>
+                        <p className="text-sm text-[#6B7280] leading-relaxed">{announcement.message}</p>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
 
-            {/* Summary Card */}
-            <div className="bg-gradient-to-br from-[#243D68] to-[#30518B] rounded-2xl p-6 mb-4 text-white shadow-lg">
-              <p className="text-white/80 text-sm mb-1">Total Donasi Anda</p>
-              <p className="text-3xl font-bold mb-3">
-                Rp {totalDonations.toLocaleString('id-ID')}
-              </p>
-              <div className="flex items-center gap-4 text-sm">
-                <div className="flex items-center gap-1">
-                  <span className="material-symbols-outlined text-[#FAC06E] text-lg">verified</span>
-                  <span>{donations.length} Proyek</span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <span className="material-symbols-outlined text-[#FAC06E] text-lg">favorite</span>
-                  <span>Terima Kasih!</span>
+          {/* Laporan Donasi */}
+          {activeTab === 'laporan' && (
+            <section>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-bold text-[#333333] flex items-center gap-2">
+                  <span className="material-symbols-outlined text-[#243D68]">receipt_long</span>
+                  Laporan Donasi
+                </h3>
+              </div>
+
+              {/* Summary Card */}
+              <div className="bg-gradient-to-br from-[#243D68] to-[#30518B] rounded-2xl p-6 mb-4 text-white shadow-lg">
+                <p className="text-white/80 text-sm mb-1">Total Donasi Anda</p>
+                <p className="text-3xl font-bold mb-3">
+                  Rp {totalDonations.toLocaleString('id-ID')}
+                </p>
+                <div className="flex items-center gap-4 text-sm">
+                  <div className="flex items-center gap-1">
+                    <span className="material-symbols-outlined text-[#FAC06E] text-lg">verified</span>
+                    <span>{donations.length} Proyek</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span className="material-symbols-outlined text-[#FAC06E] text-lg">favorite</span>
+                    <span>Terima Kasih!</span>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Donation List */}
-            <div className="space-y-3">
-              {donations.map((donation) => {
-                // Determine status styling
-                let statusBadge = {
-                  icon: 'check_circle',
-                  text: 'Berhasil',
-                  color: 'text-[#4CAF50]',
-                  bgColor: 'bg-[#E8F5E9]'
-                };
-
-                if (donation.status === 'verifikasi') {
-                  statusBadge = {
-                    icon: 'schedule',
-                    text: 'Dalam Verifikasi',
-                    color: 'text-[#FF9800]',
-                    bgColor: 'bg-[#FFF3E0]'
-                  };
-                } else if (donation.status === 'rejected') {
-                  statusBadge = {
-                    icon: 'cancel',
-                    text: 'Ditolak',
-                    color: 'text-[#F44336]',
-                    bgColor: 'bg-[#FFEBEE]'
-                  };
-                } else if (donation.status === 'confirmed') {
-                  statusBadge = {
+              {/* Donation List */}
+              <div className="space-y-3">
+                {donations.map((donation) => {
+                  // Determine status styling
+                  let statusBadge = {
                     icon: 'check_circle',
                     text: 'Berhasil',
                     color: 'text-[#4CAF50]',
                     bgColor: 'bg-[#E8F5E9]'
                   };
-                }
 
-                return (
-                  <div
-                    key={donation.id}
-                    className={`bg-white rounded-xl p-5 border hover:shadow-md transition-shadow ${
-                      donation.status === 'rejected' 
-                        ? 'border-[#F44336]/30 bg-red-50/30' 
-                        : donation.status === 'verifikasi'
-                        ? 'border-[#FF9800]/30 bg-orange-50/30'
-                        : 'border-[#E5E7EB]'
-                    }`}
-                  >
-                    {/* Status Badge - Top */}
-                    <div className="mb-3">
-                      <span className={`inline-flex items-center gap-1 text-xs font-semibold ${statusBadge.color} ${statusBadge.bgColor} px-3 py-1.5 rounded-full`}>
-                        <span className="material-symbols-outlined text-sm">{statusBadge.icon}</span>
-                        {statusBadge.text}
-                      </span>
-                    </div>
+                  if (donation.status === 'verifikasi') {
+                    statusBadge = {
+                      icon: 'schedule',
+                      text: 'Dalam Verifikasi',
+                      color: 'text-[#FF9800]',
+                      bgColor: 'bg-[#FFF3E0]'
+                    };
+                  } else if (donation.status === 'rejected') {
+                    statusBadge = {
+                      icon: 'cancel',
+                      text: 'Ditolak',
+                      color: 'text-[#F44336]',
+                      bgColor: 'bg-[#FFEBEE]'
+                    };
+                  } else if (donation.status === 'confirmed') {
+                    statusBadge = {
+                      icon: 'check_circle',
+                      text: 'Berhasil',
+                      color: 'text-[#4CAF50]',
+                      bgColor: 'bg-[#E8F5E9]'
+                    };
+                  }
 
-                    {/* Ref Number with Copy Button */}
-                    <div className="mb-3 pb-3 border-b border-[#E5E7EB]">
-                      <p className="text-xs text-[#6B7280] mb-1">Nomor Referensi Donasi</p>
-                      <div className="flex items-center gap-2">
-                        <code className="text-sm font-bold text-[#243D68]">{donation.refNumber}</code>
-                        <button
-                          onClick={() => {
-                            navigator.clipboard.writeText(donation.refNumber);
-                            // You can add toast notification here
-                          }}
-                          className="p-1 hover:bg-[#F8F9FA] rounded transition-colors"
-                          title="Salin nomor referensi"
-                        >
-                          <span className="material-symbols-outlined text-[#6B7280] text-base">content_copy</span>
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Project Details */}
-                    <div className="space-y-2 mb-4">
-                      <div>
-                        <p className="text-xs text-[#6B7280]">Project</p>
-                        <p className="font-semibold text-[#333333]">{donation.project}</p>
-                        <p className="text-xs text-[#FAC06E] font-medium">{donation.category}</p>
+                  return (
+                    <div
+                      key={donation.id}
+                      className={`bg-white rounded-xl p-5 border hover:shadow-md transition-shadow ${
+                        donation.status === 'rejected' 
+                          ? 'border-[#F44336]/30 bg-red-50/30' 
+                          : donation.status === 'verifikasi'
+                          ? 'border-[#FF9800]/30 bg-orange-50/30'
+                          : 'border-[#E5E7EB]'
+                      }`}
+                    >
+                      {/* Status Badge - Top */}
+                      <div className="mb-3">
+                        <span className={`inline-flex items-center gap-1 text-xs font-semibold ${statusBadge.color} ${statusBadge.bgColor} px-3 py-1.5 rounded-full`}>
+                          <span className="material-symbols-outlined text-sm">{statusBadge.icon}</span>
+                          {statusBadge.text}
+                        </span>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-3 pt-2">
-                        <div>
-                          <p className="text-xs text-[#6B7280]">Nominal Donasi</p>
-                          <p className="font-bold text-[#243D68]">Rp {donation.amount.toLocaleString('id-ID')}</p>
+                      {/* Ref Number with Copy Button */}
+                      <div className="mb-3 pb-3 border-b border-[#E5E7EB]">
+                        <p className="text-xs text-[#6B7280] mb-1">Nomor Referensi Donasi</p>
+                        <div className="flex items-center gap-2">
+                          <code className="text-sm font-bold text-[#243D68]">{donation.refNumber}</code>
+                          <button
+                            onClick={() => {
+                              navigator.clipboard.writeText(donation.refNumber);
+                              // You can add toast notification here
+                            }}
+                            className="p-1 hover:bg-[#F8F9FA] rounded transition-colors"
+                            title="Salin nomor referensi"
+                          >
+                            <span className="material-symbols-outlined text-[#6B7280] text-base">content_copy</span>
+                          </button>
                         </div>
+                      </div>
+
+                      {/* Project Details */}
+                      <div className="space-y-2 mb-4">
                         <div>
-                          <p className="text-xs text-[#6B7280]">Metode Pembayaran</p>
-                          <p className="font-semibold text-[#333333]">{donation.method}</p>
+                          <p className="text-xs text-[#6B7280]">Project</p>
+                          <p className="font-semibold text-[#333333]">{donation.project}</p>
+                          <p className="text-xs text-[#FAC06E] font-medium">{donation.category}</p>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3 pt-2">
+                          <div>
+                            <p className="text-xs text-[#6B7280]">Nominal Donasi</p>
+                            <p className="font-bold text-[#243D68]">Rp {donation.amount.toLocaleString('id-ID')}</p>
+                          </div>
+                          <div>
+                            <p className="text-xs text-[#6B7280]">Metode Pembayaran</p>
+                            <p className="font-semibold text-[#333333]">{donation.method}</p>
+                          </div>
+                        </div>
+
+                        <div>
+                          <p className="text-xs text-[#6B7280]">Waktu Transfer</p>
+                          <p className="text-sm text-[#333333]">{donation.transferTime}</p>
                         </div>
                       </div>
 
-                      <div>
-                        <p className="text-xs text-[#6B7280]">Waktu Transfer</p>
-                        <p className="text-sm text-[#333333]">{donation.transferTime}</p>
-                      </div>
-                    </div>
-
-                    {/* Status Messages */}
-                    {donation.status === 'verifikasi' && (
-                      <div className="bg-[#FFF3E0] border border-[#FF9800]/30 rounded-lg p-3 mt-3">
-                        <div className="flex gap-2">
-                          <span className="material-symbols-outlined text-[#FF9800] text-lg mt-0.5">info</span>
-                          <div className="flex-1">
-                            <p className="text-xs font-semibold text-[#FF9800] mb-1">Donasi dalam Proses Verifikasi</p>
-                            <p className="text-xs text-[#6B7280]">
-                              Terima kasih atas konfirmasi Anda. Bukti transfer telah kami terima dan sedang dalam proses verifikasi.
-                            </p>
-                            <div className="mt-2 space-y-1">
-                              <p className="text-xs text-[#6B7280]">• Donasi akan diverifikasi dalam 1x24 jam</p>
-                              <p className="text-xs text-[#6B7280]">• Anda akan menerima email konfirmasi setelah verifikasi</p>
-                              <p className="text-xs text-[#6B7280]">• Notifikasi juga akan dikirim melalui aplikasi</p>
+                      {/* Status Messages */}
+                      {donation.status === 'verifikasi' && (
+                        <div className="bg-[#FFF3E0] border border-[#FF9800]/30 rounded-lg p-3 mt-3">
+                          <div className="flex gap-2">
+                            <span className="material-symbols-outlined text-[#FF9800] text-lg mt-0.5">info</span>
+                            <div className="flex-1">
+                              <p className="text-xs font-semibold text-[#FF9800] mb-1">Donasi dalam Proses Verifikasi</p>
+                              <p className="text-xs text-[#6B7280]">
+                                Terima kasih atas konfirmasi Anda. Bukti transfer telah kami terima dan sedang dalam proses verifikasi.
+                              </p>
+                              <div className="mt-2 space-y-1">
+                                <p className="text-xs text-[#6B7280]">• Donasi akan diverifikasi dalam 1x24 jam</p>
+                                <p className="text-xs text-[#6B7280]">• Anda akan menerima email konfirmasi setelah verifikasi</p>
+                                <p className="text-xs text-[#6B7280]">• Notifikasi juga akan dikirim melalui aplikasi</p>
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                    )}
+                      )}
 
-                    {donation.status === 'rejected' && donation.rejectReason && (
-                      <div className="bg-[#FFEBEE] border border-[#F44336]/30 rounded-lg p-3 mt-3">
-                        <div className="flex gap-2">
-                          <span className="material-symbols-outlined text-[#F44336] text-lg mt-0.5">error</span>
-                          <div className="flex-1">
-                            <p className="text-xs font-semibold text-[#F44336] mb-1">Donasi Ditolak</p>
-                            <p className="text-xs text-[#6B7280] mb-2">{donation.rejectReason}</p>
-                            <button className="text-xs font-semibold text-[#243D68] bg-white px-3 py-1.5 rounded-lg hover:bg-[#F8F9FA] transition-colors border border-[#E5E7EB]">
-                              Upload Ulang Bukti Transfer
-                            </button>
+                      {donation.status === 'rejected' && donation.rejectReason && (
+                        <div className="bg-[#FFEBEE] border border-[#F44336]/30 rounded-lg p-3 mt-3">
+                          <div className="flex gap-2">
+                            <span className="material-symbols-outlined text-[#F44336] text-lg mt-0.5">error</span>
+                            <div className="flex-1">
+                              <p className="text-xs font-semibold text-[#F44336] mb-1">Donasi Ditolak</p>
+                              <p className="text-xs text-[#6B7280] mb-2">{donation.rejectReason}</p>
+                              <button className="text-xs font-semibold text-[#243D68] bg-white px-3 py-1.5 rounded-lg hover:bg-[#F8F9FA] transition-colors border border-[#E5E7EB]">
+                                Upload Ulang Bukti Transfer
+                              </button>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    )}
+                      )}
 
-                    {donation.status === 'confirmed' && (
-                      <div className="bg-[#E8F5E9] border border-[#4CAF50]/30 rounded-lg p-3 mt-3">
-                        <div className="flex gap-2">
-                          <span className="material-symbols-outlined text-[#4CAF50] text-lg mt-0.5">check_circle</span>
-                          <div className="flex-1">
-                            <p className="text-xs font-semibold text-[#4CAF50] mb-1">Donasi Berhasil Dikonfirmasi</p>
-                            <p className="text-xs text-[#6B7280]">
-                              Terima kasih! Donasi Anda telah berhasil diverifikasi dan diteruskan untuk {donation.project}.
-                            </p>
+                      {donation.status === 'confirmed' && (
+                        <div className="bg-[#E8F5E9] border border-[#4CAF50]/30 rounded-lg p-3 mt-3">
+                          <div className="flex gap-2">
+                            <span className="material-symbols-outlined text-[#4CAF50] text-lg mt-0.5">check_circle</span>
+                            <div className="flex-1">
+                              <p className="text-xs font-semibold text-[#4CAF50] mb-1">Donasi Berhasil Dikonfirmasi</p>
+                              <p className="text-xs text-[#6B7280]">
+                                Terima kasih! Donasi Anda telah berhasil diverifikasi dan diteruskan untuk {donation.project}.
+                              </p>
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </section>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+          )}
 
-          {/* Pengumuman */}
-          <section>
-            <h3 className="text-xl font-bold text-[#333333] mb-4 flex items-center gap-2">
-              <span className="material-symbols-outlined text-[#243D68]">campaign</span>
-              Pengumuman
-            </h3>
-            <div className="space-y-4">
-              {announcements.map((announcement) => (
-                <div
-                  key={announcement.id}
-                  className="bg-white rounded-xl p-5 border border-[#E5E7EB] hover:shadow-md transition-shadow"
-                >
-                  <div className="flex gap-4">
-                    <div className={`shrink-0 w-12 h-12 ${announcement.bgColor} rounded-xl flex items-center justify-center`}>
-                      <span className={`material-symbols-outlined ${announcement.color}`}>
-                        {announcement.icon}
-                      </span>
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-start justify-between mb-2">
-                        <h4 className="font-semibold text-[#333333]">{announcement.title}</h4>
-                        <span className="text-xs text-[#6B7280] whitespace-nowrap ml-2">
-                          {announcement.date}
-                        </span>
-                      </div>
-                      <p className="text-sm text-[#6B7280] leading-relaxed">{announcement.message}</p>
-                    </div>
+          {/* Event Registrations */}
+          {activeTab === 'event' && (
+            <section>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-bold text-[#333333] flex items-center gap-2">
+                  <span className="material-symbols-outlined text-[#243D68]">event</span>
+                  Pendaftaran Event
+                </h3>
+              </div>
+
+              {eventRegistrations.length === 0 ? (
+                <div className="text-center py-16 bg-white rounded-xl border border-[#E5E7EB]">
+                  <div className="w-24 h-24 bg-[#F8F9FA] rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span className="material-symbols-outlined text-[#6B7280] text-5xl">event_busy</span>
                   </div>
+                  <h3 className="text-lg font-semibold text-[#333333] mb-2">Belum Ada Pendaftaran Event</h3>
+                  <p className="text-sm text-[#6B7280]">
+                    Daftar event yang Anda ikuti akan muncul di sini
+                  </p>
                 </div>
-              ))}
-            </div>
-          </section>
+              ) : (
+                <div className="space-y-4">
+                  {eventRegistrations.map((event) => {
+                    // Determine status styling
+                    let statusConfig = {
+                      icon: 'schedule',
+                      text: 'Menunggu Konfirmasi',
+                      color: 'text-[#FF9800]',
+                      bgColor: 'bg-[#FFF3E0]',
+                      borderColor: 'border-[#FF9800]/30'
+                    };
+
+                    if (event.status === 'approved') {
+                      statusConfig = {
+                        icon: 'check_circle',
+                        text: 'Terdaftar',
+                        color: 'text-[#4CAF50]',
+                        bgColor: 'bg-[#E8F5E9]',
+                        borderColor: 'border-[#4CAF50]/30'
+                      };
+                    } else if (event.status === 'rejected') {
+                      statusConfig = {
+                        icon: 'cancel',
+                        text: 'Ditolak',
+                        color: 'text-[#F44336]',
+                        bgColor: 'bg-[#FFEBEE]',
+                        borderColor: 'border-[#F44336]/30'
+                      };
+                    }
+
+                    return (
+                      <div
+                        key={event.id}
+                        className="bg-white rounded-2xl overflow-hidden border border-[#E5E7EB] hover:shadow-lg transition-shadow"
+                      >
+                        {/* Event Title */}
+                        <div className="bg-gradient-to-r from-[#243D68] to-[#30518B] px-5 py-4 text-white">
+                          <h4 className="font-['Archivo_Black'] text-lg uppercase tracking-tight">{event.eventTitle}</h4>
+                        </div>
+
+                        <div className="p-5 space-y-4">
+                          {/* Status Badge */}
+                          <div className="flex items-center justify-between">
+                            <span className={`inline-flex items-center gap-1.5 text-xs font-bold ${statusConfig.color} ${statusConfig.bgColor} px-4 py-2 rounded-full`}>
+                              <span className="material-symbols-outlined text-base">{statusConfig.icon}</span>
+                              {statusConfig.text.toUpperCase()}
+                            </span>
+                          </div>
+
+                          {/* Event Info Cards */}
+                          <div className="space-y-3">
+                            <div className="flex items-center gap-3 bg-[#F8F9FA] rounded-xl p-3">
+                              <div className="w-10 h-10 bg-[#243D68] rounded-full flex items-center justify-center shrink-0">
+                                <span className="material-symbols-outlined text-white text-lg">calendar_today</span>
+                              </div>
+                              <div className="flex-1">
+                                <p className="text-xs text-[#6B7280]">Tanggal</p>
+                                <p className="text-sm font-bold text-[#333333]">{event.eventDate}</p>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-3 bg-[#F8F9FA] rounded-xl p-3">
+                              <div className="w-10 h-10 bg-[#243D68] rounded-full flex items-center justify-center shrink-0">
+                                <span className="material-symbols-outlined text-white text-lg">schedule</span>
+                              </div>
+                              <div className="flex-1">
+                                <p className="text-xs text-[#6B7280]">Waktu</p>
+                                <p className="text-sm font-bold text-[#333333]">{event.eventTime}</p>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-3 bg-[#F8F9FA] rounded-xl p-3">
+                              <div className="w-10 h-10 bg-[#243D68] rounded-full flex items-center justify-center shrink-0">
+                                <span className="material-symbols-outlined text-white text-lg">location_on</span>
+                              </div>
+                              <div className="flex-1">
+                                <p className="text-xs text-[#6B7280]">Lokasi</p>
+                                <p className="text-sm font-bold text-[#333333]">{event.eventLocation}</p>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Kuota Peserta */}
+                          <div className="bg-gradient-to-r from-[#243D68] to-[#30518B] rounded-xl p-4 text-white">
+                            <p className="text-xs opacity-90 mb-1">Kuota Peserta</p>
+                            <div className="flex items-baseline gap-2 mb-2">
+                              <span className="text-2xl font-['Archivo_Black']">127</span>
+                              <span className="text-sm opacity-80">/ 200 orang</span>
+                            </div>
+                            <div className="w-full bg-white/20 rounded-full h-2">
+                              <div className="bg-[#FAC06E] h-2 rounded-full" style={{ width: '63.5%' }}></div>
+                            </div>
+                          </div>
+
+                          {/* Status Messages */}
+                          {event.status === 'pending' && (
+                            <div className="bg-[#FFF3E0] border border-[#FF9800]/30 rounded-xl p-4 flex items-start gap-3">
+                              <span className="material-symbols-outlined text-[#FF9800] text-2xl shrink-0">schedule</span>
+                              <div className="flex-1">
+                                <p className="text-sm font-bold text-[#FF9800] mb-1.5">MENUNGGU KONFIRMASI</p>
+                                <p className="text-xs text-[#6B7280] leading-relaxed">
+                                  Pendaftaran Anda sedang ditinjau oleh panitia. Anda akan mendapat notifikasi setelah pendaftaran diproses.
+                                </p>
+                              </div>
+                            </div>
+                          )}
+
+                          {event.status === 'approved' && (
+                            <div className="bg-[#E8F5E9] border border-[#4CAF50]/30 rounded-xl p-4 flex items-start gap-3">
+                              <span className="material-symbols-outlined text-[#4CAF50] text-2xl shrink-0">check_circle</span>
+                              <div className="flex-1">
+                                <p className="text-sm font-bold text-[#4CAF50] mb-1.5">PENDAFTARAN BERHASIL</p>
+                                <p className="text-xs text-[#6B7280] leading-relaxed">
+                                  Selamat! Pendaftaran Anda telah disetujui. Kami tunggu kehadiran Anda di event {event.eventTitle}.
+                                </p>
+                              </div>
+                            </div>
+                          )}
+
+                          {event.status === 'rejected' && (
+                            <div className="bg-[#FFEBEE] border border-[#F44336]/30 rounded-xl p-4 flex items-start gap-3">
+                              <span className="material-symbols-outlined text-[#F44336] text-2xl shrink-0">cancel</span>
+                              <div className="flex-1">
+                                <p className="text-sm font-bold text-[#F44336] mb-1.5">PENDAFTARAN DITOLAK</p>
+                                <p className="text-xs text-[#6B7280] leading-relaxed mb-3">
+                                  Mohon maaf, pendaftaran Anda ditolak. Silakan hubungi panitia untuk informasi lebih lanjut.
+                                </p>
+                                <button className="text-xs font-bold text-[#243D68] bg-white px-4 py-2 rounded-lg hover:bg-[#F8F9FA] transition-colors border border-[#E5E7EB] uppercase tracking-wide">
+                                  Hubungi Panitia
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </section>
+          )}
 
           {/* Empty State - when no messages */}
           {!hasPersonalMessages && donations.length === 0 && announcements.length === 0 && (
