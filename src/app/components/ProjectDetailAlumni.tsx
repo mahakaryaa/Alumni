@@ -14,7 +14,7 @@ interface ProjectDetailAlumniProps {
   projectImageUrl?: string; // Project cover image
   availablePositions?: AvailablePosition[]; // NEW: Available positions for the project
   onBack: () => void;
-  initialTab?: 'overview' | 'progress' | 'team' | 'members' | 'wallet';
+  initialTab?: 'overview' | 'progress' | 'team' | 'wallet';
   onNavigateHome?: () => void;
   onNavigateExplore?: () => void;
   onNavigateMessages?: () => void;
@@ -50,7 +50,7 @@ export function ProjectDetailAlumni({
   const [customDuration, setCustomDuration] = useState('');
   const [joinReason, setJoinReason] = useState('');
   
-  const [activeTab, setActiveTab] = useState<'overview' | 'progress' | 'team' | 'members' | 'wallet' | 'discussion'>(initialTab);
+  const [activeTab, setActiveTab] = useState<'overview' | 'progress' | 'team' | 'wallet' | 'discussion'>(initialTab);
   const [showSearch, setShowSearch] = useState(false);
   const [message, setMessage] = useState('');
   const [expandedMessages, setExpandedMessages] = useState<number[]>([]);
@@ -410,16 +410,11 @@ export function ProjectDetailAlumni({
                 { key: 'overview' as const, label: 'Overview' },
                 { key: 'progress' as const, label: 'Progress' },
                 { key: 'team' as const, label: 'Team' },
-                { key: 'members' as const, label: 'Anggota' },
                 { key: 'wallet' as const, label: 'Wallet' },
               ]).map((tab) => (
                 <button
                   key={tab.key}
-                  className={`text-center py-3 px-2 sm:px-4 md:px-5 text-xs sm:text-sm font-semibold transition-colors whitespace-nowrap flex-shrink-0 ${
-                    activeTab === tab.key 
-                      ? 'text-[#243D68] border-b-2 border-[#243D68]' 
-                      : 'text-[#6B7280] hover:text-[#333333]'
-                  }`}
+                  className={`text-center font-semibold transition-colors whitespace-nowrap flex-shrink-0 ${ activeTab === tab.key ? 'text-[#243D68] border-b-2 border-[#243D68]' : 'text-[#6B7280] hover:text-[#333333]' } text-[15px] px-[18px] py-[12px]`}
                   onClick={() => setActiveTab(tab.key)}
                 >
                   {tab.label}
@@ -885,93 +880,6 @@ export function ProjectDetailAlumni({
                   </div>
                 </div>
               )}
-            </div>
-          )}
-
-          {activeTab === 'members' && (
-            <div className="px-4 md:px-6 lg:px-8 py-6 space-y-6">
-              {/* Project-in-Charge */}
-              <div className="bg-[#F8F9FA] rounded-xl p-5 border border-[#E5E7EB]">
-                <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2 bg-[#FAC06E] rounded-lg px-3 py-2 shadow-sm w-fit">
-                  <span className="material-symbols-outlined text-white">person</span>
-                  Project-in-Charge
-                </h3>
-                <div className="flex items-center gap-4">
-                  <div
-                    className="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-14 w-14 shrink-0"
-                    style={{
-                      backgroundImage:
-                        'url("https://lh3.googleusercontent.com/aida-public/AB6AXuCdGdNRPdJTq7rYpI57MpyJAbrSzME4063Cv_eMCLbsbiX9dr1pAWJ-x2jtf9FUGMvNLmaD7OnFNquRX_2qWE9w_g_Cao9dkoNjDXClNwSVxd0KVd1quE2fKWPIUyyQa8e7YS-sU5n7-Qujeartl5LnjAc8otjPS2CPInJpxfiKdxwgGHevu3k6Ae2UZ5bS98LmB3QZUWRyZsx8xo3-eL_WkfzdY3Ar5UJkj5RMf-jP94L3kJbYozRZnMr3F0byq8Dj6iSBjDygsbaI")',
-                    }}
-                  ></div>
-                  <div className="flex-1">
-                    <p className="text-base font-semibold text-[#333333]">Budi Hartono</p>
-                    <p className="text-sm text-[#6B7280]">Teknik Informatika '15</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="material-symbols-outlined text-[#4A90E2] text-xl">verified</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Tim Inti */}
-              <div className="bg-[#F8F9FA] rounded-xl p-5 border border-[#E5E7EB]">
-                <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2 bg-[#FAC06E] rounded-lg px-3 py-2 shadow-sm w-fit">
-                  <span className="material-symbols-outlined text-white">groups</span>
-                  Tim Inti
-                </h3>
-                <div className="space-y-4">
-                  <div className="flex items-center gap-4 pb-4 border-b border-[#D6DCE8]">
-                    <div
-                      className="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-12 w-12 shrink-0"
-                      style={{
-                        backgroundImage:
-                          'url("https://lh3.googleusercontent.com/aida-public/AB6AXuDiTCni6xCVaBuSHYW9yXo4lhDCML_Cp6QKgGXN6fU4Sxwl-E-6K_4bLGC0gu_nS-I8pGEEyTEqzf9XY8MH_bBN_5dJy36wNXq4gUzT5bGqXQpwpRJRv84P9LBSg8HppXOV8WYGYe-oYIbBk8LEO8HJuUaVq4bGaGDf0rJL74OqYJzLAw7cg1iA15o9uHDZV-c5l8xf3u7OX-FPJJzcBR_qAnbWgK8TXiRWuUt_p8a4Gex_pUKCJoN4Fk6Rn9vWDhWL8FBhUBmB")',
-                      }}
-                    ></div>
-                    <div className="flex-1">
-                      <p className="text-sm font-semibold text-[#333333]">Siti Aminah</p>
-                      <p className="text-xs text-[#6B7280]">Desain Komunikasi Visual '17</p>
-                      <p className="text-xs text-[#4A90E2] mt-1 font-medium">UI/UX Designer</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <div
-                      className="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-12 w-12 shrink-0"
-                      style={{
-                        backgroundImage:
-                          'url("https://lh3.googleusercontent.com/aida-public/AB6AXuAYNLi_7xA-cI8wq9jF0m-oUqGH3gq4yjHu8RBv8F4UfyVEBk7KdPULbS_QzOcdLtSLH4P-kE1Q0Lk0rkVZYzJLfbfGsqNEiSEhbcO4O_8aJhGqQ3TGVklWAHJqgQmFz4GmSBvIqAYu8sD_L_QfzYqTjH2VzGjpLsGzGqvFn8QyHbXpSQzHBLqDTcB9cLRvJqHbO4wE6tQTzP5F_QmBVpZQqGzF3tQKlVqB3fJzVqD8sHtQxL4FyQzT)")',
-                      }}
-                    ></div>
-                    <div className="flex-1">
-                      <p className="text-sm font-semibold text-[#333333]">Agus Setiawan</p>
-                      <p className="text-xs text-[#6B7280]">Teknik Informatika '16</p>
-                      <p className="text-xs text-[#4A90E2] mt-1 font-medium">Mobile Developer</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Volunteer */}
-              <div className="bg-[#F8F9FA] rounded-xl p-5 border border-[#E5E7EB]">
-                <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2 bg-[#FAC06E] rounded-lg px-3 py-2 shadow-sm w-fit">
-                  <span className="material-symbols-outlined text-white">volunteer_activism</span>
-                  Volunteer
-                </h3>
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-sm font-medium text-[#4A90E2]">8 Orang</span>
-                </div>
-                <div className="flex -space-x-2">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 border-2 border-white"></div>
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 border-2 border-white"></div>
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-green-600 border-2 border-white"></div>
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-yellow-400 to-yellow-600 border-2 border-white"></div>
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-red-400 to-red-600 border-2 border-white"></div>
-                  <div className="w-10 h-10 rounded-full bg-[#D6DCE8] border-2 border-white flex items-center justify-center">
-                    <span className="text-xs font-semibold text-[#6B7280]">+3</span>
-                  </div>
-                </div>
-              </div>
             </div>
           )}
           

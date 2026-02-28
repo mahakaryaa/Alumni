@@ -287,11 +287,11 @@ export function ExploreProject({
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 lg:ml-64 w-full pb-20 md:pb-20 lg:pb-10">
+      <main className="flex-1 lg:ml-64 w-full pb-24 md:pb-24 lg:pb-10">
         {/* Header with Search - Mobile & Desktop */}
-        <header className={`bg-white/95 backdrop-blur-md px-6 py-3 space-y-3 sticky z-40 border-b border-[#D6DCE8] shadow-sm transition-all duration-300 ${showHeader ? 'top-0' : '-top-48'}`}>
+        <header className={`bg-white/95 backdrop-blur-md px-6 py-5 space-y-4 sticky z-40 border-b border-[#D6DCE8] shadow-sm transition-all duration-300 ${showHeader ? 'top-0' : '-top-48'}`}>
           {/* Mobile Back Button & Title */}
-          <div className="flex lg:hidden items-center justify-between">
+          <div className="flex lg:hidden items-center justify-between pt-1">
             <button 
               onClick={onBack}
               className="flex items-center gap-2 text-[#243D68] hover:text-[#183A74] transition-colors font-bold"
@@ -304,12 +304,12 @@ export function ExploreProject({
           </div>
 
           {/* Desktop Title */}
-          <div className="hidden lg:flex items-center justify-between">
+          <div className="hidden lg:flex items-center justify-between pt-1">
             <h1 className="text-2xl font-['Archivo_Black'] text-[#0E1B33] uppercase tracking-tight">Explore Project</h1>
           </div>
 
           {/* Search Bar */}
-          <div className="relative">
+          <div className="relative pt-1">
             <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-[#919EB2]">
               search
             </span>
@@ -328,7 +328,7 @@ export function ExploreProject({
           </div>
 
           {/* Category Filters */}
-          <div className="flex gap-3 overflow-x-auto hide-scrollbar pb-1">
+          <div className="flex gap-3 overflow-x-auto hide-scrollbar pb-2 pt-1">
             {categories.map((cat) => (
               <button
                 key={cat.id}
@@ -353,7 +353,7 @@ export function ExploreProject({
               {userRole !== 'donatur' && (
                 <button
                   onClick={() => setSelectedTab('open')}
-                  className={`flex-1 pb-3 pt-3 font-semibold text-sm transition-colors relative ${
+                  className={`flex-1 py-3.5 font-semibold text-[15px] transition-colors relative ${
                     selectedTab === 'open' ? 'text-[#243D68]' : 'text-[#61728F]'
                   }`}
                 >
@@ -366,7 +366,7 @@ export function ExploreProject({
 
               <button
                 onClick={() => setSelectedTab('galeri')}
-                className={`flex-1 pb-3 pt-3 font-semibold text-sm transition-colors relative ${
+                className={`flex-1 py-3.5 font-semibold text-[15px] transition-colors relative ${
                   selectedTab === 'galeri' ? 'text-[#243D68]' : 'text-[#61728F]'
                 }`}
               >
@@ -378,7 +378,7 @@ export function ExploreProject({
 
               <button
                 onClick={() => setSelectedTab('campaign')}
-                className={`flex-1 pb-3 pt-3 font-semibold text-sm transition-colors relative ${
+                className={`flex-1 py-3.5 font-semibold text-[15px] transition-colors relative ${
                   selectedTab === 'campaign' ? 'text-[#243D68]' : 'text-[#61728F]'
                 }`}
               >
@@ -392,15 +392,15 @@ export function ExploreProject({
         )}
 
         {/* Tab Description Section */}
-        <div className="bg-gradient-to-r from-[#F8F9FB] to-white border-b border-[#E8ECF0] px-6 py-5">
+        <div className="bg-gradient-to-r from-[#F8F9FB] to-white border-b border-[#E8ECF0] px-6 py-6">
           {selectedTab === 'open' && userRole !== 'donatur' && (
             <div className="max-w-4xl">
-              <div className="flex items-start gap-3">
+              <div className="flex items-start gap-4">
                 <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-lg">
                   <span className="material-symbols-outlined text-white text-[20px]">volunteer_activism</span>
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-[15px] font-bold text-[#0E1B33] mb-1.5">
+                  <h3 className="text-[15px] font-bold text-[#0E1B33] mb-2">
                     {language === 'id' ? 'Open Volunteer' : 'Open Volunteer'}
                   </h3>
                   <p className="text-[13px] text-[#61728F] leading-relaxed">
@@ -415,12 +415,12 @@ export function ExploreProject({
           
           {selectedTab === 'galeri' && (
             <div className="max-w-4xl">
-              <div className="flex items-start gap-3">
+              <div className="flex items-start gap-4">
                 <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg">
                   <span className="material-symbols-outlined text-white text-[20px]">photo_library</span>
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-[15px] font-bold text-[#0E1B33] mb-1.5">
+                  <h3 className="text-[15px] font-bold text-[#0E1B33] mb-2">
                     {language === 'id' ? 'Galeri Project Alumni' : 'Alumni Project Gallery'}
                   </h3>
                   <p className="text-[13px] text-[#61728F] leading-relaxed">
@@ -435,12 +435,12 @@ export function ExploreProject({
           
           {selectedTab === 'campaign' && (
             <div className="max-w-4xl">
-              <div className="flex items-start gap-3">
+              <div className="flex items-start gap-4">
                 <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-lg">
                   <span className="material-symbols-outlined text-white text-[20px]">campaign</span>
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-[15px] font-bold text-[#0E1B33] mb-1.5">
+                  <h3 className="text-[15px] font-bold text-[#0E1B33] mb-2">
                     {language === 'id' ? 'Campaign Mendesak' : 'Urgent Campaign'}
                   </h3>
                   <p className="text-[13px] text-[#61728F] leading-relaxed">
@@ -455,7 +455,7 @@ export function ExploreProject({
         </div>
 
         {/* Projects List */}
-        <div className="px-6 pt-4 pb-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="px-6 pt-6 pb-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {selectedTab === 'open' ? (
             filteredProjects.map((project) => (
               <div
@@ -475,20 +475,20 @@ export function ExploreProject({
                 </div>
 
                 {/* Project Content */}
-                <div className="p-4">
+                <div className="p-5">
                   <span className="text-[#243D68] text-xs font-semibold">{project.hashtag}</span>
                   
-                  <h3 className="text-[18px] font-semibold text-[#0E1B33] mt-2 mb-2 leading-snug">
+                  <h3 className="text-[17px] font-semibold text-[#0E1B33] mt-2.5 mb-2.5 leading-snug">
                     {project.title}
                   </h3>
 
-                  <p className="text-sm text-[#61728F] mb-4 line-clamp-2 leading-relaxed">
+                  <p className="text-sm text-[#61728F] mb-5 line-clamp-2 leading-relaxed">
                     {project.description}
                   </p>
 
                   <button 
                     onClick={onNavigateToDetail}
-                    className="bg-[#243D68] text-white text-sm font-semibold py-2 px-5 rounded-full hover:bg-[#1a2e52] active:scale-[0.98] transition-all duration-200 shadow-sm hover:shadow-md inline-flex items-center justify-center"
+                    className="bg-[#243D68] text-white text-sm font-semibold py-2.5 px-6 rounded-full hover:bg-[#1a2e52] active:scale-[0.98] transition-all duration-200 shadow-sm hover:shadow-md inline-flex items-center justify-center"
                   >
                     {language === 'id' ? 'Lihat Detail' : 'View Details'}
                   </button>

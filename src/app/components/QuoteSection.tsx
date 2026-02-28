@@ -1,13 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { ImageWithFallback } from './figma/ImageWithFallback';
 
 export const QuoteSection = () => {
   const [activeTab, setActiveTab] = useState<'quote' | 'joke'>('quote');
 
+  // Auto-rotate quotes every 5 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveTab(prev => prev === 'quote' ? 'joke' : 'quote');
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <section className="bg-[#F8F9FA] py-[10px] overflow-hidden">
-      <div className="max-w-md mx-auto px-6 overflow-hidden">
+      <div className="max-w-md mx-auto overflow-hidden m-[0px] px-[3px] py-[5px]">
         {/* Section Title - Moved outside card */}
         <div className="mb-6 flex items-center gap-3">
           <div className="h-px bg-[#243D68]/20 flex-1"></div>
@@ -22,7 +31,7 @@ export const QuoteSection = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, ease: "easeOut" }}
-          className="bg-white rounded-[32px] shadow-xl overflow-hidden relative"
+          className="bg-white rounded-[32px] shadow-xl overflow-hidden relative max-w-4xl mx-auto p-[0px]"
         >
           {/* Pause Button - Floating - Gold Accent */}
           <motion.button 
@@ -34,7 +43,7 @@ export const QuoteSection = () => {
           </motion.button>
 
           {/* Main Content Area - Primary Blue Border */}
-          <div className="p-8 pb-4 relative overflow-hidden border-3 border-[#243D68] rounded-[32px] mx-4 mt-4">
+          <div className="relative overflow-hidden border-3 border-[#243D68] rounded-[32px] mx-4 mt-4 px-[20px] pt-[20px] pb-[0px]">
             {/* Background Watermark */}
             <div className="absolute top-4 left-4 text-[180px] leading-none text-gray-50 font-serif select-none pointer-events-none z-0">
               “
@@ -50,11 +59,11 @@ export const QuoteSection = () => {
                 transition={{ duration: 0.4 }}
               >
                 {activeTab === 'quote' ? (
-                  <h2 className="text-2xl md:text-[28px] font-['Lora'] font-bold text-[#333333] leading-relaxed mb-6 tracking-tight">
+                  <h2 className="font-['Lora'] font-bold text-[#333333] leading-relaxed mb-6 tracking-tight text-[16px]">
                     "Setiap langkah kecil yang kita ambil hari ini adalah <span className="bg-[#FAC06E]/20 text-[#243D68] px-1 rounded">fondasi</span> untuk pembebasan Baitul Maqdis esok hari."
                   </h2>
                 ) : (
-                  <h2 className="text-2xl md:text-[28px] font-['Lora'] font-bold text-[#333333] leading-relaxed mb-6 tracking-tight">
+                  <h2 className="font-['Lora'] font-bold text-[#333333] leading-relaxed mb-6 tracking-tight text-[16px]">
                     "Saya <span className="bg-[#FAC06E]/20 text-[#243D68] px-1 rounded">optimis</span> dan haqqul yaqin bahwa Indonesia akan menjadi pemimpin persiapan <span className="bg-[#FAC06E]/20 text-[#243D68] px-1 rounded">ilmu</span> dalam pembebasan Baitul Maqdis"
                   </h2>
                 )}
@@ -76,38 +85,30 @@ export const QuoteSection = () => {
             </div>
           </div>
 
-          {/* Bottom Tabs */}
-          <div className="p-4 flex gap-4 mt-2">
-            <button 
+          {/* Dot Indicators */}
+          <div className="p-4 flex gap-2 justify-center items-center mt-2">
+            <button
               onClick={() => setActiveTab('quote')}
-              className={`flex-1 py-3.5 px-4 rounded-xl font-bold text-sm transition-all relative overflow-hidden group ${
-                activeTab === 'quote' 
-                  ? 'bg-[#243D68] text-white shadow-lg shadow-[#243D68]/20' 
-                  : 'bg-[#F8F9FA] text-[#243D68] hover:bg-[#243D68]/5 border border-[#243D68]/10'
-              }`}
+              className="group p-1"
+              aria-label="Quote 1"
             >
-              Today's Quote
-              {activeTab === 'quote' && (
-                <div className="absolute top-2 right-2 w-4 h-4 bg-[#FAC06E] rounded-full flex items-center justify-center">
-                  <span className="material-symbols-outlined text-[10px] text-[#243D68] font-bold">check</span>
-                </div>
-              )}
+              <div className={`transition-all duration-300 rounded-full ${
+                activeTab === 'quote' 
+                  ? 'w-8 h-2 bg-[#FAC06E]' 
+                  : 'w-2 h-2 bg-[#243D68]/30 hover:bg-[#243D68]/50'
+              }`} />
             </button>
             
-            <button 
+            <button
               onClick={() => setActiveTab('joke')}
-              className={`flex-1 py-3.5 px-4 rounded-xl font-bold text-sm transition-all relative overflow-hidden group ${
-                activeTab === 'joke' 
-                  ? 'bg-[#243D68] text-white shadow-lg shadow-[#243D68]/20' 
-                  : 'bg-[#F8F9FA] text-[#243D68] hover:bg-[#243D68]/5 border border-[#243D68]/10'
-              }`}
+              className="group p-1"
+              aria-label="Quote 2"
             >
-              Syeikh's Quote
-              {activeTab === 'joke' && (
-                <div className="absolute top-2 right-2 w-4 h-4 bg-[#FAC06E] rounded-full flex items-center justify-center">
-                  <span className="material-symbols-outlined text-[10px] text-[#243D68] font-bold">check</span>
-                </div>
-              )}
+              <div className={`transition-all duration-300 rounded-full ${
+                activeTab === 'joke' 
+                  ? 'w-8 h-2 bg-[#FAC06E]' 
+                  : 'w-2 h-2 bg-[#243D68]/30 hover:bg-[#243D68]/50'
+              }`} />
             </button>
           </div>
         </motion.div>
