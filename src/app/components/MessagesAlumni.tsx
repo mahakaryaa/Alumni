@@ -28,7 +28,7 @@ export function MessagesAlumni({
   activeNav = 'pesan',
   eventRegistrations = []
 }: MessagesAlumniProps) {
-  const { language } = useTranslation();
+  const { language, t } = useTranslation();
   const [activeTab, setActiveTab] = useState<'pesan' | 'laporan' | 'event'>('pesan');
   const [activeSubTab, setActiveSubTab] = useState<'messages' | 'tasks' | 'voting'>('messages');
   const [searchQuery, setSearchQuery] = useState('');
@@ -275,7 +275,7 @@ export function MessagesAlumni({
                 onClick={onNavigateHome}
               >
                 <span className="material-symbols-outlined text-xl">home</span>
-                <span className="tracking-wide text-sm">Home</span>
+                <span className="tracking-wide text-sm">{t.nav.home}</span>
               </button>
 
               <button
@@ -285,7 +285,7 @@ export function MessagesAlumni({
                 onClick={onNavigateExplore}
               >
                 <span className="material-symbols-outlined text-xl">explore</span>
-                <span className="tracking-wide text-sm">Explore</span>
+                <span className="tracking-wide text-sm">{t.nav.explore}</span>
               </button>
 
               <button
@@ -295,7 +295,7 @@ export function MessagesAlumni({
                 onClick={onNavigateMessages}
               >
                 <span className="material-symbols-outlined text-xl">chat_bubble</span>
-                <span className="tracking-wide text-sm">Pesan</span>
+                <span className="tracking-wide text-sm">{t.nav.messages}</span>
                 {hasJoinedProjects && tasks.filter(t => t.priority === 'high').length > 0 && (
                   <span className="ml-auto bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
                     {tasks.filter(t => t.priority === 'high').length}
@@ -310,7 +310,7 @@ export function MessagesAlumni({
                 onClick={onNavigateSettings}
               >
                 <span className="material-symbols-outlined text-xl">settings</span>
-                <span className="tracking-wide text-sm">Settings</span>
+                <span className="tracking-wide text-sm">{t.nav.settings}</span>
               </button>
             </div>
           </nav>
@@ -322,7 +322,7 @@ export function MessagesAlumni({
               className="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-white/60 hover:bg-white/5 hover:text-white transition-all"
             >
               <span className="material-symbols-outlined text-xl">logout</span>
-              <span className="tracking-wide text-sm">Logout</span>
+              <span className="tracking-wide text-sm">{t.nav.logout}</span>
             </button>
           </div>
         </div>
@@ -339,7 +339,7 @@ export function MessagesAlumni({
             >
               <span className="material-symbols-outlined text-[#243D68] text-[24px]">arrow_back</span>
             </button>
-            <h2 className="text-[#0E1B33] text-lg font-bold leading-tight tracking-tight uppercase">Pesan</h2>
+            <h2 className="text-[#0E1B33] text-lg font-bold leading-tight tracking-tight uppercase">{t.messagesAlumniPage.messages}</h2>
           </div>
         </div>
 
@@ -354,7 +354,7 @@ export function MessagesAlumni({
                 }`}
                 onClick={() => setActiveTab('pesan')}
               >
-                Pesan
+                {t.messagesAlumniPage.messages}
               </button>
               <button
                 className={`px-4 py-2 rounded-lg font-medium ${
@@ -362,7 +362,7 @@ export function MessagesAlumni({
                 }`}
                 onClick={() => setActiveTab('laporan')}
               >
-                Laporan Donasi
+                {t.messagesAlumniPage.donationReport}
               </button>
               <button
                 className={`px-4 py-2 rounded-lg font-medium ${
@@ -370,7 +370,7 @@ export function MessagesAlumni({
                 }`}
                 onClick={() => setActiveTab('event')}
               >
-                Event
+                {t.messagesAlumniPage.event}
               </button>
             </div>
           </div>
@@ -384,7 +384,7 @@ export function MessagesAlumni({
                   <section>
                     <h3 className="text-xl font-bold text-[#333333] mb-4 flex items-center gap-2">
                       <span className="material-symbols-outlined text-[#243D68]">campaign</span>
-                      Pengumuman
+                      {language === 'id' ? 'Pengumuman' : 'Announcements'}
                     </h3>
                     <div className="space-y-4">
                       {announcements.map((announcement) => (
@@ -419,10 +419,10 @@ export function MessagesAlumni({
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-2">
                           <span className="material-symbols-outlined text-2xl text-[#FAC06E]">groups</span>
-                          <h4 className="font-bold text-lg">Bergabung dengan Project Alumni</h4>
+                          <h4 className="font-bold text-lg">{language === 'id' ? 'Bergabung dengan Project Alumni' : 'Join Alumni Projects'}</h4>
                         </div>
                         <p className="text-white/90 text-sm leading-relaxed">
-                          Buka akses ke fitur kolaborasi lengkap: chat tim, voting, task management, dan berkontribusi untuk Baitul Maqdis & Palestina.
+                          {language === 'id' ? 'Buka akses ke fitur kolaborasi lengkap: chat tim, voting, task management, dan berkontribusi untuk Baitul Maqdis & Palestina.' : 'Unlock full collaboration features: team chat, voting, task management, and contribute to Baitul Maqdis & Palestine.'}
                         </p>
                       </div>
                       <button
@@ -430,7 +430,7 @@ export function MessagesAlumni({
                         className="shrink-0 bg-[#FAC06E] text-[#243D68] font-bold py-3 px-6 rounded-xl hover:bg-[#f5b855] transition-all flex items-center gap-2 shadow-md"
                       >
                         <span className="material-symbols-outlined">explore</span>
-                        <span>Explore Project</span>
+                        <span>{language === 'id' ? 'Explore Project' : 'Explore Projects'}</span>
                       </button>
                     </div>
                   </div>
@@ -448,7 +448,7 @@ export function MessagesAlumni({
                           : 'text-[#6B7280] hover:text-[#243D68]'
                       }`}
                     >
-                      Pesan Personal
+                      {t.messagesAlumniPage.conversations}
                       {(conversations.filter(c => c.unread > 0).length + announcements.length) > 0 && (
                         <span className="ml-2 bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
                           {conversations.filter(c => c.unread > 0).length + announcements.length}
@@ -466,7 +466,7 @@ export function MessagesAlumni({
                           : 'text-[#6B7280] hover:text-[#243D68]'
                       }`}
                     >
-                      Tasks
+                      {t.messagesAlumniPage.tasks}
                       {tasks.filter(t => t.priority === 'high').length > 0 && (
                         <span className="ml-2 bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
                           {tasks.filter(t => t.priority === 'high').length}
@@ -484,7 +484,7 @@ export function MessagesAlumni({
                           : 'text-[#6B7280] hover:text-[#243D68]'
                       }`}
                     >
-                      Voting
+                      {t.messagesAlumniPage.voting}
                       {activeSubTab === 'voting' && (
                         <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#243D68]"></div>
                       )}
@@ -499,7 +499,7 @@ export function MessagesAlumni({
                       <div>
                         <h3 className="text-lg font-bold text-[#0E1B33] mb-4 flex items-center gap-2">
                           <span className="material-symbols-outlined text-[#243D68]">campaign</span>
-                          Pengumuman
+                          {language === 'id' ? 'Pengumuman' : 'Announcements'}
                         </h3>
                         <div className="space-y-3">
                           {announcements.map((announcement) => (
@@ -532,7 +532,7 @@ export function MessagesAlumni({
                       <div>
                         <h3 className="text-lg font-bold text-[#0E1B33] mb-4 flex items-center gap-2">
                           <span className="material-symbols-outlined text-[#243D68]">chat</span>
-                          Pesan Personal
+                          {language === 'id' ? 'Pesan Personal' : 'Personal Messages'}
                         </h3>
                         <div className="space-y-2">
                           {conversations.map((conv) => (
@@ -628,7 +628,7 @@ export function MessagesAlumni({
                             
                             <button className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-[#243D68] to-[#30518B] text-white py-2.5 px-4 rounded-lg text-sm font-bold hover:shadow-lg transition-all">
                               <span className="material-symbols-outlined text-lg">task_alt</span>
-                              <span>Lihat Detail Task</span>
+                              <span>{language === 'id' ? 'Lihat Detail Task' : 'View Task Details'}</span>
                             </button>
                           </div>
                         </div>
@@ -769,7 +769,7 @@ export function MessagesAlumni({
                             
                             <button className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-[#243D68] to-[#30518B] text-white py-2.5 px-4 rounded-lg text-sm font-bold hover:shadow-lg transition-all">
                               <span className="material-symbols-outlined text-lg">task_alt</span>
-                              <span>Lihat Detail Task</span>
+                              <span>{language === 'id' ? 'Lihat Detail Task' : 'View Task Details'}</span>
                             </button>
                           </div>
                         </div>
@@ -787,7 +787,7 @@ export function MessagesAlumni({
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-xl font-bold text-[#333333] flex items-center gap-2">
                   <span className="material-symbols-outlined text-[#243D68]">receipt_long</span>
-                  Laporan Donasi
+                  {t.messagesAlumniPage.donationReport}
                 </h3>
               </div>
 
@@ -795,18 +795,18 @@ export function MessagesAlumni({
                 <>
                   {/* Summary Card */}
                   <div className="bg-gradient-to-br from-[#243D68] to-[#30518B] rounded-2xl p-6 mb-4 text-white shadow-lg">
-                    <p className="text-white/80 text-sm mb-1">Total Donasi Anda</p>
+                    <p className="text-white/80 text-sm mb-1">{language === 'id' ? 'Total Donasi Anda' : 'Your Total Donations'}</p>
                     <p className="text-3xl font-bold mb-3">
                       Rp {totalDonations.toLocaleString('id-ID')}
                     </p>
                     <div className="flex items-center gap-4 text-sm">
                       <div className="flex items-center gap-1">
                         <span className="material-symbols-outlined text-[#FAC06E] text-lg">verified</span>
-                        <span>{donations.length} Proyek</span>
+                        <span>{donations.length} {language === 'id' ? 'Proyek' : 'Projects'}</span>
                       </div>
                       <div className="flex items-center gap-1">
                         <span className="material-symbols-outlined text-[#FAC06E] text-lg">favorite</span>
-                        <span>Terima Kasih!</span>
+                        <span>{language === 'id' ? 'Terima Kasih!' : 'Thank You!'}</span>
                       </div>
                     </div>
                   </div>
@@ -821,12 +821,12 @@ export function MessagesAlumni({
                         <div className="mb-3">
                           <span className="inline-flex items-center gap-1 text-xs font-semibold text-[#4CAF50] bg-[#E8F5E9] px-3 py-1.5 rounded-full">
                             <span className="material-symbols-outlined text-sm">check_circle</span>
-                            Berhasil
+                            {language === 'id' ? 'Berhasil' : 'Success'}
                           </span>
                         </div>
 
                         <div className="mb-3 pb-3 border-b border-[#E5E7EB]">
-                          <p className="text-xs text-[#6B7280] mb-1">Nomor Referensi Donasi</p>
+                          <p className="text-xs text-[#6B7280] mb-1">{language === 'id' ? 'Nomor Referensi Donasi' : 'Donation Reference Number'}</p>
                           <code className="text-sm font-bold text-[#243D68]">{donation.refNumber}</code>
                         </div>
 
@@ -839,11 +839,11 @@ export function MessagesAlumni({
 
                           <div className="grid grid-cols-2 gap-3 pt-2">
                             <div>
-                              <p className="text-xs text-[#6B7280]">Nominal Donasi</p>
+                              <p className="text-xs text-[#6B7280]">{language === 'id' ? 'Nominal Donasi' : 'Donation Amount'}</p>
                               <p className="font-bold text-[#243D68]">Rp {donation.amount.toLocaleString('id-ID')}</p>
                             </div>
                             <div>
-                              <p className="text-xs text-[#6B7280]">Metode Pembayaran</p>
+                              <p className="text-xs text-[#6B7280]">{language === 'id' ? 'Metode Pembayaran' : 'Payment Method'}</p>
                               <p className="font-semibold text-[#333333]">{donation.method}</p>
                             </div>
                           </div>
@@ -857,9 +857,9 @@ export function MessagesAlumni({
                   <div className="w-24 h-24 bg-[#F8F9FA] rounded-full flex items-center justify-center mx-auto mb-4">
                     <span className="material-symbols-outlined text-[#6B7280] text-5xl">receipt_long</span>
                   </div>
-                  <h3 className="text-lg font-semibold text-[#333333] mb-2">Belum Ada Donasi</h3>
+                  <h3 className="text-lg font-semibold text-[#333333] mb-2">{language === 'id' ? 'Belum Ada Donasi' : 'No Donations Yet'}</h3>
                   <p className="text-sm text-[#6B7280]">
-                    Riwayat donasi Anda akan muncul di sini
+                    {language === 'id' ? 'Riwayat donasi Anda akan muncul di sini' : 'Your donation history will appear here'}
                   </p>
                 </div>
               )}
@@ -872,7 +872,7 @@ export function MessagesAlumni({
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-xl font-bold text-[#333333] flex items-center gap-2">
                   <span className="material-symbols-outlined text-[#243D68]">event</span>
-                  Pendaftaran Event
+                  {language === 'id' ? 'Pendaftaran Event' : 'Event Registrations'}
                 </h3>
               </div>
 
@@ -881,9 +881,9 @@ export function MessagesAlumni({
                   <div className="w-24 h-24 bg-[#F8F9FA] rounded-full flex items-center justify-center mx-auto mb-4">
                     <span className="material-symbols-outlined text-[#6B7280] text-5xl">event_busy</span>
                   </div>
-                  <h3 className="text-lg font-semibold text-[#333333] mb-2">Belum Ada Pendaftaran Event</h3>
+                  <h3 className="text-lg font-semibold text-[#333333] mb-2">{language === 'id' ? 'Belum Ada Pendaftaran Event' : 'No Event Registrations'}</h3>
                   <p className="text-sm text-[#6B7280]">
-                    Daftar event yang Anda ikuti akan muncul di sini
+                    {language === 'id' ? 'Daftar event yang Anda ikuti akan muncul di sini' : 'Events you register for will appear here'}
                   </p>
                 </div>
               ) : (
@@ -891,7 +891,7 @@ export function MessagesAlumni({
                   {eventRegistrations.map((event) => {
                     let statusConfig = {
                       icon: 'schedule',
-                      text: 'Menunggu Konfirmasi',
+                      text: language === 'id' ? 'Menunggu Konfirmasi' : 'Awaiting Confirmation',
                       color: 'text-[#FF9800]',
                       bgColor: 'bg-[#FFF3E0]',
                       borderColor: 'border-[#FF9800]/30'
@@ -900,7 +900,7 @@ export function MessagesAlumni({
                     if (event.status === 'approved') {
                       statusConfig = {
                         icon: 'check_circle',
-                        text: 'Terdaftar',
+                        text: language === 'id' ? 'Terdaftar' : 'Registered',
                         color: 'text-[#4CAF50]',
                         bgColor: 'bg-[#E8F5E9]',
                         borderColor: 'border-[#4CAF50]/30'
@@ -908,7 +908,7 @@ export function MessagesAlumni({
                     } else if (event.status === 'rejected') {
                       statusConfig = {
                         icon: 'cancel',
-                        text: 'Ditolak',
+                        text: language === 'id' ? 'Ditolak' : 'Rejected',
                         color: 'text-[#F44336]',
                         bgColor: 'bg-[#FFEBEE]',
                         borderColor: 'border-[#F44336]/30'
@@ -938,7 +938,7 @@ export function MessagesAlumni({
                                 <span className="material-symbols-outlined text-white text-lg">calendar_today</span>
                               </div>
                               <div className="flex-1">
-                                <p className="text-xs text-[#6B7280]">Tanggal</p>
+                                <p className="text-xs text-[#6B7280]">{language === 'id' ? 'Tanggal' : 'Date'}</p>
                                 <p className="text-sm font-bold text-[#333333]">{event.eventDate}</p>
                               </div>
                             </div>
@@ -948,7 +948,7 @@ export function MessagesAlumni({
                                 <span className="material-symbols-outlined text-white text-lg">schedule</span>
                               </div>
                               <div className="flex-1">
-                                <p className="text-xs text-[#6B7280]">Waktu</p>
+                                <p className="text-xs text-[#6B7280]">{language === 'id' ? 'Waktu' : 'Time'}</p>
                                 <p className="text-sm font-bold text-[#333333]">{event.eventTime}</p>
                               </div>
                             </div>
@@ -958,14 +958,14 @@ export function MessagesAlumni({
                                 <span className="material-symbols-outlined text-white text-lg">location_on</span>
                               </div>
                               <div className="flex-1">
-                                <p className="text-xs text-[#6B7280]">Lokasi</p>
+                                <p className="text-xs text-[#6B7280]">{language === 'id' ? 'Lokasi' : 'Location'}</p>
                                 <p className="text-sm font-bold text-[#333333]">{event.eventLocation}</p>
                               </div>
                             </div>
                           </div>
 
                           <div className="bg-gradient-to-r from-[#243D68] to-[#30518B] rounded-xl p-4 text-white">
-                            <p className="text-xs opacity-90 mb-1">Kuota Peserta</p>
+                            <p className="text-xs opacity-90 mb-1">{language === 'id' ? 'Kuota Peserta' : 'Participant Quota'}</p>
                             <div className="flex items-baseline gap-2 mb-2">
                               <span className="text-2xl font-['Archivo_Black']">127</span>
                               <span className="text-sm opacity-80">/ 200 orang</span>
@@ -979,9 +979,9 @@ export function MessagesAlumni({
                             <div className="bg-[#FFF3E0] border border-[#FF9800]/30 rounded-xl p-4 flex items-start gap-3">
                               <span className="material-symbols-outlined text-[#FF9800] text-2xl shrink-0">schedule</span>
                               <div className="flex-1">
-                                <p className="text-sm font-bold text-[#FF9800] mb-1.5">MENUNGGU KONFIRMASI</p>
+                                <p className="text-sm font-bold text-[#FF9800] mb-1.5">{language === 'id' ? 'MENUNGGU KONFIRMASI' : 'AWAITING CONFIRMATION'}</p>
                                 <p className="text-xs text-[#6B7280] leading-relaxed">
-                                  Pendaftaran Anda sedang ditinjau oleh panitia. Anda akan mendapat notifikasi setelah pendaftaran diproses.
+                                  {language === 'id' ? 'Pendaftaran Anda sedang ditinjau oleh panitia. Anda akan mendapat notifikasi setelah pendaftaran diproses.' : 'Your registration is being reviewed. You will be notified once processed.'}
                                 </p>
                               </div>
                             </div>
@@ -991,9 +991,9 @@ export function MessagesAlumni({
                             <div className="bg-[#E8F5E9] border border-[#4CAF50]/30 rounded-xl p-4 flex items-start gap-3">
                               <span className="material-symbols-outlined text-[#4CAF50] text-2xl shrink-0">check_circle</span>
                               <div className="flex-1">
-                                <p className="text-sm font-bold text-[#4CAF50] mb-1.5">PENDAFTARAN BERHASIL</p>
+                                <p className="text-sm font-bold text-[#4CAF50] mb-1.5">{language === 'id' ? 'PENDAFTARAN BERHASIL' : 'REGISTRATION APPROVED'}</p>
                                 <p className="text-xs text-[#6B7280] leading-relaxed">
-                                  Selamat! Pendaftaran Anda telah disetujui. Kami tunggu kehadiran Anda di event {event.eventTitle}.
+                                  {language === 'id' ? `Selamat! Pendaftaran Anda telah disetujui. Kami tunggu kehadiran Anda di event ${event.eventTitle}.` : `Congratulations! Your registration has been approved. We look forward to seeing you at ${event.eventTitle}.`}
                                 </p>
                               </div>
                             </div>
@@ -1003,12 +1003,12 @@ export function MessagesAlumni({
                             <div className="bg-[#FFEBEE] border border-[#F44336]/30 rounded-xl p-4 flex items-start gap-3">
                               <span className="material-symbols-outlined text-[#F44336] text-2xl shrink-0">cancel</span>
                               <div className="flex-1">
-                                <p className="text-sm font-bold text-[#F44336] mb-1.5">PENDAFTARAN DITOLAK</p>
+                                <p className="text-sm font-bold text-[#F44336] mb-1.5">{language === 'id' ? 'PENDAFTARAN DITOLAK' : 'REGISTRATION REJECTED'}</p>
                                 <p className="text-xs text-[#6B7280] leading-relaxed mb-3">
-                                  Mohon maaf, pendaftaran Anda ditolak. Silakan hubungi panitia untuk informasi lebih lanjut.
+                                  {language === 'id' ? 'Mohon maaf, pendaftaran Anda ditolak. Silakan hubungi panitia untuk informasi lebih lanjut.' : 'Sorry, your registration was rejected. Please contact the organizer for more information.'}
                                 </p>
                                 <button className="text-xs font-bold text-[#243D68] bg-white px-4 py-2 rounded-lg hover:bg-[#F8F9FA] transition-colors border border-[#E5E7EB] uppercase tracking-wide">
-                                  Hubungi Panitia
+                                  {language === 'id' ? 'Hubungi Panitia' : 'Contact Organizer'}
                                 </button>
                               </div>
                             </div>
@@ -1036,7 +1036,7 @@ export function MessagesAlumni({
             <span className={`material-symbols-outlined text-2xl ${activeNav === 'home' ? 'filled' : ''}`}>
               home
             </span>
-            <span className="text-xs font-medium">Home</span>
+            <span className="text-xs font-medium">{t.nav.home}</span>
           </button>
           <button
             onClick={onNavigateExplore}
@@ -1047,7 +1047,7 @@ export function MessagesAlumni({
             <span className={`material-symbols-outlined text-2xl ${activeNav === 'explore' ? 'filled' : ''}`}>
               explore
             </span>
-            <span className="text-xs font-medium">Explore</span>
+            <span className="text-xs font-medium">{t.nav.explore}</span>
           </button>
           <button
             onClick={onNavigateMessages}
@@ -1058,7 +1058,7 @@ export function MessagesAlumni({
             <span className={`material-symbols-outlined text-2xl ${activeNav === 'pesan' ? 'filled' : ''}`}>
               chat_bubble
             </span>
-            <span className="text-xs font-medium">Pesan</span>
+            <span className="text-xs font-medium">{t.nav.messages}</span>
             {hasJoinedProjects && tasks.filter(t => t.priority === 'high').length > 0 && (
               <span className="absolute top-1.5 right-1/4 w-2 h-2 bg-red-500 rounded-full border border-white"></span>
             )}
@@ -1072,7 +1072,7 @@ export function MessagesAlumni({
             <span className={`material-symbols-outlined text-2xl ${activeNav === 'settings' ? 'filled' : ''}`}>
               settings
             </span>
-            <span className="text-xs font-medium">Setting</span>
+            <span className="text-xs font-medium">{t.nav.settings}</span>
           </button>
         </div>
       </nav>

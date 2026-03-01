@@ -26,7 +26,7 @@ const EVENT_DATA = {
 };
 
 export function EventDetail({ onBack, userRole, onEventRegistrationSubmitted, onNavigateToLogin }: EventDetailProps) {
-  const { language } = useTranslation();
+  const { language, t } = useTranslation();
   const [registrationStatus, setRegistrationStatus] = useState<'none' | 'pending' | 'approved' | 'rejected'>('none');
   const [showRegisterModal, setShowRegisterModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -41,14 +41,14 @@ export function EventDetail({ onBack, userRole, onEventRegistrationSubmitted, on
   const handleOpenRegister = () => {
     // Jika event private dan user bukan alumni, redirect ke login
     if (EVENT_DATA.isPrivateEvent && !isAlumni) {
-      toast.error('Event ini khusus untuk alumni. Silakan login sebagai alumni.');
+      toast.error(t.eventDetailPage.alumniOnlyEvent);
       onNavigateToLogin?.();
       return;
     }
     
     // Jika event public dan user belum login, redirect ke login
     if (!EVENT_DATA.isPrivateEvent && !isLoggedIn) {
-      toast.info('Silakan login terlebih dahulu untuk mendaftar event.');
+      toast.info(t.eventDetailPage.loginRequired);
       onNavigateToLogin?.();
       return;
     }
@@ -58,7 +58,7 @@ export function EventDetail({ onBack, userRole, onEventRegistrationSubmitted, on
 
   const handleSubmitRegistration = async () => {
     if (!whatsapp.trim()) {
-      toast.error('Nomor WhatsApp wajib diisi');
+      toast.error(language === 'id' ? 'Nomor WhatsApp wajib diisi' : 'WhatsApp number is required');
       return;
     }
 
@@ -87,26 +87,23 @@ export function EventDetail({ onBack, userRole, onEventRegistrationSubmitted, on
     setRegistrationStatus('pending');
     setShowRegisterModal(false);
     setIsSubmitting(false);
-    toast.success('Pendaftaran berhasil dikirim! Menunggu persetujuan panitia.');
+    toast.success(language === 'id' ? 'Pendaftaran berhasil dikirim! Menunggu persetujuan panitia.' : 'Registration sent! Waiting for committee approval.');
   };
 
   const getRegistrationButtonState = () => {
-    if (registrationStatus === 'pending') return { label: 'Menunggu Konfirmasi', icon: 'schedule', disabled: true, color: 'bg-yellow-100 text-yellow-700 border-2 border-yellow-300' };
-    if (registrationStatus === 'approved') return { label: 'Sudah Terdaftar ✓', icon: 'check_circle', disabled: true, color: 'bg-green-100 text-green-700 border-2 border-green-300' };
-    if (registrationStatus === 'rejected') return { label: 'Pendaftaran Ditolak', icon: 'cancel', disabled: true, color: 'bg-red-100 text-red-700 border-2 border-red-300' };
+    if (registrationStatus === 'pending') return { label: t.eventDetailPage.registrationPending, icon: 'schedule', disabled: true, color: 'bg-yellow-100 text-yellow-700 border-2 border-yellow-300' };
+    if (registrationStatus === 'approved') return { label: `${t.eventDetailPage.registered} ✓`, icon: 'check_circle', disabled: true, color: 'bg-green-100 text-green-700 border-2 border-green-300' };
+    if (registrationStatus === 'rejected') return { label: t.eventDetailPage.registrationRejected, icon: 'cancel', disabled: true, color: 'bg-red-100 text-red-700 border-2 border-red-300' };
     
-    // Jika event PRIVATE dan user bukan alumni
     if (EVENT_DATA.isPrivateEvent && !isAlumni) {
-      return { label: 'Login Alumni untuk Daftar', icon: 'lock', disabled: false, color: 'bg-[#E5E8EC] text-[#6B7280] border-2 border-[#D6DCE8]' };
+      return { label: language === 'id' ? 'Login Alumni untuk Daftar' : 'Login as Alumni to Register', icon: 'lock', disabled: false, color: 'bg-[#E5E8EC] text-[#6B7280] border-2 border-[#D6DCE8]' };
     }
     
-    // Jika event PUBLIC dan user belum login
     if (!EVENT_DATA.isPrivateEvent && !isLoggedIn) {
-      return { label: 'Daftar Acara', icon: 'how_to_reg', disabled: false, color: 'bg-[#183A74] text-white shadow-[6px_6px_0px_0px_rgba(250,192,110,1)] active:shadow-none active:translate-x-1 active:translate-y-1' };
+      return { label: t.eventDetailPage.registerNow, icon: 'how_to_reg', disabled: false, color: 'bg-[#183A74] text-white shadow-[6px_6px_0px_0px_rgba(250,192,110,1)] active:shadow-none active:translate-x-1 active:translate-y-1' };
     }
     
-    // Jika sudah login (alumni atau donatur), tampilkan Daftar Sekarang
-    return { label: 'Daftar Sekarang', icon: 'how_to_reg', disabled: false, color: 'bg-[#183A74] text-white shadow-[6px_6px_0px_0px_rgba(250,192,110,1)] active:shadow-none active:translate-x-1 active:translate-y-1' };
+    return { label: t.eventDetailPage.registerNow, icon: 'how_to_reg', disabled: false, color: 'bg-[#183A74] text-white shadow-[6px_6px_0px_0px_rgba(250,192,110,1)] active:shadow-none active:translate-x-1 active:translate-y-1' };
   };
 
   const btnState = getRegistrationButtonState();
@@ -134,23 +131,23 @@ export function EventDetail({ onBack, userRole, onEventRegistrationSubmitted, on
                 onClick={onBack}
               >
                 <span className="material-symbols-outlined text-xl">home</span>
-                <span className="tracking-wide text-sm">Home</span>
+                <span className="tracking-wide text-sm">{t.nav.home}</span>
               </button>
 
               <button className="flex items-center gap-3 px-4 py-3.5 rounded-xl font-medium transition-all text-white/60 hover:bg-white/5 hover:text-white w-full">
                 <span className="material-symbols-outlined text-xl">explore</span>
-                <span className="tracking-wide text-sm">Explore</span>
+                <span className="tracking-wide text-sm">{t.nav.explore}</span>
               </button>
 
               <button className="flex items-center gap-3 px-4 py-3.5 rounded-xl font-medium transition-all text-white/60 hover:bg-white/5 hover:text-white w-full relative">
                 <span className="material-symbols-outlined text-xl">chat_bubble</span>
-                <span className="tracking-wide text-sm">Pesan</span>
+                <span className="tracking-wide text-sm">{t.nav.messages}</span>
                 <span className="absolute top-3 left-11 w-2 h-2 bg-red-500 rounded-full border border-[#2B4468]"></span>
               </button>
 
               <button className="flex items-center gap-3 px-4 py-3.5 rounded-xl font-medium transition-all text-white/60 hover:bg-white/5 hover:text-white w-full">
                 <span className="material-symbols-outlined text-xl">settings</span>
-                <span className="tracking-wide text-sm">Settings</span>
+                <span className="tracking-wide text-sm">{t.nav.settings}</span>
               </button>
             </div>
           </nav>
@@ -162,7 +159,7 @@ export function EventDetail({ onBack, userRole, onEventRegistrationSubmitted, on
               className="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-white/60 hover:bg-white/5 hover:text-white transition-all"
             >
               <span className="material-symbols-outlined text-xl">logout</span>
-              <span className="tracking-wide text-sm">Logout</span>
+              <span className="tracking-wide text-sm">{t.nav.logout}</span>
             </button>
           </div>
         </div>
@@ -178,7 +175,7 @@ export function EventDetail({ onBack, userRole, onEventRegistrationSubmitted, on
             </button>
           </div>
           <h2 className="text-[#0E1B33] text-lg font-bold leading-tight tracking-tight flex-1 text-center uppercase">
-            Detail Event
+            {t.eventDetailPage.eventDetail}
           </h2>
           <div className="flex items-center justify-end">
             <button className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg text-[#243D68] hover:bg-[#E5E8EC] transition-colors">
@@ -219,7 +216,7 @@ export function EventDetail({ onBack, userRole, onEventRegistrationSubmitted, on
                     <span className="material-symbols-outlined text-white text-xl">calendar_today</span>
                   </div>
                   <div>
-                    <p className="text-[#6B7280] text-xs font-normal">Tanggal</p>
+                    <p className="text-[#6B7280] text-xs font-normal">{t.eventDetailPage.date}</p>
                     <p className="text-[#333333] text-sm font-bold">12 November 2025</p>
                   </div>
                 </div>
@@ -231,7 +228,7 @@ export function EventDetail({ onBack, userRole, onEventRegistrationSubmitted, on
                     <span className="material-symbols-outlined text-white text-xl">schedule</span>
                   </div>
                   <div>
-                    <p className="text-[#6B7280] text-xs font-normal">Waktu</p>
+                    <p className="text-[#6B7280] text-xs font-normal">{t.eventDetailPage.time}</p>
                     <p className="text-[#333333] text-sm font-bold">09:00 - 17:00 WIB</p>
                   </div>
                 </div>
@@ -243,7 +240,7 @@ export function EventDetail({ onBack, userRole, onEventRegistrationSubmitted, on
                     <span className="material-symbols-outlined text-white text-xl">location_on</span>
                   </div>
                   <div>
-                    <p className="text-[#6B7280] text-xs font-normal">Lokasi</p>
+                    <p className="text-[#6B7280] text-xs font-normal">{t.eventDetailPage.location}</p>
                     <p className="text-[#333333] text-sm font-bold">Surabaya Convention Hall</p>
                   </div>
                 </div>
@@ -254,10 +251,10 @@ export function EventDetail({ onBack, userRole, onEventRegistrationSubmitted, on
             <div className="bg-gradient-to-r from-[#243D68] to-[#30518B] rounded-xl p-5 mb-6 text-white">
               <div className="flex items-center justify-between">
                 <div className="flex-1">
-                  <p className="text-sm opacity-90 mb-1">Kuota Peserta</p>
+                  <p className="text-sm opacity-90 mb-1">{t.eventDetailPage.participantQuota}</p>
                   <div className="flex items-baseline gap-2">
                     <span className="text-3xl font-['Archivo_Black']">127</span>
-                    <span className="text-sm opacity-80">/ 200 orang</span>
+                    <span className="text-sm opacity-80">/ 200 {t.eventDetailPage.persons}</span>
                   </div>
                   <div className="w-full bg-white/20 rounded-full h-2 mt-3">
                     <div className="bg-[#FAC06E] h-2 rounded-full" style={{ width: '63.5%' }}></div>
@@ -274,8 +271,8 @@ export function EventDetail({ onBack, userRole, onEventRegistrationSubmitted, on
               <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 mb-4 flex items-center gap-3">
                 <span className="material-symbols-outlined text-yellow-600 text-2xl">schedule</span>
                 <div>
-                  <p className="font-semibold text-yellow-800">Menunggu Konfirmasi Panitia</p>
-                  <p className="text-sm text-yellow-700">Pendaftaran Anda sedang dalam peninjauan. Kami akan memberi tahu Anda segera.</p>
+                  <p className="font-semibold text-yellow-800">{t.eventDetailPage.registrationPending}</p>
+                  <p className="text-sm text-yellow-700">{language === 'id' ? 'Pendaftaran Anda sedang dalam peninjauan. Kami akan memberi tahu Anda segera.' : 'Your registration is being reviewed. We will notify you soon.'}</p>
                 </div>
               </div>
             )}
@@ -287,7 +284,7 @@ export function EventDetail({ onBack, userRole, onEventRegistrationSubmitted, on
             <div className="bg-[#F8F9FA] rounded-xl p-5 border border-[#E5E7EB]">
               <h3 className="text-base font-bold text-[#333333] mb-3 flex items-center gap-2">
                 <span className="material-symbols-outlined text-[#243D68]">description</span>
-                Deskripsi Event
+                {t.eventDetailPage.aboutEvent}
               </h3>
               <p className="text-[#6B7280] text-sm leading-relaxed mb-3">
                 Workshop Alumni kali ini akan membahas berbagai topik menarik seputar pengembangan karir, networking, dan kontribusi sosial yang bisa dilakukan oleh para alumni.
@@ -301,7 +298,7 @@ export function EventDetail({ onBack, userRole, onEventRegistrationSubmitted, on
             <div className="bg-[#F8F9FA] rounded-xl p-5 border border-[#E5E7EB]">
               <h3 className="text-base font-bold text-[#333333] mb-3 flex items-center gap-2">
                 <span className="material-symbols-outlined text-[#243D68]">workspace_premium</span>
-                Benefit untuk Peserta
+                {t.eventDetailPage.facilities}
               </h3>
               <ul className="space-y-3 text-[#6B7280] text-sm leading-relaxed">
                 {['Sertifikat kehadiran dari IKA', 'Materi workshop dalam format digital', 'Konsumsi (snack, lunch, coffee break)', 'Networking session dengan alumni sukses', 'Goodie bag eksklusif'].map(benefit => (
@@ -317,7 +314,7 @@ export function EventDetail({ onBack, userRole, onEventRegistrationSubmitted, on
             <div className="bg-[#F8F9FA] rounded-xl p-5 border border-[#E5E7EB]">
               <h3 className="text-base font-bold text-[#333333] mb-3 flex items-center gap-2">
                 <span className="material-symbols-outlined text-[#243D68]">contact_support</span>
-                Kontak Panitia
+                {language === 'id' ? 'Kontak Panitia' : 'Committee Contact'}
               </h3>
               <div className="space-y-3">
                 {[
@@ -355,7 +352,7 @@ export function EventDetail({ onBack, userRole, onEventRegistrationSubmitted, on
             {/* Modal Header */}
             <div className="sticky top-0 bg-white rounded-t-3xl md:rounded-t-2xl border-b border-[#E5E7EB] px-6 py-4 flex items-center justify-between">
               <div>
-                <h3 className="font-['Archivo_Black'] text-lg uppercase text-[#0E1B33]">Daftar Event</h3>
+                <h3 className="font-['Archivo_Black'] text-lg uppercase text-[#0E1B33]">{t.eventDetailPage.registerForm}</h3>
                 <p className="text-sm text-[#6B7280]">Workshop Alumni di Surabaya</p>
               </div>
               <button
@@ -370,7 +367,7 @@ export function EventDetail({ onBack, userRole, onEventRegistrationSubmitted, on
             <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
               {/* Pre-filled info - Nama Lengkap */}
               <div className="bg-[#F8F9FA] rounded-xl p-4 border border-[#E5E7EB]">
-                <p className="text-xs text-[#6B7280] font-semibold uppercase tracking-wide mb-2">Data Anda</p>
+                <p className="text-xs text-[#6B7280] font-semibold uppercase tracking-wide mb-2">{language === 'id' ? 'Data Anda' : 'Your Data'}</p>
                 <p className="font-semibold text-[#0E1B33]">Alumni User</p>
                 <p className="text-sm text-[#6B7280]">alumni@example.com • Angkatan 2019</p>
               </div>
@@ -392,7 +389,7 @@ export function EventDetail({ onBack, userRole, onEventRegistrationSubmitted, on
               {/* Informasi Event */}
               <div className="bg-gradient-to-br from-[#243D68] to-[#30518B] rounded-xl p-5 text-white space-y-4">
                 <div className="flex items-center justify-between pb-3 border-b border-white/20">
-                  <h4 className="font-bold text-sm uppercase tracking-wide">Informasi Event</h4>
+                  <h4 className="font-bold text-sm uppercase tracking-wide">{t.eventDetailPage.eventInfo}</h4>
                   {EVENT_DATA.isFree ? (
                     <span className="bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-full">GRATIS</span>
                   ) : (
@@ -406,7 +403,7 @@ export function EventDetail({ onBack, userRole, onEventRegistrationSubmitted, on
                 <div className="flex gap-3">
                   <span className="material-symbols-outlined text-[#FAC06E]">event</span>
                   <div className="flex-1">
-                    <p className="text-xs opacity-80">Tanggal & Jam</p>
+                    <p className="text-xs opacity-80">{t.eventDetailPage.date} & {t.eventDetailPage.time}</p>
                     <p className="font-semibold text-sm">{EVENT_DATA.date} • {EVENT_DATA.time}</p>
                   </div>
                 </div>
@@ -415,7 +412,7 @@ export function EventDetail({ onBack, userRole, onEventRegistrationSubmitted, on
                 <div className="flex gap-3">
                   <span className="material-symbols-outlined text-[#FAC06E]">location_on</span>
                   <div className="flex-1">
-                    <p className="text-xs opacity-80">Lokasi</p>
+                    <p className="text-xs opacity-80">{t.eventDetailPage.location}</p>
                     <p className="font-semibold text-sm">{EVENT_DATA.location}</p>
                   </div>
                 </div>
@@ -424,7 +421,7 @@ export function EventDetail({ onBack, userRole, onEventRegistrationSubmitted, on
                 <div className="flex gap-3">
                   <span className="material-symbols-outlined text-[#FAC06E]">workspace_premium</span>
                   <div className="flex-1">
-                    <p className="text-xs opacity-80 mb-2">Fasilitas</p>
+                    <p className="text-xs opacity-80 mb-2">{t.eventDetailPage.facilities}</p>
                     <div className="space-y-1.5">
                       {EVENT_DATA.facilities.map((facility, idx) => (
                         <div key={idx} className="flex items-center gap-2">
@@ -457,8 +454,8 @@ export function EventDetail({ onBack, userRole, onEventRegistrationSubmitted, on
                   className="w-5 h-5 accent-[#243D68] cursor-pointer"
                 />
                 <div>
-                  <p className="font-semibold text-[#0E1B33] text-sm">Pernah hadir di event sebelumnya</p>
-                  <p className="text-xs text-[#6B7280]">Centang jika Anda alumni yang pernah hadir di event AlMaqdisi</p>
+                  <p className="font-semibold text-[#0E1B33] text-sm">{t.eventDetailPage.attendedBefore}</p>
+                  <p className="text-xs text-[#6B7280]">{language === 'id' ? 'Centang jika Anda alumni yang pernah hadir di event AlMaqdisi' : 'Check if you have attended a previous AlMaqdisi event'}</p>
                 </div>
               </label>
 
@@ -466,7 +463,7 @@ export function EventDetail({ onBack, userRole, onEventRegistrationSubmitted, on
               <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 flex gap-2">
                 <span className="material-symbols-outlined text-blue-600 text-lg flex-shrink-0">info</span>
                 <p className="text-xs text-blue-700 leading-relaxed">
-                  Pendaftaran Anda akan ditinjau oleh panitia. Anda akan mendapat notifikasi setelah pendaftaran diproses.
+                  {language === 'id' ? 'Pendaftaran Anda akan ditinjau oleh panitia. Anda akan mendapat notifikasi setelah pendaftaran diproses.' : 'Your registration will be reviewed by the committee. You will receive a notification once processed.'}
                 </p>
               </div>
             </div>
@@ -490,7 +487,7 @@ export function EventDetail({ onBack, userRole, onEventRegistrationSubmitted, on
                 ) : (
                   <>
                     <span className="material-symbols-outlined text-xl">send</span>
-                    <span>Kirim Pendaftaran</span>
+                    <span>{t.eventDetailPage.submitRegistration}</span>
                   </>
                 )}
               </button>

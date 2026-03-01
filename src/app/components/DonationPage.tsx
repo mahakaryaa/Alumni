@@ -59,7 +59,7 @@ export function DonationPage({
   onNavigateSettings,
   activeNav = 'home'
 }: DonationPageProps) {
-  const { language } = useTranslation();
+  const { language, t } = useTranslation();
   const [amount, setAmount] = useState('');
   const [customAmount, setCustomAmount] = useState('');
   const [selectedPayment, setSelectedPayment] = useState<PaymentMethod>('bca');
@@ -343,13 +343,13 @@ export function DonationPage({
                   <span className="text-[#FAC06E] block">Khairan Katsira</span>
                 </h1>
                 <p className="text-[#6B7280] text-base leading-relaxed max-w-lg mx-auto">
-                  Terima kasih atas kontribusi Anda! Bukti transfer telah kami terima dan sedang dalam proses verifikasi.
+                  {t.donationPageFull.thankYouDesc}
                 </p>
               </div>
 
               {/* Reference Number */}
               <div className="bg-gradient-to-br from-[#243D68] to-[#30518B] rounded-2xl p-6 mb-6 text-white shadow-lg">
-                <p className="text-white/80 text-sm mb-2 text-center">Nomor Referensi Donasi</p>
+                <p className="text-white/80 text-sm mb-2 text-center">{t.donationPageFull.donationRefNumber}</p>
                 <div className="flex items-center justify-center gap-3">
                   <p className="font-mono text-2xl font-bold tracking-wider">
                     {referenceNumber}
@@ -372,7 +372,7 @@ export function DonationPage({
 
               {/* Donation Summary */}
               <div className="bg-white rounded-2xl p-6 border border-[#E5E7EB] shadow-md mb-6">
-                <h3 className="text-lg font-bold text-[#0E1B33] mb-4 text-center">Ringkasan Donasi</h3>
+                <h3 className="text-lg font-bold text-[#0E1B33] mb-4 text-center">{t.donationPageFull.donationSummary}</h3>
                 <div className="space-y-4">
                   <div className="flex justify-between items-start pb-4 border-b border-[#E5E7EB]">
                     <div>
@@ -383,17 +383,17 @@ export function DonationPage({
                   </div>
                   
                   <div className="flex justify-between items-center pb-4 border-b border-[#E5E7EB]">
-                    <p className="text-sm text-[#6B7280]">Nominal Donasi</p>
+                    <p className="text-sm text-[#6B7280]">{t.donationPageFull.donationAmountLabel}</p>
                     <p className="text-xl font-bold text-[#243D68]">{formatCurrency(amount)}</p>
                   </div>
                   
                   <div className="flex justify-between items-center pb-4 border-b border-[#E5E7EB]">
-                    <p className="text-sm text-[#6B7280]">Metode Pembayaran</p>
+                    <p className="text-sm text-[#6B7280]">{t.donationPageFull.paymentMethod}</p>
                     <p className="text-sm font-semibold text-[#0E1B33]">{selectedMethod?.name}</p>
                   </div>
                   
                   <div className="flex justify-between items-center">
-                    <p className="text-sm text-[#6B7280]">Waktu Transfer</p>
+                    <p className="text-sm text-[#6B7280]">{t.donationPageFull.transferTime}</p>
                     <p className="text-sm font-semibold text-[#0E1B33]">
                       {new Date().toLocaleDateString('id-ID', { 
                         day: 'numeric', 
@@ -412,12 +412,12 @@ export function DonationPage({
                 <div className="flex gap-3">
                   <span className="material-symbols-outlined text-[#F59E0B] text-xl">info</span>
                   <div className="flex-1">
-                    <p className="text-sm font-semibold text-[#92400E] mb-3">Langkah Selanjutnya:</p>
+                    <p className="text-sm font-semibold text-[#92400E] mb-3">{t.donationPageFull.nextSteps}</p>
                     <ol className="text-sm text-[#92400E] space-y-2 list-decimal list-inside">
-                      <li>Donasi Anda akan diverifikasi dalam 1x24 jam</li>
-                      <li>Anda akan menerima email konfirmasi setelah verifikasi</li>
-                      <li>Notifikasi juga akan dikirim melalui aplikasi</li>
-                      <li>Anda dapat melacak status donasi di halaman "Pesan"</li>
+                      <li>{t.donationPageFull.step1}</li>
+                      <li>{t.donationPageFull.step2}</li>
+                      <li>{t.donationPageFull.step3}</li>
+                      <li>{t.donationPageFull.step4}</li>
                     </ol>
                   </div>
                 </div>
@@ -439,7 +439,7 @@ export function DonationPage({
                   className="w-full flex items-center justify-center gap-2 py-4 rounded-xl font-bold uppercase tracking-widest bg-[#183A74] text-white shadow-[6px_6px_0px_0px_rgba(250,192,110,1)] hover:shadow-[8px_8px_0px_0px_rgba(250,192,110,1)] active:shadow-none active:translate-x-1 active:translate-y-1 transition-all"
                 >
                   <span className="material-symbols-outlined">home</span>
-                  <span>Kembali ke Beranda</span>
+                  <span>{t.donationPageFull.backToHome}</span>
                 </button>
                 <button
                   onClick={async () => {
@@ -567,7 +567,7 @@ export function DonationPage({
               </button>
             </div>
             <h2 className="text-[#0E1B33] text-lg font-bold leading-tight tracking-tight flex-1 text-center uppercase">
-              Konfirmasi Donasi
+              {t.donationPageFull.donationConfirmation}
             </h2>
             <div className="w-10"></div>
           </div>
@@ -721,7 +721,7 @@ export function DonationPage({
               <div className="bg-white rounded-2xl p-6 border border-[#E5E7EB] shadow-md mb-6">
                 <h3 className="text-base font-bold text-[#0E1B33] mb-4 flex items-center gap-2">
                   <span className="material-symbols-outlined text-[#243D68]">upload_file</span>
-                  Upload Bukti Transfer
+                  {t.donationPageFull.uploadProof}
                 </h3>
 
                 {!proofPreview ? (
@@ -786,7 +786,7 @@ export function DonationPage({
                   }`}
                 >
                   <span className="material-symbols-outlined">send</span>
-                  <span>Kirim Bukti Transfer</span>
+                  <span>{t.donationPageFull.submitProof}</span>
                 </button>
                 <button
                   onClick={onBack}
@@ -888,7 +888,7 @@ export function DonationPage({
             <div className="bg-white rounded-2xl p-6 border border-[#E5E7EB] shadow-sm">
               <h3 className="text-base font-bold text-[#0E1B33] mb-4 flex items-center gap-2">
                 <span className="material-symbols-outlined text-[#243D68]">payments</span>
-                Nominal Donasi
+                {t.donationPageFull.donationAmount}
               </h3>
 
               {/* Quick Amount Buttons */}
@@ -936,7 +936,7 @@ export function DonationPage({
             <div className="bg-white rounded-2xl p-6 border border-[#E5E7EB] shadow-sm">
               <h3 className="text-base font-bold text-[#0E1B33] mb-4 flex items-center gap-2">
                 <span className="material-symbols-outlined text-[#243D68]">account_balance</span>
-                Metode Pembayaran
+                {t.donationPageFull.selectPaymentMethod}
               </h3>
 
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -1050,7 +1050,7 @@ export function DonationPage({
               }`}
             >
               <span className="material-symbols-outlined">volunteer_activism</span>
-              <span>Lanjutkan Donasi</span>
+              <span>{t.donationPageFull.continuePayment}</span>
             </button>
           </div>
         </div>

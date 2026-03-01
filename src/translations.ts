@@ -674,6 +674,180 @@ export interface Translations {
     messages: string;
     settings: string;
   };
+
+  // ===== 32. PROJECT DETAIL PAGE (Donatur) =====
+  projectDetailDonatur: {
+    projectDetail: string;
+    overview: string;
+    progress: string;
+    projectDescription: string;
+    projectGoals: string;
+    benefits: string;
+    locationFocus: string;
+    teamNeeds: string;
+    positionNeeded: string;
+    positionAvailable: string;
+    projectProgress: string;
+    estimatedCompletion: string;
+    projectPhases: string;
+    completed: string;
+    inProgress: string;
+    notStarted: string;
+    target: string;
+    latestUpdates: string;
+    donateNow: string;
+    selectPosition: string;
+    commitmentDuration: string;
+    month1: string;
+    months3: string;
+    months6: string;
+    year1: string;
+    custom: string;
+    reasonToJoin: string;
+    submitApplication: string;
+    applicationSent: string;
+    applicationPendingDesc: string;
+  };
+
+  // ===== 33. DONATION PAGE =====
+  donationPageFull: {
+    donationAmount: string;
+    enterCustomAmount: string;
+    quickAmounts: string;
+    selectPaymentMethod: string;
+    bankTransfer: string;
+    eWallet: string;
+    messageOptional: string;
+    messagePlaceholder: string;
+    prayerOptional: string;
+    prayerPlaceholder: string;
+    donateAnonymous: string;
+    anonymousDesc: string;
+    continuePayment: string;
+    donationConfirmation: string;
+    paymentInstructions: string;
+    transferAmount: string;
+    transferWithUniqueCode: string;
+    uniqueCode: string;
+    forValidation: string;
+    paymentMethod: string;
+    accountNumber: string;
+    paymentInstruction: string;
+    recipientName: string;
+    copiedSuccess: string;
+    amountCopied: string;
+    numberCopied: string;
+    uploadProof: string;
+    uploadProofDesc: string;
+    clickToUpload: string;
+    dragOrClick: string;
+    removeFile: string;
+    fileUploaded: string;
+    submitProof: string;
+    paymentTimeLimit: string;
+    thankYouTitle: string;
+    thankYouDesc: string;
+    donationRefNumber: string;
+    saveRefNumber: string;
+    donationSummary: string;
+    donationAmountLabel: string;
+    transferTime: string;
+    nextSteps: string;
+    step1: string;
+    step2: string;
+    step3: string;
+    step4: string;
+    backToHome: string;
+    shareGoodness: string;
+    instructionStep1: string;
+    instructionStep2: string;
+    instructionStep3: string;
+    instructionStep4: string;
+    instructionStep5: string;
+  };
+
+  // ===== 34. EVENT DETAIL PAGE =====
+  eventDetailPage: {
+    eventDetail: string;
+    registerNow: string;
+    registered: string;
+    registrationPending: string;
+    registrationApproved: string;
+    registrationRejected: string;
+    eventInfo: string;
+    date: string;
+    time: string;
+    location: string;
+    eventType: string;
+    publicEvent: string;
+    alumniOnly: string;
+    freeEvent: string;
+    paidEvent: string;
+    ticketPrice: string;
+    participantQuota: string;
+    spotsLeft: string;
+    persons: string;
+    facilities: string;
+    dressCode: string;
+    aboutEvent: string;
+    registerForm: string;
+    whatsappNumber: string;
+    attendedBefore: string;
+    yes: string;
+    no: string;
+    submitting: string;
+    submitRegistration: string;
+    cancel: string;
+    loginRequired: string;
+    alumniOnlyEvent: string;
+    loginFirst: string;
+  };
+
+  // ===== 35. MESSAGES ALUMNI PAGE =====
+  messagesAlumniPage: {
+    messages: string;
+    donationReport: string;
+    event: string;
+    conversations: string;
+    tasks: string;
+    voting: string;
+    searchMessages: string;
+    noConversations: string;
+    joinProjectFirst: string;
+    online: string;
+    taskAssigned: string;
+    taskStatus: string;
+    priority: string;
+    deadline: string;
+    markComplete: string;
+    completed: string;
+    inProgress: string;
+    noTasks: string;
+    noTasksDesc: string;
+    voteNow: string;
+    voted: string;
+    votes: string;
+    pollEnds: string;
+    noPollsActive: string;
+    noPollsDesc: string;
+  };
+
+  // ===== 36. BOOKMARKED PROJECTS PAGE =====
+  bookmarksPage: {
+    bookmarks: string;
+    savedProjects: string;
+    noBookmarks: string;
+    noBookmarksDesc: string;
+    exploreProjects: string;
+    removeBookmark: string;
+    viewProject: string;
+    funding: string;
+    volunteer: string;
+    documentation: string;
+    progressLabel: string;
+    collected: string;
+    target: string;
+  };
 }
 
 export const translations: Record<Language, Translations> = {
@@ -1334,6 +1508,180 @@ export const translations: Record<Language, Translations> = {
       messages: 'Pesan',
       settings: 'Settings',
     },
+
+    // ===== 32. PROJECT DETAIL PAGE (Donatur) =====
+    projectDetailDonatur: {
+      projectDetail: 'Detail Proyek',
+      overview: 'Overview',
+      progress: 'Progress',
+      projectDescription: 'Deskripsi Proyek',
+      projectGoals: 'Tujuan Proyek',
+      benefits: 'Benefit',
+      locationFocus: 'Lokasi / Fokus Kegiatan',
+      teamNeeds: 'Kebutuhan Tim',
+      positionNeeded: 'Posisi Dibutuhkan',
+      positionAvailable: 'Posisi Tersedia',
+      projectProgress: 'Progress Proyek',
+      estimatedCompletion: 'Estimasi selesai',
+      projectPhases: 'Tahapan Proyek',
+      completed: 'Selesai',
+      inProgress: 'Sedang Berjalan',
+      notStarted: 'Belum Dimulai',
+      target: 'Target',
+      latestUpdates: 'Update Terbaru',
+      donateNow: 'Donasi Sekarang',
+      selectPosition: 'Pilih posisi yang ingin Anda apply',
+      commitmentDuration: 'Durasi Komitmen',
+      month1: '1 Bulan',
+      months3: '3 Bulan',
+      months6: '6 Bulan',
+      year1: '1 Tahun',
+      custom: 'Custom',
+      reasonToJoin: 'Alasan bergabung harus diisi',
+      submitApplication: 'Kirim Pengajuan',
+      applicationSent: 'Pengajuan berhasil dikirim!',
+      applicationPendingDesc: 'Menunggu persetujuan dari PIC project',
+    },
+
+    // ===== 33. DONATION PAGE =====
+    donationPageFull: {
+      donationAmount: 'Nominal Donasi',
+      enterCustomAmount: 'Masukkan nominal lainnya',
+      quickAmounts: 'Nominal Cepat',
+      selectPaymentMethod: 'Pilih Metode Pembayaran',
+      bankTransfer: 'Transfer Bank',
+      eWallet: 'E-Wallet',
+      messageOptional: 'Pesan untuk PIC (Opsional)',
+      messagePlaceholder: 'Tulis pesan atau doa Anda...',
+      prayerOptional: 'Doa (Opsional)',
+      prayerPlaceholder: 'Tulis doa Anda...',
+      donateAnonymous: 'Donasi sebagai Anonim',
+      anonymousDesc: 'Nama Anda tidak akan ditampilkan',
+      continuePayment: 'Lanjutkan Pembayaran',
+      donationConfirmation: 'Konfirmasi Donasi',
+      paymentInstructions: 'Instruksi Pembayaran',
+      transferAmount: 'Nominal Donasi',
+      transferWithUniqueCode: 'Transfer dengan Kode Unik',
+      uniqueCode: 'Kode unik',
+      forValidation: 'untuk validasi transfer',
+      paymentMethod: 'Metode Pembayaran',
+      accountNumber: 'Nomor Rekening/HP',
+      paymentInstruction: 'Instruksi Pembayaran',
+      recipientName: 'Nama Penerima',
+      copiedSuccess: 'Berhasil disalin!',
+      amountCopied: 'Nominal berhasil disalin!',
+      numberCopied: 'Nomor berhasil disalin!',
+      uploadProof: 'Upload Bukti Transfer',
+      uploadProofDesc: 'Silakan upload bukti transfer Anda',
+      clickToUpload: 'Klik untuk upload',
+      dragOrClick: 'atau drag & drop file di sini',
+      removeFile: 'Hapus File',
+      fileUploaded: 'File berhasil diupload',
+      submitProof: 'Kirim Bukti Transfer',
+      paymentTimeLimit: 'Batas waktu pembayaran',
+      thankYouTitle: 'Jazakumullah Khairan Katsira',
+      thankYouDesc: 'Terima kasih atas kontribusi Anda! Bukti transfer telah kami terima dan sedang dalam proses verifikasi.',
+      donationRefNumber: 'Nomor Referensi Donasi',
+      saveRefNumber: 'Simpan nomor ini untuk melacak status donasi Anda',
+      donationSummary: 'Ringkasan Donasi',
+      donationAmountLabel: 'Nominal Donasi',
+      transferTime: 'Waktu Transfer',
+      nextSteps: 'Langkah Selanjutnya:',
+      step1: 'Donasi Anda akan diverifikasi dalam 1x24 jam',
+      step2: 'Anda akan menerima email konfirmasi setelah verifikasi',
+      step3: 'Notifikasi juga akan dikirim melalui aplikasi',
+      step4: 'Anda dapat melacak status donasi di halaman "Pesan"',
+      backToHome: 'Kembali ke Beranda',
+      shareGoodness: 'Bagikan Kebaikan',
+      instructionStep1: 'Transfer sesuai nominal yang tertera (termasuk kode unik)',
+      instructionStep2: 'Simpan bukti transfer Anda',
+      instructionStep3: 'Upload bukti transfer di bawah ini',
+      instructionStep4: 'Donasi akan diverifikasi dalam 1x24 jam',
+      instructionStep5: 'Anda akan menerima notifikasi konfirmasi via email',
+    },
+
+    // ===== 34. EVENT DETAIL PAGE =====
+    eventDetailPage: {
+      eventDetail: 'Detail Event',
+      registerNow: 'Daftar Sekarang',
+      registered: 'Terdaftar',
+      registrationPending: 'Menunggu Konfirmasi',
+      registrationApproved: 'Pendaftaran Disetujui',
+      registrationRejected: 'Pendaftaran Ditolak',
+      eventInfo: 'Informasi Event',
+      date: 'Tanggal',
+      time: 'Waktu',
+      location: 'Lokasi',
+      eventType: 'Tipe Event',
+      publicEvent: 'Terbuka untuk Umum',
+      alumniOnly: 'Khusus Alumni',
+      freeEvent: 'Gratis',
+      paidEvent: 'Berbayar',
+      ticketPrice: 'Harga Tiket',
+      participantQuota: 'Kuota Peserta',
+      spotsLeft: 'Sisa Kuota',
+      persons: 'orang',
+      facilities: 'Fasilitas',
+      dressCode: 'Dress Code',
+      aboutEvent: 'Tentang Event',
+      registerForm: 'Form Pendaftaran',
+      whatsappNumber: 'Nomor WhatsApp',
+      attendedBefore: 'Pernah mengikuti event sebelumnya?',
+      yes: 'Ya',
+      no: 'Tidak',
+      submitting: 'Mengirim...',
+      submitRegistration: 'Kirim Pendaftaran',
+      cancel: 'Batal',
+      loginRequired: 'Silakan login terlebih dahulu untuk mendaftar event.',
+      alumniOnlyEvent: 'Event ini khusus untuk alumni. Silakan login sebagai alumni.',
+      loginFirst: 'Silakan login terlebih dahulu.',
+    },
+
+    // ===== 35. MESSAGES ALUMNI PAGE =====
+    messagesAlumniPage: {
+      messages: 'Pesan',
+      donationReport: 'Laporan Donasi',
+      event: 'Event',
+      conversations: 'Percakapan',
+      tasks: 'Tasks',
+      voting: 'Voting',
+      searchMessages: 'Cari pesan atau grup...',
+      noConversations: 'Belum ada percakapan',
+      joinProjectFirst: 'Bergabung ke project untuk mulai chat dengan tim.',
+      online: 'Online',
+      taskAssigned: 'Task Ditugaskan',
+      taskStatus: 'Status Task',
+      priority: 'Prioritas',
+      deadline: 'Deadline',
+      markComplete: 'Tandai Selesai',
+      completed: 'Selesai',
+      inProgress: 'Sedang Berjalan',
+      noTasks: 'Belum Ada Task',
+      noTasksDesc: 'Anda belum memiliki task yang ditugaskan.',
+      voteNow: 'Vote Sekarang',
+      voted: 'Sudah Vote',
+      votes: 'suara',
+      pollEnds: 'Berakhir',
+      noPollsActive: 'Belum Ada Voting',
+      noPollsDesc: 'Belum ada voting aktif di project Anda.',
+    },
+
+    // ===== 36. BOOKMARKED PROJECTS PAGE =====
+    bookmarksPage: {
+      bookmarks: 'Bookmark',
+      savedProjects: 'Project yang Anda simpan',
+      noBookmarks: 'Belum Ada Bookmark',
+      noBookmarksDesc: 'Project yang Anda bookmark akan muncul di sini.',
+      exploreProjects: 'Explore Project',
+      removeBookmark: 'Hapus Bookmark',
+      viewProject: 'Lihat Project',
+      funding: 'Donasi',
+      volunteer: 'Volunteer',
+      documentation: 'Dokumentasi',
+      progressLabel: 'Progress',
+      collected: 'Terkumpul',
+      target: 'Target',
+    },
   },
 
   en: {
@@ -1992,6 +2340,180 @@ export const translations: Record<Language, Translations> = {
       explore: 'Explore',
       messages: 'Messages',
       settings: 'Settings',
+    },
+
+    // ===== 32. PROJECT DETAIL PAGE (Donatur) =====
+    projectDetailDonatur: {
+      projectDetail: 'Project Detail',
+      overview: 'Overview',
+      progress: 'Progress',
+      projectDescription: 'Project Description',
+      projectGoals: 'Project Goals',
+      benefits: 'Benefits',
+      locationFocus: 'Location / Activity Focus',
+      teamNeeds: 'Team Needs',
+      positionNeeded: 'Position Needed',
+      positionAvailable: 'Position Available',
+      projectProgress: 'Project Progress',
+      estimatedCompletion: 'Estimated completion',
+      projectPhases: 'Project Phases',
+      completed: 'Completed',
+      inProgress: 'In Progress',
+      notStarted: 'Not Started',
+      target: 'Target',
+      latestUpdates: 'Latest Updates',
+      donateNow: 'Donate Now',
+      selectPosition: 'Select the position you want to apply for',
+      commitmentDuration: 'Commitment Duration',
+      month1: '1 Month',
+      months3: '3 Months',
+      months6: '6 Months',
+      year1: '1 Year',
+      custom: 'Custom',
+      reasonToJoin: 'Reason to join is required',
+      submitApplication: 'Submit Application',
+      applicationSent: 'Application sent successfully!',
+      applicationPendingDesc: 'Waiting for PIC approval',
+    },
+
+    // ===== 33. DONATION PAGE =====
+    donationPageFull: {
+      donationAmount: 'Donation Amount',
+      enterCustomAmount: 'Enter custom amount',
+      quickAmounts: 'Quick Amounts',
+      selectPaymentMethod: 'Select Payment Method',
+      bankTransfer: 'Bank Transfer',
+      eWallet: 'E-Wallet',
+      messageOptional: 'Message for PIC (Optional)',
+      messagePlaceholder: 'Write your message or prayer...',
+      prayerOptional: 'Prayer (Optional)',
+      prayerPlaceholder: 'Write your prayer...',
+      donateAnonymous: 'Donate as Anonymous',
+      anonymousDesc: 'Your name will not be displayed',
+      continuePayment: 'Continue Payment',
+      donationConfirmation: 'Donation Confirmation',
+      paymentInstructions: 'Payment Instructions',
+      transferAmount: 'Donation Amount',
+      transferWithUniqueCode: 'Transfer with Unique Code',
+      uniqueCode: 'Unique code',
+      forValidation: 'for transfer validation',
+      paymentMethod: 'Payment Method',
+      accountNumber: 'Account/Phone Number',
+      paymentInstruction: 'Payment Instructions',
+      recipientName: 'Recipient Name',
+      copiedSuccess: 'Copied successfully!',
+      amountCopied: 'Amount copied!',
+      numberCopied: 'Number copied!',
+      uploadProof: 'Upload Transfer Proof',
+      uploadProofDesc: 'Please upload your transfer proof',
+      clickToUpload: 'Click to upload',
+      dragOrClick: 'or drag & drop file here',
+      removeFile: 'Remove File',
+      fileUploaded: 'File uploaded successfully',
+      submitProof: 'Submit Transfer Proof',
+      paymentTimeLimit: 'Payment time limit',
+      thankYouTitle: 'Jazakumullah Khairan Katsira',
+      thankYouDesc: 'Thank you for your contribution! Your transfer proof has been received and is being verified.',
+      donationRefNumber: 'Donation Reference Number',
+      saveRefNumber: 'Save this number to track your donation status',
+      donationSummary: 'Donation Summary',
+      donationAmountLabel: 'Donation Amount',
+      transferTime: 'Transfer Time',
+      nextSteps: 'Next Steps:',
+      step1: 'Your donation will be verified within 1x24 hours',
+      step2: 'You will receive a confirmation email after verification',
+      step3: 'Notification will also be sent via the app',
+      step4: 'You can track donation status on the "Messages" page',
+      backToHome: 'Back to Home',
+      shareGoodness: 'Share Goodness',
+      instructionStep1: 'Transfer the exact amount shown (including unique code)',
+      instructionStep2: 'Save your transfer receipt',
+      instructionStep3: 'Upload transfer proof below',
+      instructionStep4: 'Donation will be verified within 1x24 hours',
+      instructionStep5: 'You will receive confirmation notification via email',
+    },
+
+    // ===== 34. EVENT DETAIL PAGE =====
+    eventDetailPage: {
+      eventDetail: 'Event Detail',
+      registerNow: 'Register Now',
+      registered: 'Registered',
+      registrationPending: 'Waiting for Confirmation',
+      registrationApproved: 'Registration Approved',
+      registrationRejected: 'Registration Rejected',
+      eventInfo: 'Event Info',
+      date: 'Date',
+      time: 'Time',
+      location: 'Location',
+      eventType: 'Event Type',
+      publicEvent: 'Open to Public',
+      alumniOnly: 'Alumni Only',
+      freeEvent: 'Free',
+      paidEvent: 'Paid',
+      ticketPrice: 'Ticket Price',
+      participantQuota: 'Participant Quota',
+      spotsLeft: 'Spots Left',
+      persons: 'persons',
+      facilities: 'Facilities',
+      dressCode: 'Dress Code',
+      aboutEvent: 'About Event',
+      registerForm: 'Registration Form',
+      whatsappNumber: 'WhatsApp Number',
+      attendedBefore: 'Have you attended a previous event?',
+      yes: 'Yes',
+      no: 'No',
+      submitting: 'Submitting...',
+      submitRegistration: 'Submit Registration',
+      cancel: 'Cancel',
+      loginRequired: 'Please login first to register for this event.',
+      alumniOnlyEvent: 'This event is for alumni only. Please login as alumni.',
+      loginFirst: 'Please login first.',
+    },
+
+    // ===== 35. MESSAGES ALUMNI PAGE =====
+    messagesAlumniPage: {
+      messages: 'Messages',
+      donationReport: 'Donation Report',
+      event: 'Event',
+      conversations: 'Conversations',
+      tasks: 'Tasks',
+      voting: 'Voting',
+      searchMessages: 'Search messages or groups...',
+      noConversations: 'No conversations yet',
+      joinProjectFirst: 'Join a project to start chatting with the team.',
+      online: 'Online',
+      taskAssigned: 'Task Assigned',
+      taskStatus: 'Task Status',
+      priority: 'Priority',
+      deadline: 'Deadline',
+      markComplete: 'Mark Complete',
+      completed: 'Completed',
+      inProgress: 'In Progress',
+      noTasks: 'No Tasks',
+      noTasksDesc: 'You have no assigned tasks.',
+      voteNow: 'Vote Now',
+      voted: 'Voted',
+      votes: 'votes',
+      pollEnds: 'Ends',
+      noPollsActive: 'No Active Polls',
+      noPollsDesc: 'No active polls in your projects.',
+    },
+
+    // ===== 36. BOOKMARKED PROJECTS PAGE =====
+    bookmarksPage: {
+      bookmarks: 'Bookmarks',
+      savedProjects: 'Your saved projects',
+      noBookmarks: 'No Bookmarks',
+      noBookmarksDesc: 'Projects you bookmark will appear here.',
+      exploreProjects: 'Explore Projects',
+      removeBookmark: 'Remove Bookmark',
+      viewProject: 'View Project',
+      funding: 'Donation',
+      volunteer: 'Volunteer',
+      documentation: 'Documentation',
+      progressLabel: 'Progress',
+      collected: 'Collected',
+      target: 'Target',
     },
   },
 };

@@ -31,7 +31,7 @@ export function ProjectDetail({
   projectId = 'bantuan-pangan-gaza',
   projectImageUrl
 }: ProjectDetailProps) {
-  const { language } = useTranslation();
+  const { language, t } = useTranslation();
   
   // DEBUG: Log props yang diterima
   console.log('📄 [ProjectDetail - Donatur] Component rendered with props:', {
@@ -54,15 +54,15 @@ export function ProjectDetail({
 
   const handleJoinSubmit = () => {
     if (!selectedPosition) {
-      toast.error('Pilih posisi yang ingin Anda apply');
+      toast.error(language === 'id' ? 'Pilih posisi yang ingin Anda apply' : 'Select the position you want to apply for');
       return;
     }
     if (!joinReason.trim()) {
-      toast.error('Alasan bergabung harus diisi');
+      toast.error(language === 'id' ? 'Alasan bergabung harus diisi' : 'Reason to join is required');
       return;
     }
     if (commitmentDuration === 'custom' && !customDuration.trim()) {
-      toast.error('Mohon isi durasi komitmen custom');
+      toast.error(language === 'id' ? 'Mohon isi durasi komitmen custom' : 'Please fill in custom commitment duration');
       return;
     }
 
@@ -104,8 +104,8 @@ export function ProjectDetail({
     setCommitmentDuration('3-months');
     setCustomDuration('');
 
-    toast.success('Pengajuan berhasil dikirim!', {
-      description: 'Menunggu persetujuan dari PIC project',
+    toast.success(language === 'id' ? 'Pengajuan berhasil dikirim!' : 'Application sent successfully!', {
+      description: language === 'id' ? 'Menunggu persetujuan dari PIC project' : 'Waiting for PIC approval',
       duration: 4000,
     });
   };
@@ -152,23 +152,23 @@ export function ProjectDetail({
                 onClick={onBack}
               >
                 <span className="material-symbols-outlined text-xl">home</span>
-                <span className="tracking-wide text-sm">Home</span>
+                <span className="tracking-wide text-sm">{t.nav.home}</span>
               </button>
 
               <button className="flex items-center gap-3 px-4 py-3.5 rounded-xl font-medium transition-all text-white/60 hover:bg-white/5 hover:text-white w-full">
                 <span className="material-symbols-outlined text-xl">explore</span>
-                <span className="tracking-wide text-sm">Explore</span>
+                <span className="tracking-wide text-sm">{t.nav.explore}</span>
               </button>
 
               <button className="flex items-center gap-3 px-4 py-3.5 rounded-xl font-medium transition-all text-white/60 hover:bg-white/5 hover:text-white w-full relative">
                 <span className="material-symbols-outlined text-xl">chat_bubble</span>
-                <span className="tracking-wide text-sm">Pesan</span>
+                <span className="tracking-wide text-sm">{t.nav.messages}</span>
                 <span className="absolute top-3 left-11 w-2 h-2 bg-red-500 rounded-full border border-[#2B4468]"></span>
               </button>
 
               <button className="flex items-center gap-3 px-4 py-3.5 rounded-xl font-medium transition-all text-white/60 hover:bg-white/5 hover:text-white w-full">
                 <span className="material-symbols-outlined text-xl">settings</span>
-                <span className="tracking-wide text-sm">Settings</span>
+                <span className="tracking-wide text-sm">{t.nav.settings}</span>
               </button>
             </div>
           </nav>
@@ -180,7 +180,7 @@ export function ProjectDetail({
               className="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-white/60 hover:bg-white/5 hover:text-white transition-all"
             >
               <span className="material-symbols-outlined text-xl">logout</span>
-              <span className="tracking-wide text-sm">Logout</span>
+              <span className="tracking-wide text-sm">{t.nav.logout}</span>
             </button>
           </div>
         </div>
@@ -196,7 +196,7 @@ export function ProjectDetail({
             </button>
           </div>
           <h2 className="text-[#0E1B33] text-lg font-bold leading-tight tracking-tight flex-1 text-center uppercase">
-            Detail Proyek
+            {t.projectDetailDonatur.projectDetail}
           </h2>
           <div className="flex items-center justify-end">
             <button className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-lg text-[#243D68] hover:bg-[#F8F9FA] transition-colors">
@@ -280,7 +280,7 @@ export function ProjectDetail({
                   <div className="bg-[#F8F9FA] rounded-xl p-5 border border-[#E5E7EB]">
                     <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2 bg-[#FAC06E] rounded-lg px-3 py-2 shadow-sm">
                       <span className="material-symbols-outlined text-white">description</span>
-                      Deskripsi Proyek
+                      {t.projectDetailDonatur.projectDescription}
                     </h3>
                     <ul className="list-disc list-inside space-y-2 text-[#6B7280] text-sm leading-relaxed">
                       <li>Menyalurkan paket sembako untuk 1000 keluarga terdampak di Gaza.</li>
@@ -291,7 +291,7 @@ export function ProjectDetail({
                   <div className="bg-[#F8F9FA] rounded-xl p-5 border border-[#E5E7EB]">
                     <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2 bg-[#FAC06E] rounded-lg px-3 py-2 shadow-sm">
                       <span className="material-symbols-outlined text-white">flag</span>
-                      Tujuan Proyek
+                      {t.projectDetailDonatur.projectGoals}
                     </h3>
                     <ul className="space-y-3 text-[#6B7280] text-sm leading-relaxed">
                       <li className="flex items-start gap-2">
@@ -321,7 +321,7 @@ export function ProjectDetail({
                   <div className="bg-[#F8F9FA] rounded-xl p-5 border border-[#E5E7EB]">
                     <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2 bg-[#FAC06E] rounded-lg px-3 py-2 shadow-sm">
                       <span className="material-symbols-outlined text-white">workspace_premium</span>
-                      Benefit
+                      {t.projectDetailDonatur.benefits}
                     </h3>
                     <ul className="space-y-3 text-[#6B7280] text-sm leading-relaxed">
                       <li className="flex items-start gap-2">
@@ -347,7 +347,7 @@ export function ProjectDetail({
                   <div className="bg-[#F8F9FA] rounded-xl p-5 border border-[#E5E7EB]">
                     <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2 bg-[#FAC06E] rounded-lg px-3 py-2 shadow-sm">
                       <span className="material-symbols-outlined text-white">location_on</span>
-                      Lokasi / Fokus Kegiatan
+                      {t.projectDetailDonatur.locationFocus}
                     </h3>
                     <div className="flex items-center gap-2">
                       <span className="material-symbols-outlined text-[#243D68]">public</span>
@@ -360,7 +360,7 @@ export function ProjectDetail({
                 <div className="bg-[#F8F9FA] rounded-xl p-5 border border-[#E5E7EB]">
                   <h3 className="text-sm font-bold text-white flex items-center gap-2 bg-[#FAC06E] rounded-lg px-3 py-2 shadow-sm w-fit mb-4">
                     <span className="material-symbols-outlined text-white">groups</span>
-                    Kebutuhan Tim
+                    {t.projectDetailDonatur.teamNeeds}
                   </h3>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="bg-white rounded-xl border border-[#E5E7EB] p-5">
@@ -396,7 +396,7 @@ export function ProjectDetail({
                 <div className="bg-[#F8F9FA] rounded-xl p-5 border border-[#E5E7EB]">
                   <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2 bg-[#FAC06E] rounded-lg px-3 py-2 shadow-sm w-fit">
                     <span className="material-symbols-outlined text-white">trending_up</span>
-                    Progress Proyek
+                    {t.projectDetailDonatur.projectProgress}
                   </h3>
                   <div className="flex items-center justify-between mb-4">
                     <span className="text-2xl font-bold text-[#4A90E2]">60%</span>
@@ -411,7 +411,7 @@ export function ProjectDetail({
                 <div className="bg-[#F8F9FA] rounded-xl p-5 border border-[#E5E7EB]">
                   <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2 bg-[#FAC06E] rounded-lg px-3 py-2 shadow-sm w-fit">
                     <span className="material-symbols-outlined text-white">timeline</span>
-                    Tahapan Proyek
+                    {t.projectDetailDonatur.projectPhases}
                   </h3>
                   <div className="space-y-4">
                     <div className="flex items-start gap-3">
@@ -466,7 +466,7 @@ export function ProjectDetail({
                 <div className="bg-[#F8F9FA] rounded-xl p-5 border border-[#E5E7EB]">
                   <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2 bg-[#FAC06E] rounded-lg px-3 py-2 shadow-sm w-fit">
                     <span className="material-symbols-outlined text-white">notifications</span>
-                    Update Terbaru
+                    {t.projectDetailDonatur.latestUpdates}
                   </h3>
                   <div className="space-y-4">
                     <div className="flex gap-3 pb-4 border-b border-[#E5E7EB] last:border-0 last:pb-0">
@@ -513,7 +513,7 @@ export function ProjectDetail({
           <div className="fixed bottom-0 left-0 lg:left-64 right-0 w-full bg-white p-4 border-t border-[#E5E7EB] shadow-[0_-4px_12px_rgba(0,0,0,0.08)] flex items-center justify-center">
             <button className="w-full lg:w-auto lg:min-w-[448px] flex items-center justify-center gap-2 py-4 rounded-xl bg-[#2B4468] text-white text-base font-bold leading-normal tracking-widest border-4 border-[#FAC06E] hover:bg-[#243D68] transition-colors uppercase" onClick={() => setShowDonation(true)}>
               <span className="material-symbols-outlined text-2xl">volunteer_activism</span>
-              <span className="text-center">{language === 'id' ? 'Donasi Sekarang' : 'Donate Now'}</span>
+              <span className="text-center">{t.projectDetailDonatur.donateNow}</span>
             </button>
           </div>
         )}

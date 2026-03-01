@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 import { HandHeart, UserPlus, HeartHandshake } from 'lucide-react';
 import { Logo } from './Logo';
+import { useTranslation } from '@/hooks/useTranslation';
 import type { JoinRequest } from '@/types';
 
 export interface AvailablePosition {
@@ -55,6 +56,8 @@ export function ProjectDetailAlumni({
   isBookmarked: initialBookmarked = false,
   onBookmark
 }: ProjectDetailAlumniProps) {
+  const { language, t } = useTranslation();
+
   // DEBUG: Log props yang diterima
   console.log('📄 [ProjectDetailAlumni] Component rendered with props:', {
     projectId,
@@ -73,8 +76,12 @@ export function ProjectDetailAlumni({
     const newVal = !isBookmarked;
     setIsBookmarked(newVal);
     onBookmark?.(projectId, newVal);
-    toast.success(newVal ? 'Project disimpan ke bookmark' : 'Bookmark dihapus', {
-      description: newVal ? `"${projectTitle}" berhasil ditambahkan ke daftar bookmark Anda.` : `"${projectTitle}" dihapus dari daftar bookmark Anda.`,
+    toast.success(newVal 
+      ? (language === 'id' ? 'Project disimpan ke bookmark' : 'Project saved to bookmarks')
+      : (language === 'id' ? 'Bookmark dihapus' : 'Bookmark removed'), {
+      description: newVal 
+        ? (language === 'id' ? `"${projectTitle}" berhasil ditambahkan ke daftar bookmark Anda.` : `"${projectTitle}" has been added to your bookmarks.`)
+        : (language === 'id' ? `"${projectTitle}" dihapus dari daftar bookmark Anda.` : `"${projectTitle}" has been removed from your bookmarks.`),
     });
   };
 
@@ -137,15 +144,15 @@ export function ProjectDetailAlumni({
     
     // Validations
     if (!selectedPosition) {
-      toast.error('Pilih posisi yang ingin Anda apply');
+      toast.error(t.projectDetailDonatur.selectPosition);
       return;
     }
     if (!joinReason.trim()) {
-      toast.error('Alasan bergabung harus diisi');
+      toast.error(t.projectDetailDonatur.reasonToJoin);
       return;
     }
     if (commitmentDuration === 'custom' && !customDuration.trim()) {
-      toast.error('Mohon isi durasi komitmen custom');
+      toast.error(language === 'id' ? 'Mohon isi durasi komitmen custom' : 'Please fill in custom commitment duration');
       return;
     }
     
@@ -210,8 +217,8 @@ export function ProjectDetailAlumni({
     setCommitmentDuration('3-months');
     setCustomDuration('');
     
-    toast.success('Pengajuan berhasil dikirim!', {
-      description: 'Menunggu persetujuan dari PIC project',
+    toast.success(t.projectDetailDonatur.applicationSent, {
+      description: t.projectDetailDonatur.applicationPendingDesc,
       duration: 4000,
     });
     
@@ -223,8 +230,8 @@ export function ProjectDetailAlumni({
     setApplicationStatus('approved');
     setIsProjectMember(true);
     setActiveTab('discussion');
-    toast.success('Selamat! Anda diterima di project ini', {
-      description: 'Akses penuh ke Diskusi dan Wallet sudah tersedia',
+    toast.success(language === 'id' ? 'Selamat! Anda diterima di project ini' : 'Congratulations! You have been accepted to this project', {
+      description: language === 'id' ? 'Akses penuh ke Diskusi dan Wallet sudah tersedia' : 'Full access to Discussion and Wallet is now available',
       duration: 4000,
     });
   };
@@ -318,7 +325,7 @@ export function ProjectDetailAlumni({
                 onClick={onNavigateHome || onBack}
               >
                 <span className="material-symbols-outlined text-xl">home</span>
-                <span className="tracking-wide text-sm">Home</span>
+                <span className="tracking-wide text-sm">{t.nav.home}</span>
               </button>
 
               <button 
@@ -330,7 +337,7 @@ export function ProjectDetailAlumni({
                 onClick={onNavigateExplore}
               >
                 <span className="material-symbols-outlined text-xl">explore</span>
-                <span className="tracking-wide text-sm">Explore</span>
+                <span className="tracking-wide text-sm">{t.nav.explore}</span>
               </button>
 
               <button 
@@ -342,7 +349,7 @@ export function ProjectDetailAlumni({
                 onClick={onNavigateMessages}
               >
                 <span className="material-symbols-outlined text-xl">chat_bubble</span>
-                <span className="tracking-wide text-sm">Pesan</span>
+                <span className="tracking-wide text-sm">{t.nav.messages}</span>
                 <span className="absolute top-3 left-11 w-2 h-2 bg-red-500 rounded-full border border-[#2B4468]"></span>
               </button>
 
@@ -355,7 +362,7 @@ export function ProjectDetailAlumni({
                 onClick={onNavigateSettings}
               >
                 <span className="material-symbols-outlined text-xl">settings</span>
-                <span className="tracking-wide text-sm">Settings</span>
+                <span className="tracking-wide text-sm">{t.nav.settings}</span>
               </button>
             </div>
           </nav>
@@ -367,7 +374,7 @@ export function ProjectDetailAlumni({
               className="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-white/60 hover:bg-white/5 hover:text-white transition-all"
             >
               <span className="material-symbols-outlined text-xl">logout</span>
-              <span className="tracking-wide text-sm">Logout</span>
+              <span className="tracking-wide text-sm">{t.nav.logout}</span>
             </button>
           </div>
         </div>
@@ -383,7 +390,7 @@ export function ProjectDetailAlumni({
             </button>
           </div>
           <h2 className="text-[#0E1B33] text-base md:text-lg font-bold leading-tight tracking-tight flex-1 text-center uppercase px-2">
-            Detail Proyek
+            {t.projectDetailDonatur.projectDetail}
           </h2>
           <div className="flex items-center justify-end gap-2">
             <button 
@@ -470,8 +477,8 @@ export function ProjectDetailAlumni({
                 ([
                   { key: 'overview' as const, label: 'Overview' },
                   { key: 'deadline' as const, label: 'Deadline' },
-                  { key: 'alumni-apply' as const, label: 'Jumlah Alumni Apply' },
-                  { key: 'anggaran' as const, label: 'Kebutuhan Anggaran' },
+                  { key: 'alumni-apply' as const, label: language === 'id' ? 'Jumlah Alumni Apply' : 'Alumni Applications' },
+                  { key: 'anggaran' as const, label: language === 'id' ? 'Kebutuhan Anggaran' : 'Budget Needs' },
                 ] as { key: 'overview' | 'deadline' | 'alumni-apply' | 'anggaran'; label: string }[]).map((tab) => (
                   <button
                     key={tab.key}
@@ -547,10 +554,10 @@ export function ProjectDetailAlumni({
                   <div className="bg-[#F8F9FA] rounded-xl p-5 border border-[#E5E7EB]">
                     <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2 bg-[#243D68] rounded-lg px-3 py-2 shadow-sm w-fit">
                       <span className="material-symbols-outlined text-white">trending_up</span>
-                      Progress Penggalangan Dana
+                      {language === 'id' ? 'Progress Penggalangan Dana' : 'Fundraising Progress'}
                     </h3>
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm text-[#6B7280]">Terkumpul</span>
+                      <span className="text-sm text-[#6B7280]">{t.projectDetailDonatur.collected}</span>
                       <div className="text-right">
                         <span className="text-xl font-black text-[#243D68]">Rp 75.000.000</span>
                         <span className="text-sm text-[#6B7280] ml-1">/ Rp 150.000.000</span>
@@ -603,7 +610,7 @@ export function ProjectDetailAlumni({
                     <div className="relative z-10 text-center">
                       <div className="flex items-center justify-center gap-2 mb-3">
                         <span className="material-symbols-outlined text-[#FAC06E] text-2xl">schedule</span>
-                        <p className="text-white/80 text-sm font-semibold uppercase tracking-wider">Sisa Waktu Campaign</p>
+                        <p className="text-white/80 text-sm font-semibold uppercase tracking-wider">{language === 'id' ? 'Sisa Waktu Campaign' : 'Campaign Time Remaining'}</p>
                       </div>
                       <div className="flex items-center justify-center gap-3 mt-2">
                         {[
@@ -845,7 +852,7 @@ export function ProjectDetailAlumni({
                         <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3.5">
                           <div className="flex items-center gap-2 mb-1">
                             <span className="material-symbols-outlined text-green-400 text-lg">volunteer_activism</span>
-                            <span className="text-white/70 text-xs font-semibold">Terkumpul</span>
+                            <span className="text-white/70 text-xs font-semibold">{t.projectDetailDonatur.collected}</span>
                           </div>
                           <p className="text-lg font-black text-white">Rp 75.000.000</p>
                         </div>
@@ -953,7 +960,7 @@ export function ProjectDetailAlumni({
                   </div>
                   <div className="flex items-center justify-between text-sm">
                     <div>
-                      <span className="text-[#6B7280]">Terkumpul: </span>
+                      <span className="text-[#6B7280]">{t.projectDetailDonatur.collected}: </span>
                       <span className="font-bold text-[#243D68]">
                         {projectType === 'galeri-with-funding' ? 'Rp 33.500.000' : 'Rp 0'}
                       </span>
@@ -980,7 +987,7 @@ export function ProjectDetailAlumni({
                 <div className="bg-[#F8F9FA] rounded-xl p-5 border border-[#E5E7EB]">
                   <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2 bg-[#FAC06E] rounded-lg px-3 py-2 shadow-sm">
                     <span className="material-symbols-outlined text-white">description</span>
-                    Deskripsi Proyek
+                    {t.projectDetailDonatur.projectDescription}
                   </h3>
                   <ul className="list-disc list-inside space-y-2 text-[#6B7280] text-sm leading-relaxed">
                     <li>Membangun aplikasi mobile untuk Ikatan Alumni Universitas Brawijaya (IKA UB).</li>
@@ -991,7 +998,7 @@ export function ProjectDetailAlumni({
                 <div className="bg-[#F8F9FA] rounded-xl p-5 border border-[#E5E7EB]">
                   <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2 bg-[#FAC06E] rounded-lg px-3 py-2 shadow-sm">
                     <span className="material-symbols-outlined text-white">flag</span>
-                    Tujuan Proyek
+                    {t.projectDetailDonatur.projectGoals}
                   </h3>
                   <ul className="space-y-3 text-[#6B7280] text-sm leading-relaxed">
                     <li className="flex items-start gap-2">
@@ -1021,7 +1028,7 @@ export function ProjectDetailAlumni({
                 <div className="bg-[#F8F9FA] rounded-xl p-5 border border-[#E5E7EB]">
                   <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2 bg-[#FAC06E] rounded-lg px-3 py-2 shadow-sm">
                     <span className="material-symbols-outlined text-white">workspace_premium</span>
-                    Benefit
+                    {t.projectDetailDonatur.benefits}
                   </h3>
                   <ul className="space-y-3 text-[#6B7280] text-sm leading-relaxed">
                     <li className="flex items-start gap-2">
@@ -1047,7 +1054,7 @@ export function ProjectDetailAlumni({
                 <div className="bg-[#F8F9FA] rounded-xl p-5 border border-[#E5E7EB]">
                   <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2 bg-[#FAC06E] rounded-lg px-3 py-2 shadow-sm">
                     <span className="material-symbols-outlined text-white">location_on</span>
-                    Lokasi / Fokus Kegiatan
+                    {t.projectDetailDonatur.locationFocus}
                   </h3>
                   <div className="flex items-center gap-2">
                     <span className="material-symbols-outlined text-[#243D68]">public</span>
@@ -1171,7 +1178,7 @@ export function ProjectDetailAlumni({
               <div className="bg-[#F8F9FA] rounded-xl p-5 border border-[#E5E7EB]">
                 <h3 className="text-sm font-bold text-white flex items-center gap-2 bg-[#FAC06E] rounded-lg px-3 py-2 shadow-sm w-fit mb-4">
                   <span className="material-symbols-outlined text-white">groups</span>
-                  Kebutuhan Tim
+                  {t.projectDetailDonatur.teamNeeds}
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="bg-white rounded-xl border border-[#E5E7EB] p-5">
@@ -1208,7 +1215,7 @@ export function ProjectDetailAlumni({
               <div className="bg-[#F8F9FA] rounded-xl p-5 border border-[#E5E7EB]">
                 <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2 bg-[#FAC06E] rounded-lg px-3 py-2 shadow-sm w-fit">
                   <span className="material-symbols-outlined text-white">trending_up</span>
-                  Progress Proyek
+                  {t.projectDetailDonatur.projectProgress}
                 </h3>
                 <div className="flex items-center justify-between mb-4">
                   <span className="text-2xl font-bold text-[#4A90E2]">60%</span>
@@ -1223,7 +1230,7 @@ export function ProjectDetailAlumni({
               <div className="bg-[#F8F9FA] rounded-xl p-5 border border-[#E5E7EB]">
                 <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2 bg-[#FAC06E] rounded-lg px-3 py-2 shadow-sm w-fit">
                   <span className="material-symbols-outlined text-white">timeline</span>
-                  Tahapan Proyek
+                  {t.projectDetailDonatur.projectPhases}
                 </h3>
                 <div className="space-y-4">
                   <div className="flex items-start gap-3">
@@ -1348,7 +1355,7 @@ export function ProjectDetailAlumni({
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-sm font-bold text-white flex items-center gap-2 bg-[#243D68] rounded-lg px-3 py-2 shadow-sm w-fit">
                     <span className="material-symbols-outlined text-white">groups</span>
-                    Tim Inti
+                    {language === 'id' ? 'Tim Inti' : 'Core Team'}
                   </h3>
                   <span className="text-xs text-[#6B7280] bg-[#F3F4F6] px-2.5 py-1 rounded-full font-medium">3 orang</span>
                 </div>
@@ -1430,10 +1437,12 @@ export function ProjectDetailAlumni({
                       </div>
                       <div className="flex-1">
                         <h4 className="text-[#243D68] font-bold text-base mb-2">
-                          Bergabung untuk Akses Penuh
+                          {language === 'id' ? 'Bergabung untuk Akses Penuh' : 'Join for Full Access'}
                         </h4>
                         <p className="text-[#6B7280] text-sm leading-relaxed">
-                          Klik tombol <span className="font-semibold text-[#243D68]">"Join Project"</span> di bawah untuk mengajukan diri bergabung. Setelah diterima oleh PIC, Anda akan mendapatkan akses ke fitur <span className="font-semibold text-[#243D68]">Diskusi</span> dan <span className="font-semibold text-[#243D68]">Wallet</span> untuk berkolaborasi dengan tim.
+                          {language === 'id' 
+                            ? <>Klik tombol <span className="font-semibold text-[#243D68]">"Join Project"</span> di bawah untuk mengajukan diri bergabung. Setelah diterima oleh PIC, Anda akan mendapatkan akses ke fitur <span className="font-semibold text-[#243D68]">Diskusi</span> dan <span className="font-semibold text-[#243D68]">Wallet</span> untuk berkolaborasi dengan tim.</>
+                            : <>Click the <span className="font-semibold text-[#243D68]">"Join Project"</span> button below to apply. Once accepted by the PIC, you will get access to <span className="font-semibold text-[#243D68]">Discussion</span> and <span className="font-semibold text-[#243D68]">Wallet</span> features to collaborate with the team.</>}
                         </p>
                       </div>
                     </div>
@@ -1452,11 +1461,11 @@ export function ProjectDetailAlumni({
                 <div className="relative z-10">
                   <div className="flex items-start justify-between mb-6">
                     <div>
-                      <h3 className="text-white/80 text-sm font-semibold mb-1">Dompet Proyek</h3>
+                      <h3 className="text-white/80 text-sm font-semibold mb-1">{language === 'id' ? 'Dompet Proyek' : 'Project Wallet'}</h3>
                       <div className="flex items-baseline gap-2">
                         <span className="text-3xl md:text-4xl font-black text-white">Rp 35.000.000</span>
                       </div>
-                      <span className="text-xs text-white/60 mt-1 block">Total Dana</span>
+                      <span className="text-xs text-white/60 mt-1 block">{language === 'id' ? 'Total Dana' : 'Total Funds'}</span>
                     </div>
 
                     {/* Circular Progress */}
@@ -1514,7 +1523,7 @@ export function ProjectDetailAlumni({
               {/* Transaction History */}
               <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
                 <div className="p-4 border-b border-[#E5E7EB]">
-                  <h3 className="text-lg font-black text-[#1F2937]">Riwayat Transaksi</h3>
+                  <h3 className="text-lg font-black text-[#1F2937]">{language === 'id' ? 'Riwayat Transaksi' : 'Transaction History'}</h3>
                 </div>
 
                 {/* Filter Tabs */}
@@ -1527,7 +1536,7 @@ export function ProjectDetailAlumni({
                     }`}
                     onClick={() => setWalletFilter('all')}
                   >
-                    Semua
+                    {language === 'id' ? 'Semua' : 'All'}
                   </button>
                   <button 
                     className={`px-4 py-2 text-xs font-semibold rounded-full whitespace-nowrap transition-colors ${
@@ -1537,7 +1546,7 @@ export function ProjectDetailAlumni({
                     }`}
                     onClick={() => setWalletFilter('internal')}
                   >
-                    Dana Internal
+                    {language === 'id' ? 'Dana Internal' : 'Internal Funds'}
                   </button>
                   <button 
                     className={`px-4 py-2 text-xs font-semibold rounded-full whitespace-nowrap transition-colors ${
@@ -1547,7 +1556,7 @@ export function ProjectDetailAlumni({
                     }`}
                     onClick={() => setWalletFilter('donation')}
                   >
-                    Donasi Luar
+                    {language === 'id' ? 'Donasi Luar' : 'External Donations'}
                   </button>
                   <button 
                     className={`px-4 py-2 text-xs font-semibold rounded-full whitespace-nowrap transition-colors ${
@@ -1557,7 +1566,7 @@ export function ProjectDetailAlumni({
                     }`}
                     onClick={() => setWalletFilter('expense')}
                   >
-                    Pengeluaran
+                    {language === 'id' ? 'Pengeluaran' : 'Expenses'}
                   </button>
                 </div>
 
@@ -1820,8 +1829,8 @@ export function ProjectDetailAlumni({
                     <span className="material-symbols-outlined text-[#243D68] text-xl">pending</span>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-bold text-[#243D68]">Pengajuan Tertunda</p>
-                    <p className="text-xs text-[#6B7280]">Menunggu persetujuan dari PIC</p>
+                    <p className="text-sm font-bold text-[#243D68]">{language === 'id' ? 'Pengajuan Tertunda' : 'Application Pending'}</p>
+                    <p className="text-xs text-[#6B7280]">{t.projectDetailDonatur.applicationPendingDesc}</p>
                   </div>
                 </div>
                 {/* Debug button - simulate PIC approval (remove in production) */}
@@ -1846,7 +1855,7 @@ export function ProjectDetailAlumni({
               className="w-full flex items-center justify-center gap-3 rounded-full h-14 bg-[#FAC06E] text-[#243D68] text-base font-bold tracking-widest shadow-[0px_6px_0px_0px_#243D68] hover:shadow-[0px_8px_0px_0px_#243D68] hover:-translate-y-0.5 active:shadow-[0px_2px_0px_0px_#243D68] active:translate-y-1 transition-all uppercase"
             >
               <HandHeart className="w-6 h-6" />
-              <span>Donasi Project</span>
+              <span>{language === 'id' ? 'Donasi Project' : 'Donate to Project'}</span>
             </button>
           </div>
         </div>
@@ -1865,7 +1874,7 @@ export function ProjectDetailAlumni({
                   >
                     <HandHeart className="w-6 h-6 sm:w-8 sm:h-8 stroke-[2.5px] group-hover:scale-110 transition-transform" />
                     <div className="flex flex-col items-start leading-none gap-0.5">
-                      <span className="text-xs sm:text-sm font-extrabold tracking-wide">Donasi</span>
+                      <span className="text-xs sm:text-sm font-extrabold tracking-wide">{language === 'id' ? 'Donasi' : 'Donate'}</span>
                       <span className="text-xs sm:text-sm font-extrabold tracking-wide">Project</span>
                     </div>
                   </button>
@@ -1889,8 +1898,8 @@ export function ProjectDetailAlumni({
                     <span className="material-symbols-outlined text-[#243D68] text-xl">pending</span>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-bold text-[#243D68]">Pengajuan Tertunda</p>
-                    <p className="text-xs text-[#6B7280]">Menunggu persetujuan dari PIC</p>
+                    <p className="text-sm font-bold text-[#243D68]">{language === 'id' ? 'Pengajuan Tertunda' : 'Application Pending'}</p>
+                    <p className="text-xs text-[#6B7280]">{t.projectDetailDonatur.applicationPendingDesc}</p>
                   </div>
                 </div>
                 <button
@@ -1915,8 +1924,8 @@ export function ProjectDetailAlumni({
           <div className="bg-white rounded-2xl max-w-lg w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
             <div className="sticky top-0 bg-white border-b border-[#E5E7EB] p-5 flex items-center justify-between z-10 rounded-t-2xl">
               <div>
-                <h3 className="text-lg font-bold text-[#0E1B33]">Ajukan Bergabung</h3>
-                <p className="text-xs text-[#6B7280] mt-1">Isi form komitmen untuk bergabung dengan project</p>
+                <h3 className="text-lg font-bold text-[#0E1B33]">{language === 'id' ? 'Ajukan Bergabung' : 'Apply to Join'}</h3>
+                <p className="text-xs text-[#6B7280] mt-1">{language === 'id' ? 'Isi form komitmen untuk bergabung dengan project' : 'Fill in the commitment form to join the project'}</p>
               </div>
               <button onClick={() => setShowJoinModal(false)} className="p-1 hover:bg-[#F8F9FA] rounded-lg transition-colors">
                 <span className="material-symbols-outlined text-[#6B7280]">close</span>
@@ -1927,7 +1936,7 @@ export function ProjectDetailAlumni({
               {/* Available Position Dropdown */}
               <div>
                 <label className="block text-sm font-bold text-[#0E1B33] mb-3">
-                  Pilih Posisi <span className="text-red-500">*</span>
+                  {language === 'id' ? 'Pilih Posisi' : 'Select Position'} <span className="text-red-500">*</span>
                 </label>
                 <select
                   value={selectedPosition}
@@ -1939,7 +1948,7 @@ export function ProjectDetailAlumni({
                     backgroundPosition: 'right 1rem center',
                   }}
                 >
-                  <option value="">-- Pilih Posisi yang Diminati --</option>
+                  <option value="">{language === 'id' ? '-- Pilih Posisi yang Diminati --' : '-- Select Preferred Position --'}</option>
                   {availablePositions.map((position) => (
                     <option key={position.id} value={position.id}>
                       {position.title} ({position.slots} {position.slots === 1 ? 'posisi' : 'posisi'} tersedia)
@@ -1956,7 +1965,7 @@ export function ProjectDetailAlumni({
               {/* Commitment Duration */}
               <div>
                 <label className="block text-sm font-bold text-[#0E1B33] mb-3">
-                  Durasi Komitmen <span className="text-red-500">*</span>
+                  {t.projectDetailDonatur.commitmentDuration} <span className="text-red-500">*</span>
                 </label>
                 <div className="space-y-2">
                   <label className="flex items-center gap-3 p-3 border border-[#E5E7EB] rounded-xl hover:bg-[#F8F9FA] cursor-pointer transition-colors">
@@ -1968,7 +1977,7 @@ export function ProjectDetailAlumni({
                       onChange={(e) => setCommitmentDuration(e.target.value)}
                       className="w-4 h-4 text-[#243D68] focus:ring-[#243D68]"
                     />
-                    <span className="text-sm font-medium text-[#0E1B33]">1 Bulan</span>
+                    <span className="text-sm font-medium text-[#0E1B33]">{t.projectDetailDonatur.month1}</span>
                   </label>
                   
                   <label className="flex items-center gap-3 p-3 border border-[#E5E7EB] rounded-xl hover:bg-[#F8F9FA] cursor-pointer transition-colors">
@@ -1980,7 +1989,7 @@ export function ProjectDetailAlumni({
                       onChange={(e) => setCommitmentDuration(e.target.value)}
                       className="w-4 h-4 text-[#243D68] focus:ring-[#243D68]"
                     />
-                    <span className="text-sm font-medium text-[#0E1B33]">3 Bulan</span>
+                    <span className="text-sm font-medium text-[#0E1B33]">{t.projectDetailDonatur.months3}</span>
                   </label>
                   
                   <label className="flex items-center gap-3 p-3 border border-[#E5E7EB] rounded-xl hover:bg-[#F8F9FA] cursor-pointer transition-colors">
@@ -1992,7 +2001,7 @@ export function ProjectDetailAlumni({
                       onChange={(e) => setCommitmentDuration(e.target.value)}
                       className="w-4 h-4 text-[#243D68] focus:ring-[#243D68]"
                     />
-                    <span className="text-sm font-medium text-[#0E1B33]">6 Bulan</span>
+                    <span className="text-sm font-medium text-[#0E1B33]">{t.projectDetailDonatur.months6}</span>
                   </label>
                   
                   <label className="flex items-center gap-3 p-3 border border-[#E5E7EB] rounded-xl hover:bg-[#F8F9FA] cursor-pointer transition-colors">
@@ -2004,7 +2013,7 @@ export function ProjectDetailAlumni({
                       onChange={(e) => setCommitmentDuration(e.target.value)}
                       className="w-4 h-4 text-[#243D68] focus:ring-[#243D68]"
                     />
-                    <span className="text-sm font-medium text-[#0E1B33]">1 Tahun</span>
+                    <span className="text-sm font-medium text-[#0E1B33]">{t.projectDetailDonatur.year1}</span>
                   </label>
                   
                   <label className="flex items-center gap-3 p-3 border border-[#E5E7EB] rounded-xl hover:bg-[#F8F9FA] cursor-pointer transition-colors">
@@ -2034,7 +2043,7 @@ export function ProjectDetailAlumni({
               {/* Reason to Join */}
               <div>
                 <label className="block text-sm font-bold text-[#0E1B33] mb-3">
-                  Alasan Ingin Bergabung <span className="text-red-500">*</span>
+                  {language === 'id' ? 'Alasan Ingin Bergabung' : 'Reason to Join'} <span className="text-red-500">*</span>
                 </label>
                 <textarea
                   value={joinReason}
@@ -2050,9 +2059,9 @@ export function ProjectDetailAlumni({
                 <div className="flex gap-3">
                   <span className="material-symbols-outlined text-[#FAC06E] flex-shrink-0">info</span>
                   <div>
-                    <p className="text-xs font-semibold text-[#243D68] mb-1">Catatan Penting</p>
+                    <p className="text-xs font-semibold text-[#243D68] mb-1">{language === 'id' ? 'Catatan Penting' : 'Important Note'}</p>
                     <p className="text-xs text-[#6B7280] leading-relaxed">
-                      Pengajuan Anda akan direview oleh PIC project. Setelah disetujui, Anda akan mendapatkan akses penuh ke fitur Diskusi dan Wallet untuk berkolaborasi dengan tim.
+                      {language === 'id' ? 'Pengajuan Anda akan direview oleh PIC project. Setelah disetujui, Anda akan mendapatkan akses penuh ke fitur Diskusi dan Wallet untuk berkolaborasi dengan tim.' : 'Your application will be reviewed by the project PIC. Once approved, you will get full access to Discussion and Wallet features to collaborate with the team.'}
                     </p>
                   </div>
                 </div>
@@ -2064,13 +2073,13 @@ export function ProjectDetailAlumni({
                   onClick={() => setShowJoinModal(false)}
                   className="flex-1 px-4 py-3 border border-[#E5E7EB] text-[#6B7280] rounded-xl font-semibold hover:bg-[#F8F9FA] transition-colors"
                 >
-                  Batal
+                  {language === 'id' ? 'Batal' : 'Cancel'}
                 </button>
                 <button
                   onClick={handleJoinSubmit}
                   className="flex-1 px-4 py-3 bg-[#243D68] text-white rounded-xl font-semibold hover:bg-[#1a2d4d] transition-colors"
                 >
-                  Kirim Pengajuan
+                  {t.projectDetailDonatur.submitApplication}
                 </button>
               </div>
             </div>
