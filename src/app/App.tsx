@@ -1542,14 +1542,14 @@ function AppContent() {
             </button>
           </div>
 
-          {/* Logout Button */}
+          {/* Login/Logout Button */}
           <div className="p-5 pb-6">
             <button
               className="flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all w-full text-white/60 hover:bg-white/5 hover:text-white"
-              onClick={handleLogout}
+              onClick={userRole === null ? () => setShowLoginWidget(true) : handleLogout}
             >
-              <span className="material-symbols-outlined text-xl">logout</span>
-              <span className="tracking-wide text-sm">Logout</span>
+              <span className="material-symbols-outlined text-xl">{userRole === null ? 'login' : 'logout'}</span>
+              <span className="tracking-wide text-sm">{userRole === null ? 'Login' : 'Logout'}</span>
             </button>
           </div>
         </div>
