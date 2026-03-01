@@ -6,6 +6,7 @@
 
 import { useState } from 'react';
 import { Logo } from './Logo';
+import { useTranslation } from '@/hooks/useTranslation';
 import type { Notification, NotificationType } from '@/types';
 
 interface NotificationCenterProps {
@@ -26,39 +27,6 @@ interface NotificationCenterProps {
 
 type FilterType = 'all' | 'unread' | 'donation' | 'join' | 'event' | 'task' | 'content' | 'project';
 
-const notifTypeConfig: Record<NotificationType, { icon: string; color: string; bg: string; label: string }> = {
-  donation_approved: { icon: 'payments', color: 'text-green-600', bg: 'bg-green-100', label: 'Donasi Disetujui' },
-  donation_rejected: { icon: 'money_off', color: 'text-red-600', bg: 'bg-red-100', label: 'Donasi Ditolak' },
-  join_approved: { icon: 'how_to_reg', color: 'text-blue-600', bg: 'bg-blue-100', label: 'Join Disetujui' },
-  join_rejected: { icon: 'person_remove', color: 'text-red-600', bg: 'bg-red-100', label: 'Join Ditolak' },
-  progress_update: { icon: 'trending_up', color: 'text-[#243D68]', bg: 'bg-blue-100', label: 'Update Project' },
-  task_assigned: { icon: 'assignment', color: 'text-purple-600', bg: 'bg-purple-100', label: 'Task Baru' },
-  task_completed: { icon: 'task_alt', color: 'text-green-600', bg: 'bg-green-100', label: 'Task Selesai' },
-  withdrawal_approved: { icon: 'account_balance', color: 'text-green-600', bg: 'bg-green-100', label: 'Penarikan Disetujui' },
-  withdrawal_rejected: { icon: 'block', color: 'text-red-600', bg: 'bg-red-100', label: 'Penarikan Ditolak' },
-  content_removed: { icon: 'delete_sweep', color: 'text-orange-600', bg: 'bg-orange-100', label: 'Konten Dihapus' },
-  event_registration_submitted: { icon: 'event_note', color: 'text-[#FAC06E]', bg: 'bg-yellow-100', label: 'Daftar Event' },
-  event_approved: { icon: 'event_available', color: 'text-green-600', bg: 'bg-green-100', label: 'Event Disetujui' },
-  event_rejected: { icon: 'event_busy', color: 'text-red-600', bg: 'bg-red-100', label: 'Event Ditolak' },
-  event_reminder: { icon: 'event_upcoming', color: 'text-blue-600', bg: 'bg-blue-100', label: 'Reminder Event' },
-  event_cancelled: { icon: 'cancel', color: 'text-gray-600', bg: 'bg-gray-100', label: 'Event Dibatalkan' },
-  project_closed: { icon: 'archive', color: 'text-gray-600', bg: 'bg-gray-100', label: 'Project Ditutup' },
-  project_closure_approved: { icon: 'check_circle', color: 'text-green-600', bg: 'bg-green-100', label: 'Penutupan Disetujui' },
-  project_closure_rejected: { icon: 'cancel', color: 'text-red-600', bg: 'bg-red-100', label: 'Penutupan Ditolak' },
-  alumni_verified: { icon: 'verified_user', color: 'text-[#243D68]', bg: 'bg-blue-100', label: 'Alumni Terverifikasi' },
-};
-
-const filterLabels: Record<FilterType, string> = {
-  all: 'Semua',
-  unread: 'Belum Dibaca',
-  donation: 'Donasi',
-  join: 'Join Project',
-  event: 'Event',
-  task: 'Task',
-  content: 'Update',
-  project: 'Project',
-};
-
 function getFilterForType(type: NotificationType): FilterType {
   if (type.startsWith('donation_')) return 'donation';
   if (type.startsWith('join_')) return 'join';
@@ -68,21 +36,6 @@ function getFilterForType(type: NotificationType): FilterType {
   if (type.startsWith('withdrawal_')) return 'content';
   if (type.startsWith('project_') || type === 'alumni_verified') return 'project';
   return 'all';
-}
-
-function formatRelativeTime(dateStr: string): string {
-  const now = new Date();
-  const date = new Date(dateStr);
-  const diffMs = now.getTime() - date.getTime();
-  const diffMins = Math.floor(diffMs / 60000);
-  const diffHours = Math.floor(diffMs / 3600000);
-  const diffDays = Math.floor(diffMs / 86400000);
-
-  if (diffMins < 1) return 'Baru saja';
-  if (diffMins < 60) return `${diffMins} menit lalu`;
-  if (diffHours < 24) return `${diffHours} jam lalu`;
-  if (diffDays < 7) return `${diffDays} hari lalu`;
-  return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
 export function NotificationCenter({
@@ -100,8 +53,58 @@ export function NotificationCenter({
   onNavigateEventDetail,
   activeNav,
 }: NotificationCenterProps) {
+  const { t, language } = useTranslation();
   const [activeFilter, setActiveFilter] = useState<FilterType>('all');
   const [showClearConfirm, setShowClearConfirm] = useState(false);
+
+  // Build dynamic config and labels using translations (inside component where t is available)
+  const getNotifTypeConfig = (): Record<NotificationType, { icon: string; color: string; bg: string; label: string }> => ({
+    donation_approved: { icon: 'payments', color: 'text-green-600', bg: 'bg-green-100', label: t.notifCenter.donationApproved },
+    donation_rejected: { icon: 'money_off', color: 'text-red-600', bg: 'bg-red-100', label: t.notifCenter.donationRejected },
+    join_approved: { icon: 'how_to_reg', color: 'text-blue-600', bg: 'bg-blue-100', label: t.notifCenter.joinApproved },
+    join_rejected: { icon: 'person_remove', color: 'text-red-600', bg: 'bg-red-100', label: t.notifCenter.joinRejected },
+    progress_update: { icon: 'trending_up', color: 'text-[#243D68]', bg: 'bg-blue-100', label: t.notifCenter.projectUpdate },
+    task_assigned: { icon: 'assignment', color: 'text-purple-600', bg: 'bg-purple-100', label: t.notifCenter.newTask },
+    task_completed: { icon: 'task_alt', color: 'text-green-600', bg: 'bg-green-100', label: t.notifCenter.taskCompleted },
+    withdrawal_approved: { icon: 'account_balance', color: 'text-green-600', bg: 'bg-green-100', label: t.notifCenter.withdrawalApproved },
+    withdrawal_rejected: { icon: 'block', color: 'text-red-600', bg: 'bg-red-100', label: t.notifCenter.withdrawalRejected },
+    content_removed: { icon: 'delete_sweep', color: 'text-orange-600', bg: 'bg-orange-100', label: t.notifCenter.contentRemoved },
+    event_registration_submitted: { icon: 'event_note', color: 'text-[#FAC06E]', bg: 'bg-yellow-100', label: t.notifCenter.eventRegistration },
+    event_approved: { icon: 'event_available', color: 'text-green-600', bg: 'bg-green-100', label: t.notifCenter.eventApproved },
+    event_rejected: { icon: 'event_busy', color: 'text-red-600', bg: 'bg-red-100', label: t.notifCenter.eventRejected },
+    event_reminder: { icon: 'event_upcoming', color: 'text-blue-600', bg: 'bg-blue-100', label: t.notifCenter.eventReminder },
+    event_cancelled: { icon: 'cancel', color: 'text-gray-600', bg: 'bg-gray-100', label: t.notifCenter.eventCancelled },
+    project_closed: { icon: 'archive', color: 'text-gray-600', bg: 'bg-gray-100', label: t.notifCenter.projectClosed },
+    project_closure_approved: { icon: 'check_circle', color: 'text-green-600', bg: 'bg-green-100', label: t.notifCenter.closureApproved },
+    project_closure_rejected: { icon: 'cancel', color: 'text-red-600', bg: 'bg-red-100', label: t.notifCenter.closureRejected },
+    alumni_verified: { icon: 'verified_user', color: 'text-[#243D68]', bg: 'bg-blue-100', label: t.notifCenter.alumniVerified },
+  });
+
+  const getFilterLabels = (): Record<FilterType, string> => ({
+    all: t.notifCenter.filterAll,
+    unread: t.notifCenter.filterUnread,
+    donation: t.notifCenter.filterDonation,
+    join: t.notifCenter.filterJoin,
+    event: t.notifCenter.filterEvent,
+    task: t.notifCenter.filterTask,
+    content: t.notifCenter.filterUpdate,
+    project: t.notifCenter.filterProject,
+  });
+
+  const formatRelativeTimeLocal = (dateStr: string): string => {
+    const now = new Date();
+    const date = new Date(dateStr);
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+
+    if (diffMins < 1) return t.notifCenter.justNow;
+    if (diffMins < 60) return `${diffMins} ${t.notifCenter.minutesAgo}`;
+    if (diffHours < 24) return `${diffHours} ${t.notifCenter.hoursAgo}`;
+    if (diffDays < 7) return `${diffDays} ${t.notifCenter.daysAgo}`;
+    return date.toLocaleDateString(language === 'id' ? 'id-ID' : 'en-US', { day: 'numeric', month: 'short', year: 'numeric' });
+  };
 
   const unreadCount = notifications.filter(n => !n.isRead).length;
 
@@ -150,10 +153,10 @@ export function NotificationCenter({
           <nav className="flex-1 px-5 pt-8">
             <div className="space-y-2">
               {[
-                { id: 'home', icon: 'home', label: 'Home', action: onNavigateHome || onBack },
-                { id: 'explore', icon: 'explore', label: 'Explore', action: onNavigateExplore },
-                { id: 'pesan', icon: 'chat_bubble', label: 'Pesan', action: onNavigateMessages },
-                { id: 'settings', icon: 'settings', label: 'Settings', action: onNavigateSettings },
+                { id: 'home', icon: 'home', label: t.nav.home, action: onNavigateHome || onBack },
+                { id: 'explore', icon: 'explore', label: t.nav.explore, action: onNavigateExplore },
+                { id: 'pesan', icon: 'chat_bubble', label: t.nav.messages, action: onNavigateMessages },
+                { id: 'settings', icon: 'settings', label: t.nav.settings, action: onNavigateSettings },
               ].map(item => (
                 <button
                   key={item.id}
@@ -181,7 +184,7 @@ export function NotificationCenter({
           >
             <span className="material-symbols-outlined">arrow_back</span>
           </button>
-          <h1 className="font-['Archivo_Black'] text-base uppercase text-[#243D68]">NOTIFIKASI</h1>
+          <h1 className="font-['Archivo_Black'] text-base uppercase text-[#243D68]">{t.notifCenter.notifications.toUpperCase()}</h1>
           <div className="w-10" />
         </header>
 
@@ -197,10 +200,10 @@ export function NotificationCenter({
               </button>
               <div>
                 <h1 className="font-['Archivo_Black'] text-2xl uppercase text-[#0E1B33]">
-                  Notifikasi
+                  {t.notifCenter.notifications}
                 </h1>
                 <p className="text-sm text-[#6B7280]">
-                  {unreadCount > 0 ? `${unreadCount} notifikasi belum dibaca` : 'Semua sudah dibaca'}
+                  {unreadCount > 0 ? `${unreadCount} ${t.notifCenter.unreadNotifications.toLowerCase()}` : t.notifCenter.allRead}
                 </p>
               </div>
             </div>
@@ -211,7 +214,7 @@ export function NotificationCenter({
                   className="flex items-center gap-1.5 px-3 py-2 text-sm text-[#243D68] border border-[#243D68] rounded-lg hover:bg-blue-50 transition-colors font-semibold"
                 >
                   <span className="material-symbols-outlined text-sm">done_all</span>
-                  <span className="hidden sm:inline">Baca Semua</span>
+                  <span className="hidden sm:inline">{t.notifCenter.readAll}</span>
                 </button>
               )}
               {notifications.length > 0 && (
@@ -220,7 +223,7 @@ export function NotificationCenter({
                   className="flex items-center gap-1.5 px-3 py-2 text-sm text-red-600 border border-red-300 rounded-lg hover:bg-red-50 transition-colors font-semibold"
                 >
                   <span className="material-symbols-outlined text-sm">delete_sweep</span>
-                  <span className="hidden sm:inline">Hapus Semua</span>
+                  <span className="hidden sm:inline">{t.notifCenter.deleteAll}</span>
                 </button>
               )}
             </div>
@@ -228,7 +231,7 @@ export function NotificationCenter({
 
           {/* Filter Tabs */}
           <div className="flex gap-2 overflow-x-auto pb-2 mb-6 no-scrollbar">
-            {(Object.keys(filterLabels) as FilterType[]).map(filter => (
+            {(Object.keys(getFilterLabels()) as FilterType[]).map(filter => (
               <button
                 key={filter}
                 onClick={() => setActiveFilter(filter)}
@@ -238,7 +241,7 @@ export function NotificationCenter({
                     : 'bg-white text-[#6B7280] border border-[#E5E7EB] hover:border-[#243D68] hover:text-[#243D68]'
                 }`}
               >
-                {filterLabels[filter]}
+                {getFilterLabels()[filter]}
                 {filterCounts[filter] > 0 && (
                   <span className={`px-1.5 py-0.5 rounded-full text-xs font-bold ${
                     activeFilter === filter ? 'bg-white text-[#243D68]' : 'bg-[#F8F9FA] text-[#243D68]'
@@ -257,22 +260,22 @@ export function NotificationCenter({
                 <span className="material-symbols-outlined text-4xl text-[#D6DCE8]">notifications_off</span>
               </div>
               <h3 className="font-semibold text-lg text-[#0E1B33] mb-2">
-                {activeFilter === 'unread' ? 'Semua Sudah Dibaca!' : 'Tidak Ada Notifikasi'}
+                {activeFilter === 'unread' ? t.notifCenter.allReadTitle : t.notifCenter.noNotifications}
               </h3>
               <p className="text-[#6B7280] text-sm">
                 {activeFilter === 'unread'
-                  ? 'Anda sudah membaca semua notifikasi.'
-                  : 'Belum ada notifikasi untuk kategori ini.'}
+                  ? t.notifCenter.allReadDesc
+                  : t.notifCenter.noCategoryNotif}
               </p>
             </div>
           ) : (
             <div className="space-y-2">
               {filteredNotifications.map((notif) => {
-                const config = notifTypeConfig[notif.type] || {
+                const config = getNotifTypeConfig()[notif.type] || {
                   icon: 'notifications',
                   color: 'text-[#243D68]',
                   bg: 'bg-blue-100',
-                  label: 'Notifikasi',
+                  label: t.notifCenter.defaultNotification,
                 };
                 return (
                   <button
@@ -302,12 +305,12 @@ export function NotificationCenter({
                             </span>
                             {!notif.isRead && (
                               <span className="text-xs bg-red-100 text-red-600 font-bold px-2 py-0.5 rounded-full">
-                                Baru
+                                {t.notifCenter.newBadge}
                               </span>
                             )}
                           </div>
                           <span className="text-xs text-[#6B7280] flex-shrink-0">
-                            {formatRelativeTime(notif.createdAt)}
+                            {formatRelativeTimeLocal(notif.createdAt)}
                           </span>
                         </div>
                         <p className="font-semibold text-[#0E1B33] text-sm mb-1 line-clamp-1">
@@ -320,31 +323,31 @@ export function NotificationCenter({
                         {(notif.type === 'donation_approved' || notif.type === 'donation_rejected') && (
                           <p className="text-xs text-[#243D68] font-semibold mt-1.5 flex items-center gap-1">
                             <span className="material-symbols-outlined text-sm">open_in_new</span>
-                            Lihat Riwayat Donasi
+                            {t.notifCenter.viewDonationHistory}
                           </p>
                         )}
                         {(notif.type === 'join_approved' || notif.type === 'join_rejected') && (
                           <p className="text-xs text-[#243D68] font-semibold mt-1.5 flex items-center gap-1">
                             <span className="material-symbols-outlined text-sm">open_in_new</span>
-                            Lihat Status Join Request
+                            {t.notifCenter.viewJoinRequestStatus}
                           </p>
                         )}
                         {(notif.type === 'event_approved' || notif.type === 'event_rejected') && (
                           <p className="text-xs text-[#243D68] font-semibold mt-1.5 flex items-center gap-1">
                             <span className="material-symbols-outlined text-sm">open_in_new</span>
-                            Lihat Detail Event
+                            {t.notifCenter.viewEventDetail}
                           </p>
                         )}
                         {notif.type === 'task_assigned' && (
                           <p className="text-xs text-purple-600 font-semibold mt-1.5 flex items-center gap-1">
                             <span className="material-symbols-outlined text-sm">assignment</span>
-                            Lihat Task di Pesan &gt; Tasks
+                            {t.notifCenter.viewTaskInMessages}
                           </p>
                         )}
                         {notif.type === 'progress_update' && (
                           <p className="text-xs text-[#243D68] font-semibold mt-1.5 flex items-center gap-1">
                             <span className="material-symbols-outlined text-sm">article</span>
-                            Lihat di Project Detail &gt; Progress
+                            {t.notifCenter.viewInProjectDetail}
                           </p>
                         )}
                       </div>
@@ -358,19 +361,19 @@ export function NotificationCenter({
           {/* Statistics Footer */}
           {notifications.length > 0 && (
             <div className="mt-8 p-4 bg-white rounded-xl border border-[#E5E7EB]">
-              <p className="text-sm font-semibold text-[#0E1B33] mb-3">Ringkasan Notifikasi</p>
+              <p className="text-sm font-semibold text-[#0E1B33] mb-3">{t.notifCenter.summary}</p>
               <div className="grid grid-cols-3 gap-3">
                 <div className="text-center p-3 bg-[#F8F9FA] rounded-lg">
                   <p className="text-xl font-bold text-[#243D68]">{notifications.length}</p>
-                  <p className="text-xs text-[#6B7280]">Total</p>
+                  <p className="text-xs text-[#6B7280]">{t.notifCenter.total}</p>
                 </div>
                 <div className="text-center p-3 bg-[#F8F9FA] rounded-lg">
                   <p className="text-xl font-bold text-red-500">{unreadCount}</p>
-                  <p className="text-xs text-[#6B7280]">Belum Dibaca</p>
+                  <p className="text-xs text-[#6B7280]">{t.notifCenter.unread}</p>
                 </div>
                 <div className="text-center p-3 bg-[#F8F9FA] rounded-lg">
                   <p className="text-xl font-bold text-green-600">{notifications.length - unreadCount}</p>
-                  <p className="text-xs text-[#6B7280]">Sudah Dibaca</p>
+                  <p className="text-xs text-[#6B7280]">{t.notifCenter.read}</p>
                 </div>
               </div>
             </div>
@@ -382,10 +385,10 @@ export function NotificationCenter({
       <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#E5E7EB] z-40 lg:hidden">
         <div className="flex items-center justify-around px-2 py-2">
           {[
-            { id: 'home', icon: 'home', label: 'Home', action: onNavigateHome || onBack },
-            { id: 'explore', icon: 'explore', label: 'Explore', action: onNavigateExplore },
-            { id: 'pesan', icon: 'chat_bubble', label: 'Pesan', action: onNavigateMessages },
-            { id: 'settings', icon: 'settings', label: 'Profil', action: onNavigateSettings },
+            { id: 'home', icon: 'home', label: t.nav.home, action: onNavigateHome || onBack },
+            { id: 'explore', icon: 'explore', label: t.nav.explore, action: onNavigateExplore },
+            { id: 'pesan', icon: 'chat_bubble', label: t.nav.messages, action: onNavigateMessages },
+            { id: 'settings', icon: 'settings', label: t.nav.settings, action: onNavigateSettings },
           ].map(item => (
             <button
               key={item.id}
@@ -410,8 +413,8 @@ export function NotificationCenter({
                 <span className="material-symbols-outlined text-red-600 text-2xl">delete_forever</span>
               </div>
               <div>
-                <h3 className="font-semibold text-[#0E1B33]">Hapus Semua Notifikasi?</h3>
-                <p className="text-sm text-[#6B7280]">Tindakan ini tidak dapat dibatalkan</p>
+                <h3 className="font-semibold text-[#0E1B33]">{t.notifCenter.deleteAllConfirm}</h3>
+                <p className="text-sm text-[#6B7280]">{t.notifCenter.cannotUndo}</p>
               </div>
             </div>
             <div className="flex gap-3">
@@ -419,7 +422,7 @@ export function NotificationCenter({
                 onClick={() => setShowClearConfirm(false)}
                 className="flex-1 px-4 py-2.5 border border-[#E5E7EB] text-[#6B7280] rounded-lg font-semibold hover:bg-[#F8F9FA] transition-colors"
               >
-                Batal
+                {t.common.cancel}
               </button>
               <button
                 onClick={() => {
@@ -428,7 +431,7 @@ export function NotificationCenter({
                 }}
                 className="flex-1 px-4 py-2.5 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition-colors"
               >
-                Hapus Semua
+                {t.notifCenter.deleteAll}
               </button>
             </div>
           </div>

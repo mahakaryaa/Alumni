@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Logo } from './Logo';
+import { useTranslation } from '@/hooks/useTranslation';
 import type { EventRegistration } from '@/types';
 
 interface MessagePageProps {
@@ -13,6 +14,7 @@ interface MessagePageProps {
 }
 
 export function MessagePage({ onBack, onNavigateHome, onNavigateExplore, onNavigateSettings, onNavigateMessages, activeNav = 'pesan', eventRegistrations = [] }: MessagePageProps) {
+  const { t, language } = useTranslation();
   const [activeTab, setActiveTab] = useState<'pesan' | 'laporan' | 'event'>('pesan');
   
   // Mock data - laporan donasi dengan berbagai status
@@ -135,7 +137,7 @@ export function MessagePage({ onBack, onNavigateHome, onNavigateExplore, onNavig
                 onClick={onNavigateHome}
               >
                 <span className="material-symbols-outlined text-xl">home</span>
-                <span className="tracking-wide text-sm">Home</span>
+                <span className="tracking-wide text-sm">{t.nav.home}</span>
               </button>
 
               <button 
@@ -143,12 +145,12 @@ export function MessagePage({ onBack, onNavigateHome, onNavigateExplore, onNavig
                 onClick={onNavigateExplore}
               >
                 <span className="material-symbols-outlined text-xl">explore</span>
-                <span className="tracking-wide text-sm">Explore</span>
+                <span className="tracking-wide text-sm">{t.nav.explore}</span>
               </button>
 
               <button className="flex items-center gap-3 px-4 py-3.5 rounded-xl font-medium transition-all text-white bg-white/10 shadow-sm w-full">
                 <span className="material-symbols-outlined text-xl">chat_bubble</span>
-                <span className="tracking-wide text-sm">Pesan</span>
+                <span className="tracking-wide text-sm">{t.nav.messages}</span>
               </button>
 
               <button 
@@ -156,7 +158,7 @@ export function MessagePage({ onBack, onNavigateHome, onNavigateExplore, onNavig
                 onClick={onNavigateSettings}
               >
                 <span className="material-symbols-outlined text-xl">settings</span>
-                <span className="tracking-wide text-sm">Settings</span>
+                <span className="tracking-wide text-sm">{t.nav.settings}</span>
               </button>
             </div>
           </nav>
@@ -168,7 +170,7 @@ export function MessagePage({ onBack, onNavigateHome, onNavigateExplore, onNavig
               className="w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-white/60 hover:bg-white/5 hover:text-white transition-all"
             >
               <span className="material-symbols-outlined text-xl">logout</span>
-              <span className="tracking-wide text-sm">Logout</span>
+              <span className="tracking-wide text-sm">{t.nav.logout}</span>
             </button>
           </div>
         </div>
@@ -185,7 +187,7 @@ export function MessagePage({ onBack, onNavigateHome, onNavigateExplore, onNavig
             >
               <span className="material-symbols-outlined text-[#243D68] text-[24px]">arrow_back</span>
             </button>
-            <h2 className="text-[#0E1B33] text-lg font-bold leading-tight tracking-tight uppercase">Pesan</h2>
+            <h2 className="text-[#0E1B33] text-lg font-bold leading-tight tracking-tight uppercase">{t.messagePage.messages}</h2>
           </div>
         </div>
 
@@ -200,7 +202,7 @@ export function MessagePage({ onBack, onNavigateHome, onNavigateExplore, onNavig
                 }`}
                 onClick={() => setActiveTab('pesan')}
               >
-                Pesan
+                {t.messagePage.messages}
               </button>
               <button
                 className={`px-4 py-2 rounded-lg font-medium ${
@@ -208,7 +210,7 @@ export function MessagePage({ onBack, onNavigateHome, onNavigateExplore, onNavig
                 }`}
                 onClick={() => setActiveTab('laporan')}
               >
-                Laporan Donasi
+                {t.messagePage.donationReport}
               </button>
               <button
                 className={`px-4 py-2 rounded-lg font-medium ${
@@ -216,7 +218,7 @@ export function MessagePage({ onBack, onNavigateHome, onNavigateExplore, onNavig
                 }`}
                 onClick={() => setActiveTab('event')}
               >
-                Event
+                {t.messagePage.event}
               </button>
             </div>
           </div>
@@ -226,7 +228,7 @@ export function MessagePage({ onBack, onNavigateHome, onNavigateExplore, onNavig
             <section>
               <h3 className="text-xl font-bold text-[#333333] mb-4 flex items-center gap-2">
                 <span className="material-symbols-outlined text-[#243D68]">mail</span>
-                Pesan Personal
+                {t.messagePage.personalMessages}
               </h3>
               <div className="space-y-4">
                 {personalMessages
@@ -263,7 +265,7 @@ export function MessagePage({ onBack, onNavigateHome, onNavigateExplore, onNavig
             <section>
               <h3 className="text-xl font-bold text-[#333333] mb-4 flex items-center gap-2">
                 <span className="material-symbols-outlined text-[#243D68]">campaign</span>
-                Pengumuman
+                {t.messagePage.announcements}
               </h3>
               <div className="space-y-4">
                 {announcements.map((announcement) => (
@@ -299,24 +301,24 @@ export function MessagePage({ onBack, onNavigateHome, onNavigateExplore, onNavig
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-xl font-bold text-[#333333] flex items-center gap-2">
                   <span className="material-symbols-outlined text-[#243D68]">receipt_long</span>
-                  Laporan Donasi
+                  {t.messagePage.donationReport}
                 </h3>
               </div>
 
               {/* Summary Card */}
               <div className="bg-gradient-to-br from-[#243D68] to-[#30518B] rounded-2xl p-6 mb-4 text-white shadow-lg">
-                <p className="text-white/80 text-sm mb-1">Total Donasi Anda</p>
+                <p className="text-white/80 text-sm mb-1">{t.messagePage.totalYourDonations}</p>
                 <p className="text-3xl font-bold mb-3">
                   Rp {totalDonations.toLocaleString('id-ID')}
                 </p>
                 <div className="flex items-center gap-4 text-sm">
                   <div className="flex items-center gap-1">
                     <span className="material-symbols-outlined text-[#FAC06E] text-lg">verified</span>
-                    <span>{donations.length} Proyek</span>
+                    <span>{donations.length} {t.messagePage.projects}</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <span className="material-symbols-outlined text-[#FAC06E] text-lg">favorite</span>
-                    <span>Terima Kasih!</span>
+                    <span>{t.messagePage.thankYou}!</span>
                   </div>
                 </div>
               </div>
@@ -327,7 +329,7 @@ export function MessagePage({ onBack, onNavigateHome, onNavigateExplore, onNavig
                   // Determine status styling
                   let statusBadge = {
                     icon: 'check_circle',
-                    text: 'Berhasil',
+                    text: t.messagePage.success,
                     color: 'text-[#4CAF50]',
                     bgColor: 'bg-[#E8F5E9]'
                   };
@@ -335,21 +337,21 @@ export function MessagePage({ onBack, onNavigateHome, onNavigateExplore, onNavig
                   if (donation.status === 'verifikasi') {
                     statusBadge = {
                       icon: 'schedule',
-                      text: 'Dalam Verifikasi',
+                      text: t.messagePage.inVerification,
                       color: 'text-[#FF9800]',
                       bgColor: 'bg-[#FFF3E0]'
                     };
                   } else if (donation.status === 'rejected') {
                     statusBadge = {
                       icon: 'cancel',
-                      text: 'Ditolak',
+                      text: t.messagePage.rejected,
                       color: 'text-[#F44336]',
                       bgColor: 'bg-[#FFEBEE]'
                     };
                   } else if (donation.status === 'confirmed') {
                     statusBadge = {
                       icon: 'check_circle',
-                      text: 'Berhasil',
+                      text: t.messagePage.success,
                       color: 'text-[#4CAF50]',
                       bgColor: 'bg-[#E8F5E9]'
                     };
@@ -376,16 +378,15 @@ export function MessagePage({ onBack, onNavigateHome, onNavigateExplore, onNavig
 
                       {/* Ref Number with Copy Button */}
                       <div className="mb-3 pb-3 border-b border-[#E5E7EB]">
-                        <p className="text-xs text-[#6B7280] mb-1">Nomor Referensi Donasi</p>
+                        <p className="text-xs text-[#6B7280] mb-1">{t.messagePage.donationRefNumber}</p>
                         <div className="flex items-center gap-2">
                           <code className="text-sm font-bold text-[#243D68]">{donation.refNumber}</code>
                           <button
                             onClick={() => {
                               navigator.clipboard.writeText(donation.refNumber);
-                              // You can add toast notification here
                             }}
                             className="p-1 hover:bg-[#F8F9FA] rounded transition-colors"
-                            title="Salin nomor referensi"
+                            title={t.messagePage.copyRefNumber}
                           >
                             <span className="material-symbols-outlined text-[#6B7280] text-base">content_copy</span>
                           </button>
@@ -395,24 +396,24 @@ export function MessagePage({ onBack, onNavigateHome, onNavigateExplore, onNavig
                       {/* Project Details */}
                       <div className="space-y-2 mb-4">
                         <div>
-                          <p className="text-xs text-[#6B7280]">Project</p>
+                          <p className="text-xs text-[#6B7280]">{t.messagePage.project}</p>
                           <p className="font-semibold text-[#333333]">{donation.project}</p>
                           <p className="text-xs text-[#FAC06E] font-medium">{donation.category}</p>
                         </div>
 
                         <div className="grid grid-cols-2 gap-3 pt-2">
                           <div>
-                            <p className="text-xs text-[#6B7280]">Nominal Donasi</p>
+                            <p className="text-xs text-[#6B7280]">{t.messagePage.donationAmount}</p>
                             <p className="font-bold text-[#243D68]">Rp {donation.amount.toLocaleString('id-ID')}</p>
                           </div>
                           <div>
-                            <p className="text-xs text-[#6B7280]">Metode Pembayaran</p>
+                            <p className="text-xs text-[#6B7280]">{t.messagePage.paymentMethod}</p>
                             <p className="font-semibold text-[#333333]">{donation.method}</p>
                           </div>
                         </div>
 
                         <div>
-                          <p className="text-xs text-[#6B7280]">Waktu Transfer</p>
+                          <p className="text-xs text-[#6B7280]">{t.messagePage.transferTime}</p>
                           <p className="text-sm text-[#333333]">{donation.transferTime}</p>
                         </div>
                       </div>
@@ -423,14 +424,14 @@ export function MessagePage({ onBack, onNavigateHome, onNavigateExplore, onNavig
                           <div className="flex gap-2">
                             <span className="material-symbols-outlined text-[#FF9800] text-lg mt-0.5">info</span>
                             <div className="flex-1">
-                              <p className="text-xs font-semibold text-[#FF9800] mb-1">Donasi dalam Proses Verifikasi</p>
+                              <p className="text-xs font-semibold text-[#FF9800] mb-1">{t.messagePage.donationInVerification}</p>
                               <p className="text-xs text-[#6B7280]">
-                                Terima kasih atas konfirmasi Anda. Bukti transfer telah kami terima dan sedang dalam proses verifikasi.
+                                {t.messagePage.verificationThankYou}
                               </p>
                               <div className="mt-2 space-y-1">
-                                <p className="text-xs text-[#6B7280]">• Donasi akan diverifikasi dalam 1x24 jam</p>
-                                <p className="text-xs text-[#6B7280]">• Anda akan menerima email konfirmasi setelah verifikasi</p>
-                                <p className="text-xs text-[#6B7280]">• Notifikasi juga akan dikirim melalui aplikasi</p>
+                                <p className="text-xs text-[#6B7280]">• {language === 'id' ? 'Donasi akan diverifikasi dalam 1x24 jam' : 'Donation will be verified within 1x24 hours'}</p>
+                                <p className="text-xs text-[#6B7280]">• {language === 'id' ? 'Anda akan menerima email konfirmasi setelah verifikasi' : 'You will receive a confirmation email after verification'}</p>
+                                <p className="text-xs text-[#6B7280]">• {language === 'id' ? 'Notifikasi juga akan dikirim melalui aplikasi' : 'Notification will also be sent via the app'}</p>
                               </div>
                             </div>
                           </div>
@@ -442,10 +443,10 @@ export function MessagePage({ onBack, onNavigateHome, onNavigateExplore, onNavig
                           <div className="flex gap-2">
                             <span className="material-symbols-outlined text-[#F44336] text-lg mt-0.5">error</span>
                             <div className="flex-1">
-                              <p className="text-xs font-semibold text-[#F44336] mb-1">Donasi Ditolak</p>
+                              <p className="text-xs font-semibold text-[#F44336] mb-1">{t.messagePage.donationRejected}</p>
                               <p className="text-xs text-[#6B7280] mb-2">{donation.rejectReason}</p>
                               <button className="text-xs font-semibold text-[#243D68] bg-white px-3 py-1.5 rounded-lg hover:bg-[#F8F9FA] transition-colors border border-[#E5E7EB]">
-                                Upload Ulang Bukti Transfer
+                                {t.messagePage.reuploadProof}
                               </button>
                             </div>
                           </div>
@@ -457,9 +458,11 @@ export function MessagePage({ onBack, onNavigateHome, onNavigateExplore, onNavig
                           <div className="flex gap-2">
                             <span className="material-symbols-outlined text-[#4CAF50] text-lg mt-0.5">check_circle</span>
                             <div className="flex-1">
-                              <p className="text-xs font-semibold text-[#4CAF50] mb-1">Donasi Berhasil Dikonfirmasi</p>
+                              <p className="text-xs font-semibold text-[#4CAF50] mb-1">{t.messagePage.donationConfirmed}</p>
                               <p className="text-xs text-[#6B7280]">
-                                Terima kasih! Donasi Anda telah berhasil diverifikasi dan diteruskan untuk {donation.project}.
+                                {language === 'id' 
+                                  ? `Terima kasih! Donasi Anda telah berhasil diverifikasi dan diteruskan untuk ${donation.project}.`
+                                  : `Thank you! Your donation has been verified and forwarded for ${donation.project}.`} 
                               </p>
                             </div>
                           </div>
@@ -478,7 +481,7 @@ export function MessagePage({ onBack, onNavigateHome, onNavigateExplore, onNavig
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-xl font-bold text-[#333333] flex items-center gap-2">
                   <span className="material-symbols-outlined text-[#243D68]">event</span>
-                  Pendaftaran Event
+                  {t.messagePage.eventRegistrations}
                 </h3>
               </div>
 
@@ -487,9 +490,9 @@ export function MessagePage({ onBack, onNavigateHome, onNavigateExplore, onNavig
                   <div className="w-24 h-24 bg-[#F8F9FA] rounded-full flex items-center justify-center mx-auto mb-4">
                     <span className="material-symbols-outlined text-[#6B7280] text-5xl">event_busy</span>
                   </div>
-                  <h3 className="text-lg font-semibold text-[#333333] mb-2">Belum Ada Pendaftaran Event</h3>
+                  <h3 className="text-lg font-semibold text-[#333333] mb-2">{t.messagePage.noEventRegistrations}</h3>
                   <p className="text-sm text-[#6B7280]">
-                    Daftar event yang Anda ikuti akan muncul di sini
+                    {t.messagePage.noEventRegistrationsDesc}
                   </p>
                 </div>
               ) : (
@@ -498,7 +501,7 @@ export function MessagePage({ onBack, onNavigateHome, onNavigateExplore, onNavig
                     // Determine status styling
                     let statusConfig = {
                       icon: 'schedule',
-                      text: 'Menunggu Konfirmasi',
+                      text: t.messagePage.waitingConfirmation,
                       color: 'text-[#FF9800]',
                       bgColor: 'bg-[#FFF3E0]',
                       borderColor: 'border-[#FF9800]/30'
@@ -507,7 +510,7 @@ export function MessagePage({ onBack, onNavigateHome, onNavigateExplore, onNavig
                     if (event.status === 'approved') {
                       statusConfig = {
                         icon: 'check_circle',
-                        text: 'Terdaftar',
+                        text: t.messagePage.registeredStatus,
                         color: 'text-[#4CAF50]',
                         bgColor: 'bg-[#E8F5E9]',
                         borderColor: 'border-[#4CAF50]/30'
@@ -515,7 +518,7 @@ export function MessagePage({ onBack, onNavigateHome, onNavigateExplore, onNavig
                     } else if (event.status === 'rejected') {
                       statusConfig = {
                         icon: 'cancel',
-                        text: 'Ditolak',
+                        text: t.messagePage.rejectedStatus,
                         color: 'text-[#F44336]',
                         bgColor: 'bg-[#FFEBEE]',
                         borderColor: 'border-[#F44336]/30'
@@ -548,7 +551,7 @@ export function MessagePage({ onBack, onNavigateHome, onNavigateExplore, onNavig
                                 <span className="material-symbols-outlined text-white text-lg">calendar_today</span>
                               </div>
                               <div className="flex-1">
-                                <p className="text-xs text-[#6B7280]">Tanggal</p>
+                                <p className="text-xs text-[#6B7280]">{t.messagePage.date}</p>
                                 <p className="text-sm font-bold text-[#333333]">{event.eventDate}</p>
                               </div>
                             </div>
@@ -558,7 +561,7 @@ export function MessagePage({ onBack, onNavigateHome, onNavigateExplore, onNavig
                                 <span className="material-symbols-outlined text-white text-lg">schedule</span>
                               </div>
                               <div className="flex-1">
-                                <p className="text-xs text-[#6B7280]">Waktu</p>
+                                <p className="text-xs text-[#6B7280]">{t.messagePage.time}</p>
                                 <p className="text-sm font-bold text-[#333333]">{event.eventTime}</p>
                               </div>
                             </div>
@@ -568,7 +571,7 @@ export function MessagePage({ onBack, onNavigateHome, onNavigateExplore, onNavig
                                 <span className="material-symbols-outlined text-white text-lg">location_on</span>
                               </div>
                               <div className="flex-1">
-                                <p className="text-xs text-[#6B7280]">Lokasi</p>
+                                <p className="text-xs text-[#6B7280]">{t.messagePage.location}</p>
                                 <p className="text-sm font-bold text-[#333333]">{event.eventLocation}</p>
                               </div>
                             </div>
@@ -576,10 +579,10 @@ export function MessagePage({ onBack, onNavigateHome, onNavigateExplore, onNavig
 
                           {/* Kuota Peserta */}
                           <div className="bg-gradient-to-r from-[#243D68] to-[#30518B] rounded-xl p-4 text-white">
-                            <p className="text-xs opacity-90 mb-1">Kuota Peserta</p>
+                            <p className="text-xs opacity-90 mb-1">{t.messagePage.participantQuota}</p>
                             <div className="flex items-baseline gap-2 mb-2">
                               <span className="text-2xl font-['Archivo_Black']">127</span>
-                              <span className="text-sm opacity-80">/ 200 orang</span>
+                              <span className="text-sm opacity-80">/ 200 {t.messagePage.persons.toLowerCase()}</span>
                             </div>
                             <div className="w-full bg-white/20 rounded-full h-2">
                               <div className="bg-[#FAC06E] h-2 rounded-full" style={{ width: '63.5%' }}></div>

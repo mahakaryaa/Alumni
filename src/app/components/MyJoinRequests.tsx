@@ -5,6 +5,7 @@ import { StatusBadge } from './ui/StatusBadge';
 import type { JoinRequest } from '@/types';
 import { Logo } from './Logo';
 import { toast } from 'sonner';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface MyJoinRequestsProps {
   requests: JoinRequest[];
@@ -33,11 +34,12 @@ export function MyJoinRequests({
   onNavigateSettings,
   activeNav = 'home',
 }: MyJoinRequestsProps) {
+  const { t, language } = useTranslation();
   const [filter, setFilter] = useState<FilterType>('all');
   const [searchQuery, setSearchQuery] = useState('');
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('id-ID', {
+    return new Date(dateString).toLocaleDateString(language === 'id' ? 'id-ID' : 'en-US', {
       day: 'numeric',
       month: 'long',
       year: 'numeric',
@@ -49,11 +51,11 @@ export function MyJoinRequests({
     const past = new Date(dateString);
     const diffInDays = Math.floor((now.getTime() - past.getTime()) / (1000 * 60 * 60 * 24));
     
-    if (diffInDays === 0) return 'Hari ini';
-    if (diffInDays === 1) return 'Kemarin';
-    if (diffInDays < 7) return `${diffInDays} hari yang lalu`;
-    if (diffInDays < 30) return `${Math.floor(diffInDays / 7)} minggu yang lalu`;
-    return `${Math.floor(diffInDays / 30)} bulan yang lalu`;
+    if (diffInDays === 0) return t.myJoinRequestsPage.today;
+    if (diffInDays === 1) return t.myJoinRequestsPage.yesterday;
+    if (diffInDays < 7) return `${diffInDays} ${t.myJoinRequestsPage.daysAgo}`;
+    if (diffInDays < 30) return `${Math.floor(diffInDays / 7)} ${t.myJoinRequestsPage.weeksAgo}`;
+    return `${Math.floor(diffInDays / 30)} ${t.myJoinRequestsPage.monthsAgo}`;
   };
 
   // Filter requests
@@ -74,9 +76,9 @@ export function MyJoinRequests({
   };
 
   const handleCancel = (requestId: string) => {
-    if (window.confirm('Yakin ingin membatalkan pengajuan ini?')) {
+    if (window.confirm(t.myJoinRequestsPage.cancelConfirm)) {
       onCancelRequest(requestId);
-      toast.success('Pengajuan berhasil dibatalkan');
+      toast.success(t.myJoinRequestsPage.cancelSuccess);
     }
   };
 
@@ -88,7 +90,7 @@ export function MyJoinRequests({
           <div className="flex items-center justify-between h-16">
             <Button variant="ghost" size="sm" onClick={onBack}>
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Kembali
+              {t.myJoinRequestsPage.back}
             </Button>
             <Logo />
             <div className="w-20" />
@@ -100,26 +102,26 @@ export function MyJoinRequests({
       <main className="container mx-auto px-4 py-8 max-w-6xl">
         {/* Page Title */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Pengajuan Bergabung</h1>
-          <p className="text-gray-600">Pantau status pengajuan bergabung ke project</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">{t.myJoinRequestsPage.joinRequests}</h1>
+          <p className="text-gray-600">{t.myJoinRequestsPage.trackJoinStatus}</p>
         </div>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-200">
-            <p className="text-sm text-gray-600 mb-1">Total Pengajuan</p>
+            <p className="text-sm text-gray-600 mb-1">{t.myJoinRequestsPage.totalRequests}</p>
             <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
           </div>
           <div className="bg-yellow-50 rounded-xl p-4 shadow-sm border border-yellow-200">
-            <p className="text-sm text-yellow-800 mb-1">Menunggu</p>
+            <p className="text-sm text-yellow-800 mb-1">{t.myJoinRequestsPage.waiting}</p>
             <p className="text-2xl font-bold text-yellow-900">{stats.pending}</p>
           </div>
           <div className="bg-green-50 rounded-xl p-4 shadow-sm border border-green-200">
-            <p className="text-sm text-green-800 mb-1">Diterima</p>
+            <p className="text-sm text-green-800 mb-1">{t.myJoinRequestsPage.accepted}</p>
             <p className="text-2xl font-bold text-green-900">{stats.approved}</p>
           </div>
           <div className="bg-red-50 rounded-xl p-4 shadow-sm border border-red-200">
-            <p className="text-sm text-red-800 mb-1">Ditolak</p>
+            <p className="text-sm text-red-800 mb-1">{t.myJoinRequestsPage.rejected}</p>
             <p className="text-2xl font-bold text-red-900">{stats.rejected}</p>
           </div>
         </div>
@@ -132,7 +134,7 @@ export function MyJoinRequests({
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
               <input
                 type="text"
-                placeholder="Cari nama project..."
+                placeholder={t.myJoinRequestsPage.searchPlaceholder}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
@@ -147,7 +149,7 @@ export function MyJoinRequests({
                 onClick={() => setFilter('all')}
                 className="h-[42px]"
               >
-                Semua
+                {t.myJoinRequestsPage.all}
               </Button>
               <Button
                 variant={filter === 'pending' ? 'default' : 'outline'}
@@ -155,7 +157,7 @@ export function MyJoinRequests({
                 onClick={() => setFilter('pending')}
                 className="h-[42px]"
               >
-                Menunggu
+                {t.myJoinRequestsPage.pendingFilter}
               </Button>
               <Button
                 variant={filter === 'approved' ? 'default' : 'outline'}
@@ -163,7 +165,7 @@ export function MyJoinRequests({
                 onClick={() => setFilter('approved')}
                 className="h-[42px]"
               >
-                Diterima
+                {t.myJoinRequestsPage.acceptedFilter}
               </Button>
               <Button
                 variant={filter === 'rejected' ? 'default' : 'outline'}
@@ -171,7 +173,7 @@ export function MyJoinRequests({
                 onClick={() => setFilter('rejected')}
                 className="h-[42px]"
               >
-                Ditolak
+                {t.myJoinRequestsPage.rejectedFilter}
               </Button>
             </div>
           </div>
@@ -183,12 +185,12 @@ export function MyJoinRequests({
             <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <Clock className="w-10 h-10 text-gray-400" />
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Belum ada pengajuan</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">{t.myJoinRequestsPage.noRequests}</h3>
             <p className="text-gray-600 text-sm mb-4">
-              Anda belum mengajukan untuk bergabung ke project manapun
+              {t.myJoinRequestsPage.noRequestsDesc}
             </p>
             <Button onClick={onNavigateExplore} variant="default">
-              Explore Project
+              {t.myJoinRequestsPage.exploreProject}
             </Button>
           </div>
         ) : (
@@ -207,7 +209,7 @@ export function MyJoinRequests({
                           {request.projectTitle}
                         </h3>
                         <p className="text-sm text-gray-500">
-                          Diajukan {getTimeSince(request.submittedAt)}
+                          {language === 'id' ? 'Diajukan' : 'Submitted'} {getTimeSince(request.submittedAt)}
                         </p>
                       </div>
                       <StatusBadge status={request.status} />
@@ -216,18 +218,18 @@ export function MyJoinRequests({
                     <div className="bg-gray-50 rounded-lg p-3 space-y-2">
                       <div className="flex gap-4 text-sm">
                         <div>
-                          <span className="text-gray-600">Komitmen: </span>
+                          <span className="text-gray-600">{t.myJoinRequestsPage.commitment}: </span>
                           <span className="font-semibold text-gray-900">{request.commitmentDuration}</span>
                         </div>
                         <div>
-                          <span className="text-gray-600">Tanggal: </span>
+                          <span className="text-gray-600">{t.myJoinRequestsPage.date}: </span>
                           <span className="text-gray-900">{formatDate(request.submittedAt)}</span>
                         </div>
                       </div>
                       
                       {request.reason && (
                         <div>
-                          <p className="text-xs text-gray-600 mb-1">Alasan bergabung:</p>
+                          <p className="text-xs text-gray-600 mb-1">{t.myJoinRequestsPage.reasonToJoin}:</p>
                           <p className="text-sm text-gray-900 line-clamp-2">{request.reason}</p>
                         </div>
                       )}
@@ -236,11 +238,11 @@ export function MyJoinRequests({
                     {/* Rejection Reason */}
                     {request.status === 'rejected' && request.rejectionReason && (
                       <div className="bg-red-50 border-l-4 border-red-500 rounded-r-lg p-3">
-                        <p className="text-sm font-semibold text-red-900 mb-1">Alasan Penolakan:</p>
+                        <p className="text-sm font-semibold text-red-900 mb-1">{t.myJoinRequestsPage.rejectionReason}:</p>
                         <p className="text-xs text-red-800">{request.rejectionReason}</p>
                         {request.rejectionAllowResubmit && (
                           <p className="text-xs text-red-700 mt-2">
-                            ℹ️ Anda dapat mengajukan kembali dengan alasan yang lebih baik
+                            ℹ️ {t.myJoinRequestsPage.canResubmit}
                           </p>
                         )}
                       </div>
@@ -251,11 +253,11 @@ export function MyJoinRequests({
                       <div className="bg-green-50 border-l-4 border-green-500 rounded-r-lg p-3">
                         <p className="text-sm font-semibold text-green-900 mb-1">
                           <CheckCircle2 className="w-4 h-4 inline mr-1" />
-                          Selamat! Anda diterima sebagai {request.assignedRole === 'member' ? 'Member' : 'Contributor'}
+                          {t.myJoinRequestsPage.congratsAccepted} {request.assignedRole === 'member' ? 'Member' : 'Contributor'}
                         </p>
                         <p className="text-xs text-green-800">
-                          Disetujui pada {formatDate(request.reviewedAt)}
-                          {request.reviewedBy && ` oleh ${request.reviewedByRole || 'PIC'}`}
+                          {t.myJoinRequestsPage.approvedOn} {formatDate(request.reviewedAt)}
+                          {request.reviewedBy && ` ${t.myDonationsPage.by} ${request.reviewedByRole || 'PIC'}`}
                         </p>
                         {request.approvalMessage && (
                           <div className="mt-2 pt-2 border-t border-green-200">
@@ -272,7 +274,7 @@ export function MyJoinRequests({
                       <div className="bg-yellow-50 border-l-4 border-yellow-500 rounded-r-lg p-3">
                         <p className="text-xs text-yellow-800">
                           <Clock className="w-4 h-4 inline mr-1" />
-                          PIC sedang meninjau pengajuan Anda. Estimasi waktu review: 1-3 hari kerja
+                          {t.myJoinRequestsPage.picReviewing}
                         </p>
                       </div>
                     )}
@@ -287,7 +289,7 @@ export function MyJoinRequests({
                       className="flex-1 md:flex-none"
                     >
                       <Eye className="w-4 h-4 mr-2" />
-                      Lihat Project
+                      {t.myJoinRequestsPage.viewProject}
                     </Button>
 
                     {request.status === 'pending' && (
@@ -298,7 +300,7 @@ export function MyJoinRequests({
                         className="flex-1 md:flex-none text-red-600 hover:text-red-700 hover:bg-red-50"
                       >
                         <XCircle className="w-4 h-4 mr-2" />
-                        Batalkan
+                        {t.myJoinRequestsPage.cancelRequest}
                       </Button>
                     )}
 
@@ -310,7 +312,7 @@ export function MyJoinRequests({
                         className="flex-1 md:flex-none bg-primary hover:bg-primary/90"
                       >
                         <RefreshCw className="w-4 h-4 mr-2" />
-                        Ajukan Ulang
+                        {t.myJoinRequestsPage.resubmit}
                       </Button>
                     )}
                   </div>
@@ -330,8 +332,8 @@ export function MyJoinRequests({
               activeNav === 'home' ? 'text-primary' : 'text-gray-600'
             }`}
           >
-            <span className="text-xl">🏠</span>
-            <span className="text-xs font-medium">Beranda</span>
+            <span className="material-symbols-outlined text-2xl">home</span>
+            <span className="text-xs font-medium">{t.myJoinRequestsPage.home}</span>
           </button>
           <button
             onClick={onNavigateExplore}
@@ -339,8 +341,8 @@ export function MyJoinRequests({
               activeNav === 'explore' ? 'text-primary' : 'text-gray-600'
             }`}
           >
-            <span className="text-xl">🔍</span>
-            <span className="text-xs font-medium">Explore</span>
+            <span className="material-symbols-outlined text-2xl">explore</span>
+            <span className="text-xs font-medium">{t.myJoinRequestsPage.explore}</span>
           </button>
           <button
             onClick={onNavigateMessages}
@@ -348,8 +350,8 @@ export function MyJoinRequests({
               activeNav === 'messages' ? 'text-primary' : 'text-gray-600'
             }`}
           >
-            <span className="text-xl">💬</span>
-            <span className="text-xs font-medium">Pesan</span>
+            <span className="material-symbols-outlined text-2xl">chat_bubble</span>
+            <span className="text-xs font-medium">{t.myJoinRequestsPage.messages}</span>
           </button>
           <button
             onClick={onNavigateSettings}
@@ -357,8 +359,8 @@ export function MyJoinRequests({
               activeNav === 'settings' ? 'text-primary' : 'text-gray-600'
             }`}
           >
-            <span className="text-xl">⚙️</span>
-            <span className="text-xs font-medium">Pengaturan</span>
+            <span className="material-symbols-outlined text-2xl">settings</span>
+            <span className="text-xs font-medium">{t.myJoinRequestsPage.settings}</span>
           </button>
         </div>
       </nav>

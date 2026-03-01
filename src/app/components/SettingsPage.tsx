@@ -30,8 +30,6 @@ export function SettingsPage({
   onNavigateBookmarks,
   activeNav = 'settings',
   userRole = 'alumni',
-  language: externalLanguage,
-  onLanguageChange
 }: SettingsPageProps) {
   // Profile states
   const [profilePhoto, setProfilePhoto] = useState('');
@@ -85,16 +83,8 @@ export function SettingsPage({
   const [mentionPermission, setMentionPermission] = useState('all');
   const [showOnlineStatus, setShowOnlineStatus] = useState(true);
   
-  // Preferences states - use external language if provided, otherwise use local state
-  const [internalLanguage, setInternalLanguage] = useState<'id' | 'en'>('id');
-  const language = externalLanguage || internalLanguage;
-  const setLanguage = (lang: 'id' | 'en') => {
-    if (onLanguageChange) {
-      onLanguageChange(lang);
-    } else {
-      setInternalLanguage(lang);
-    }
-  };
+  // Preferences states - use global language from LanguageProvider
+  const { language, setLanguage, t } = useTranslation();
   
   // Modal states
   const [showEditProfile, setShowEditProfile] = useState(false);
@@ -149,9 +139,6 @@ export function SettingsPage({
       onBack();
     }
   };
-
-  // Get translations
-  const { t } = useTranslation();
 
   return (
     <div className="flex min-h-screen bg-[#F8F9FA] overflow-x-hidden max-w-full">

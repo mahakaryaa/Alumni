@@ -1,18 +1,15 @@
 /**
  * useTranslation Hook
- * Custom hook to access translations in any component
+ * Custom hook to access translations in any component.
+ * Must be used within a LanguageProvider.
  */
 
-import { useContext, createContext } from 'react';
-import { getTranslation, type Language, type Translations } from '@/translations';
+import { useContext } from 'react';
+import { LanguageContext } from '@/context/LanguageContext';
+import { getTranslation, type Language } from '@/translations';
 
-interface LanguageContextType {
-  language: Language;
-  setLanguage: (lang: Language) => void;
-  t: Translations;
-}
-
-export const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
+// Re-export LanguageContext for backward compatibility
+export { LanguageContext } from '@/context/LanguageContext';
 
 export function useTranslation() {
   const context = useContext(LanguageContext);
@@ -20,7 +17,7 @@ export function useTranslation() {
     // Fallback to Indonesian if context is not available
     return {
       language: 'id' as Language,
-      setLanguage: () => {},
+      setLanguage: (() => {}) as (lang: Language) => void,
       t: getTranslation('id'),
     };
   }

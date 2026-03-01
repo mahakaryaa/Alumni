@@ -479,6 +479,201 @@ export interface Translations {
     freelance: string;
     unemployed: string;
   };
+
+  // ===== 28. MESSAGE PAGE (Donatur Inbox) =====
+  messagePage: {
+    messages: string;
+    donationReport: string;
+    event: string;
+    personalMessages: string;
+    announcements: string;
+    donationRefNumber: string;
+    copyRefNumber: string;
+    totalYourDonations: string;
+    projects: string;
+    thankYou: string;
+    success: string;
+    inVerification: string;
+    rejected: string;
+    project: string;
+    donationAmount: string;
+    paymentMethod: string;
+    transferTime: string;
+    donationInVerification: string;
+    verificationThankYou: string;
+    verificationTime: string;
+    verificationEmail: string;
+    verificationApp: string;
+    donationRejected: string;
+    reuploadProof: string;
+    donationConfirmed: string;
+    donationConfirmedDesc: string;
+    eventRegistrations: string;
+    noEventRegistrations: string;
+    noEventRegistrationsDesc: string;
+    waitingConfirmation: string;
+    registeredStatus: string;
+    rejectedStatus: string;
+    date: string;
+    time: string;
+    location: string;
+    participantQuota: string;
+    persons: string;
+    spotsRemaining: string;
+  };
+
+  // ===== 29. NOTIFICATION CENTER =====
+  notifCenter: {
+    notifications: string;
+    unreadNotifications: string;
+    allRead: string;
+    readAll: string;
+    deleteAll: string;
+    allReadTitle: string;
+    noNotifications: string;
+    allReadDesc: string;
+    noCategoryNotif: string;
+    newBadge: string;
+    viewDonationHistory: string;
+    viewJoinRequestStatus: string;
+    viewEventDetail: string;
+    viewTaskInMessages: string;
+    viewInProjectDetail: string;
+    summary: string;
+    total: string;
+    unread: string;
+    read: string;
+    deleteAllConfirm: string;
+    cannotUndo: string;
+    // Filter labels
+    filterAll: string;
+    filterUnread: string;
+    filterDonation: string;
+    filterJoin: string;
+    filterEvent: string;
+    filterTask: string;
+    filterUpdate: string;
+    filterProject: string;
+    // Notification type labels
+    donationApproved: string;
+    donationRejected: string;
+    joinApproved: string;
+    joinRejected: string;
+    projectUpdate: string;
+    newTask: string;
+    taskCompleted: string;
+    withdrawalApproved: string;
+    withdrawalRejected: string;
+    contentRemoved: string;
+    eventRegistration: string;
+    eventApproved: string;
+    eventRejected: string;
+    eventReminder: string;
+    eventCancelled: string;
+    projectClosed: string;
+    closureApproved: string;
+    closureRejected: string;
+    alumniVerified: string;
+    defaultNotification: string;
+    // Time
+    justNow: string;
+    minutesAgo: string;
+    hoursAgo: string;
+    daysAgo: string;
+  };
+
+  // ===== 30. MY DONATIONS PAGE =====
+  myDonationsPage: {
+    myDonations: string;
+    trackStatus: string;
+    totalDonations: string;
+    waiting: string;
+    approved: string;
+    totalDistributed: string;
+    searchPlaceholder: string;
+    all: string;
+    pending: string;
+    approvedFilter: string;
+    rejectedFilter: string;
+    noDonationsFound: string;
+    tryDifferentSearch: string;
+    noDonationsYet: string;
+    nominal: string;
+    date: string;
+    method: string;
+    donationRejected: string;
+    clickReupload: string;
+    verifiedOn: string;
+    by: string;
+    detail: string;
+    reupload: string;
+    reuploadTitle: string;
+    previousRejectionReason: string;
+    reuploadGuide: string;
+    guideItem1: string;
+    guideItem2: string;
+    guideItem3: string;
+    guideItem4: string;
+    newProofTransfer: string;
+    clickToUpload: string;
+    clickToChange: string;
+    fileSelected: string;
+    successSent: string;
+    successSentDesc: string;
+    close: string;
+    cancel: string;
+    sending: string;
+    resend: string;
+    // Bottom nav
+    home: string;
+    explore: string;
+    messages: string;
+    settings: string;
+  };
+
+  // ===== 31. MY JOIN REQUESTS PAGE =====
+  myJoinRequestsPage: {
+    joinRequests: string;
+    trackJoinStatus: string;
+    totalRequests: string;
+    waiting: string;
+    accepted: string;
+    rejected: string;
+    searchPlaceholder: string;
+    all: string;
+    pendingFilter: string;
+    acceptedFilter: string;
+    rejectedFilter: string;
+    noRequests: string;
+    noRequestsDesc: string;
+    exploreProject: string;
+    submittedAgo: string;
+    commitment: string;
+    date: string;
+    reasonToJoin: string;
+    rejectionReason: string;
+    canResubmit: string;
+    congratsAccepted: string;
+    approvedOn: string;
+    picReviewing: string;
+    viewProject: string;
+    cancelRequest: string;
+    cancelConfirm: string;
+    cancelSuccess: string;
+    resubmit: string;
+    back: string;
+    // Time
+    today: string;
+    yesterday: string;
+    daysAgo: string;
+    weeksAgo: string;
+    monthsAgo: string;
+    // Bottom nav
+    home: string;
+    explore: string;
+    messages: string;
+    settings: string;
+  };
 }
 
 export const translations: Record<Language, Translations> = {
@@ -944,6 +1139,201 @@ export const translations: Record<Language, Translations> = {
       freelance: 'Freelance',
       unemployed: 'Tidak Bekerja',
     },
+
+    // ===== 28. MESSAGE PAGE (Donatur Inbox) =====
+    messagePage: {
+      messages: 'Pesan',
+      donationReport: 'Laporan Donasi',
+      event: 'Event',
+      personalMessages: 'Pesan Pribadi',
+      announcements: 'Pengumuman',
+      donationRefNumber: 'Nomor Referensi Donasi',
+      copyRefNumber: 'Salin Nomor Referensi',
+      totalYourDonations: 'Total Donasi Anda',
+      projects: 'Proyek',
+      thankYou: 'Terima Kasih',
+      success: 'Berhasil',
+      inVerification: 'Dalam Verifikasi',
+      rejected: 'Ditolak',
+      project: 'Proyek',
+      donationAmount: 'Nominal Donasi',
+      paymentMethod: 'Metode Pembayaran',
+      transferTime: 'Waktu Transfer',
+      donationInVerification: 'Donasi Anda Sedang Diverifikasi',
+      verificationThankYou: 'Terima Kasih Telah Mengirim Bukti Transfer',
+      verificationTime: 'Waktu Verifikasi',
+      verificationEmail: 'Email Verifikasi',
+      verificationApp: 'Aplikasi Verifikasi',
+      donationRejected: 'Donasi Anda Ditolak',
+      reuploadProof: 'Unggah Ulang Bukti Transfer',
+      donationConfirmed: 'Donasi Anda Dikonfirmasi',
+      donationConfirmedDesc: 'Donasi Anda telah dikonfirmasi dan akan diproses.',
+      eventRegistrations: 'Pendaftaran Event',
+      noEventRegistrations: 'Tidak Ada Pendaftaran Event',
+      noEventRegistrationsDesc: 'Anda belum mendaftar untuk event apapun.',
+      waitingConfirmation: 'Menunggu Konfirmasi',
+      registeredStatus: 'Status Terdaftar',
+      rejectedStatus: 'Status Ditolak',
+      date: 'Tanggal',
+      time: 'Waktu',
+      location: 'Lokasi',
+      participantQuota: 'Kuota Peserta',
+      persons: 'Orang',
+      spotsRemaining: 'Sisa Kuota',
+    },
+
+    // ===== 29. NOTIFICATION CENTER =====
+    notifCenter: {
+      notifications: 'Notifikasi',
+      unreadNotifications: 'Notifikasi Belum Dibaca',
+      allRead: 'Semua Dibaca',
+      readAll: 'Tandai Semua Dibaca',
+      deleteAll: 'Hapus Semua',
+      allReadTitle: 'Semua Notifikasi Dibaca',
+      noNotifications: 'Tidak Ada Notifikasi',
+      allReadDesc: 'Anda telah membaca semua notifikasi.',
+      noCategoryNotif: 'Tidak Ada Notifikasi Dalam Kategori Ini',
+      newBadge: 'Baru',
+      viewDonationHistory: 'Lihat Riwayat Donasi',
+      viewJoinRequestStatus: 'Lihat Status Join Request',
+      viewEventDetail: 'Lihat Detail Event',
+      viewTaskInMessages: 'Lihat Tugas di Pesan',
+      viewInProjectDetail: 'Lihat di Detail Proyek',
+      summary: 'Ringkasan',
+      total: 'Total',
+      unread: 'Belum Dibaca',
+      read: 'Dibaca',
+      deleteAllConfirm: 'Anda yakin ingin menghapus semua notifikasi?',
+      cannotUndo: 'Tindakan ini tidak dapat diurungkan.',
+      // Filter labels
+      filterAll: 'Semua',
+      filterUnread: 'Belum Dibaca',
+      filterDonation: 'Donasi',
+      filterJoin: 'Join Request',
+      filterEvent: 'Event',
+      filterTask: 'Tugas',
+      filterUpdate: 'Update',
+      filterProject: 'Proyek',
+      // Notification type labels
+      donationApproved: 'Donasi Disetujui',
+      donationRejected: 'Donasi Ditolak',
+      joinApproved: 'Join Request Disetujui',
+      joinRejected: 'Join Request Ditolak',
+      projectUpdate: 'Update Proyek',
+      newTask: 'Tugas Baru',
+      taskCompleted: 'Tugas Selesai',
+      withdrawalApproved: 'Penarikan Disetujui',
+      withdrawalRejected: 'Penarikan Ditolak',
+      contentRemoved: 'Konten Dihapus',
+      eventRegistration: 'Pendaftaran Event',
+      eventApproved: 'Event Disetujui',
+      eventRejected: 'Event Ditolak',
+      eventReminder: 'Pengingat Event',
+      eventCancelled: 'Event Dibatalkan',
+      projectClosed: 'Proyek Ditutup',
+      closureApproved: 'Penutupan Disetujui',
+      closureRejected: 'Penutupan Ditolak',
+      alumniVerified: 'Alumni Terverifikasi',
+      defaultNotification: 'Notifikasi Default',
+      // Time
+      justNow: 'Baru saja',
+      minutesAgo: 'menit yang lalu',
+      hoursAgo: 'jam yang lalu',
+      daysAgo: 'hari yang lalu',
+    },
+
+    // ===== 30. MY DONATIONS PAGE =====
+    myDonationsPage: {
+      myDonations: 'Donasi Saya',
+      trackStatus: 'Lacak Status',
+      totalDonations: 'Total Donasi',
+      waiting: 'Menunggu',
+      approved: 'Disetujui',
+      totalDistributed: 'Total Terdistribusi',
+      searchPlaceholder: 'Cari donasi...',
+      all: 'Semua',
+      pending: 'Menunggu',
+      approvedFilter: 'Disetujui',
+      rejectedFilter: 'Ditolak',
+      noDonationsFound: 'Tidak ada donasi ditemukan',
+      tryDifferentSearch: 'Coba pencarian yang berbeda',
+      noDonationsYet: 'Belum ada donasi',
+      nominal: 'Nominal',
+      date: 'Tanggal',
+      method: 'Metode',
+      donationRejected: 'Donasi Ditolak',
+      clickReupload: 'Klik untuk mengunggah ulang',
+      verifiedOn: 'Diverifikasi pada',
+      by: 'oleh',
+      detail: 'Detail',
+      reupload: 'Unggah Ulang',
+      reuploadTitle: 'Unggah Ulang Bukti Transfer',
+      previousRejectionReason: 'Alasan Penolakan Sebelumnya',
+      reuploadGuide: 'Panduan Unggah Ulang Bukti Transfer',
+      guideItem1: 'Pastikan gambar jelas dan terlihat dengan baik.',
+      guideItem2: 'Bukti transfer harus mencakup detail transaksi seperti nomor referensi, jumlah, dan tanggal.',
+      guideItem3: 'Jika Anda menggunakan metode pembayaran lain, pastikan semua detail transaksi tercantum.',
+      guideItem4: 'Klik "Unggah" untuk mengunggah gambar.',
+      newProofTransfer: 'Bukti Transfer Baru',
+      clickToUpload: 'Klik untuk mengunggah',
+      clickToChange: 'Klik untuk mengubah',
+      fileSelected: 'File dipilih',
+      successSent: 'Berhasil Dikirim',
+      successSentDesc: 'Bukti transfer Anda telah dikirim.',
+      close: 'Tutup',
+      cancel: 'Batal',
+      sending: 'Mengirim...',
+      resend: 'Kirim Ulang',
+      // Bottom nav
+      home: 'Home',
+      explore: 'Explore',
+      messages: 'Pesan',
+      settings: 'Settings',
+    },
+
+    // ===== 31. MY JOIN REQUESTS PAGE =====
+    myJoinRequestsPage: {
+      joinRequests: 'Join Request Saya',
+      trackJoinStatus: 'Lacak Status Join',
+      totalRequests: 'Total Request',
+      waiting: 'Menunggu',
+      accepted: 'Diterima',
+      rejected: 'Ditolak',
+      searchPlaceholder: 'Cari request...',
+      all: 'Semua',
+      pendingFilter: 'Menunggu',
+      acceptedFilter: 'Diterima',
+      rejectedFilter: 'Ditolak',
+      noRequests: 'Tidak Ada Request',
+      noRequestsDesc: 'Anda belum mengirim request join apapun.',
+      exploreProject: 'Explore Project',
+      submittedAgo: 'Dikirim {time} yang lalu',
+      commitment: 'Komitmen',
+      date: 'Tanggal',
+      reasonToJoin: 'Alasan Join',
+      rejectionReason: 'Alasan Penolakan',
+      canResubmit: 'Anda dapat mengirim ulang request join.',
+      congratsAccepted: 'Selamat! Request join Anda diterima.',
+      approvedOn: 'Diterima pada',
+      picReviewing: 'PIC sedang meninjau request Anda.',
+      viewProject: 'Lihat Project',
+      cancelRequest: 'Batalkan Request',
+      cancelConfirm: 'Anda yakin ingin membatalkan request join ini?',
+      cancelSuccess: 'Request join berhasil dibatalkan.',
+      resubmit: 'Kirim Ulang',
+      back: 'Kembali',
+      // Time
+      today: 'Hari ini',
+      yesterday: 'Kemarin',
+      daysAgo: 'hari yang lalu',
+      weeksAgo: 'minggu yang lalu',
+      monthsAgo: 'bulan yang lalu',
+      // Bottom nav
+      home: 'Home',
+      explore: 'Explore',
+      messages: 'Pesan',
+      settings: 'Settings',
+    },
   },
 
   en: {
@@ -1407,6 +1797,201 @@ export const translations: Record<Language, Translations> = {
       entrepreneur: 'Entrepreneur',
       freelance: 'Freelance',
       unemployed: 'Unemployed',
+    },
+
+    // ===== 28. MESSAGE PAGE (Donatur Inbox) =====
+    messagePage: {
+      messages: 'Messages',
+      donationReport: 'Donation Report',
+      event: 'Event',
+      personalMessages: 'Personal Messages',
+      announcements: 'Announcements',
+      donationRefNumber: 'Donation Reference Number',
+      copyRefNumber: 'Copy Reference Number',
+      totalYourDonations: 'Total Your Donations',
+      projects: 'Projects',
+      thankYou: 'Thank You',
+      success: 'Success',
+      inVerification: 'In Verification',
+      rejected: 'Rejected',
+      project: 'Project',
+      donationAmount: 'Donation Amount',
+      paymentMethod: 'Payment Method',
+      transferTime: 'Transfer Time',
+      donationInVerification: 'Donation in Verification',
+      verificationThankYou: 'Thank you for sending the transfer proof',
+      verificationTime: 'Verification Time',
+      verificationEmail: 'Verification Email',
+      verificationApp: 'Verification App',
+      donationRejected: 'Donation Rejected',
+      reuploadProof: 'Reupload Proof',
+      donationConfirmed: 'Donation Confirmed',
+      donationConfirmedDesc: 'Your donation has been confirmed and will be processed.',
+      eventRegistrations: 'Event Registrations',
+      noEventRegistrations: 'No Event Registrations',
+      noEventRegistrationsDesc: 'You have not registered for any events.',
+      waitingConfirmation: 'Waiting Confirmation',
+      registeredStatus: 'Registered Status',
+      rejectedStatus: 'Rejected Status',
+      date: 'Date',
+      time: 'Time',
+      location: 'Location',
+      participantQuota: 'Participant Quota',
+      persons: 'Persons',
+      spotsRemaining: 'Spots Remaining',
+    },
+
+    // ===== 29. NOTIFICATION CENTER =====
+    notifCenter: {
+      notifications: 'Notifications',
+      unreadNotifications: 'Unread Notifications',
+      allRead: 'All Read',
+      readAll: 'Mark All as Read',
+      deleteAll: 'Delete All',
+      allReadTitle: 'All Notifications Read',
+      noNotifications: 'No Notifications',
+      allReadDesc: 'You have read all notifications.',
+      noCategoryNotif: 'No Notifications in This Category',
+      newBadge: 'New',
+      viewDonationHistory: 'View Donation History',
+      viewJoinRequestStatus: 'View Join Request Status',
+      viewEventDetail: 'View Event Detail',
+      viewTaskInMessages: 'View Task in Messages',
+      viewInProjectDetail: 'View in Project Detail',
+      summary: 'Summary',
+      total: 'Total',
+      unread: 'Unread',
+      read: 'Read',
+      deleteAllConfirm: 'Are you sure you want to delete all notifications?',
+      cannotUndo: 'This action cannot be undone.',
+      // Filter labels
+      filterAll: 'All',
+      filterUnread: 'Unread',
+      filterDonation: 'Donation',
+      filterJoin: 'Join Request',
+      filterEvent: 'Event',
+      filterTask: 'Task',
+      filterUpdate: 'Update',
+      filterProject: 'Project',
+      // Notification type labels
+      donationApproved: 'Donation Approved',
+      donationRejected: 'Donation Rejected',
+      joinApproved: 'Join Request Approved',
+      joinRejected: 'Join Request Rejected',
+      projectUpdate: 'Project Update',
+      newTask: 'New Task',
+      taskCompleted: 'Task Completed',
+      withdrawalApproved: 'Withdrawal Approved',
+      withdrawalRejected: 'Withdrawal Rejected',
+      contentRemoved: 'Content Removed',
+      eventRegistration: 'Event Registration',
+      eventApproved: 'Event Approved',
+      eventRejected: 'Event Rejected',
+      eventReminder: 'Event Reminder',
+      eventCancelled: 'Event Cancelled',
+      projectClosed: 'Project Closed',
+      closureApproved: 'Closure Approved',
+      closureRejected: 'Closure Rejected',
+      alumniVerified: 'Alumni Verified',
+      defaultNotification: 'Default Notification',
+      // Time
+      justNow: 'Just now',
+      minutesAgo: 'minutes ago',
+      hoursAgo: 'hours ago',
+      daysAgo: 'days ago',
+    },
+
+    // ===== 30. MY DONATIONS PAGE =====
+    myDonationsPage: {
+      myDonations: 'My Donations',
+      trackStatus: 'Track Status',
+      totalDonations: 'Total Donations',
+      waiting: 'Waiting',
+      approved: 'Approved',
+      totalDistributed: 'Total Distributed',
+      searchPlaceholder: 'Search donations...',
+      all: 'All',
+      pending: 'Pending',
+      approvedFilter: 'Approved',
+      rejectedFilter: 'Rejected',
+      noDonationsFound: 'No donations found',
+      tryDifferentSearch: 'Try a different search',
+      noDonationsYet: 'No donations yet',
+      nominal: 'Nominal',
+      date: 'Date',
+      method: 'Method',
+      donationRejected: 'Donation Rejected',
+      clickReupload: 'Click to reupload',
+      verifiedOn: 'Verified on',
+      by: 'by',
+      detail: 'Detail',
+      reupload: 'Reupload',
+      reuploadTitle: 'Reupload Transfer Proof',
+      previousRejectionReason: 'Previous Rejection Reason',
+      reuploadGuide: 'Reupload Transfer Proof Guide',
+      guideItem1: 'Ensure the image is clear and visible.',
+      guideItem2: 'The transfer proof must include transaction details such as reference number, amount, and date.',
+      guideItem3: 'If you are using a different payment method, ensure all transaction details are included.',
+      guideItem4: 'Click "Upload" to upload the image.',
+      newProofTransfer: 'New Transfer Proof',
+      clickToUpload: 'Click to upload',
+      clickToChange: 'Click to change',
+      fileSelected: 'File selected',
+      successSent: 'Successfully Sent',
+      successSentDesc: 'Your transfer proof has been sent.',
+      close: 'Close',
+      cancel: 'Cancel',
+      sending: 'Sending...',
+      resend: 'Resend',
+      // Bottom nav
+      home: 'Home',
+      explore: 'Explore',
+      messages: 'Messages',
+      settings: 'Settings',
+    },
+
+    // ===== 31. MY JOIN REQUESTS PAGE =====
+    myJoinRequestsPage: {
+      joinRequests: 'My Join Requests',
+      trackJoinStatus: 'Track Join Status',
+      totalRequests: 'Total Requests',
+      waiting: 'Waiting',
+      accepted: 'Accepted',
+      rejected: 'Rejected',
+      searchPlaceholder: 'Search requests...',
+      all: 'All',
+      pendingFilter: 'Pending',
+      acceptedFilter: 'Accepted',
+      rejectedFilter: 'Rejected',
+      noRequests: 'No Requests',
+      noRequestsDesc: 'You have not sent any join requests.',
+      exploreProject: 'Explore Project',
+      submittedAgo: 'Submitted {time} ago',
+      commitment: 'Commitment',
+      date: 'Date',
+      reasonToJoin: 'Reason to Join',
+      rejectionReason: 'Rejection Reason',
+      canResubmit: 'You can resubmit the join request.',
+      congratsAccepted: 'Congratulations! Your join request has been accepted.',
+      approvedOn: 'Approved on',
+      picReviewing: 'PIC is reviewing your request.',
+      viewProject: 'View Project',
+      cancelRequest: 'Cancel Request',
+      cancelConfirm: 'Are you sure you want to cancel this join request?',
+      cancelSuccess: 'Join request successfully cancelled.',
+      resubmit: 'Resubmit',
+      back: 'Back',
+      // Time
+      today: 'Today',
+      yesterday: 'Yesterday',
+      daysAgo: 'days ago',
+      weeksAgo: 'weeks ago',
+      monthsAgo: 'months ago',
+      // Bottom nav
+      home: 'Home',
+      explore: 'Explore',
+      messages: 'Messages',
+      settings: 'Settings',
     },
   },
 };

@@ -4,8 +4,8 @@ import type { Donation, JoinRequest, Notification, Withdrawal, EventRegistration
 import type { ProjectWallet, WalletTransaction } from '@/types/admin-revised';
 
 // Translation system
-import { getTranslation, type Language } from '@/translations';
-import { LanguageContext } from '@/hooks/useTranslation';
+import { useTranslation } from '@/hooks/useTranslation';
+import { LanguageProvider } from '@/context/LanguageContext';
 
 // Component imports
 import { Login } from './components/Login';
@@ -141,16 +141,8 @@ function AppContent() {
   // FASE 2C: Event Registrations state
   const [eventRegistrations, setEventRegistrations] = useState<EventRegistration[]>([]);
 
-  // Language state - persisted in localStorage
-  const [language, setLanguage] = useState<Language>(() => {
-    const saved = localStorage.getItem('almaqdisi_language');
-    return (saved as Language) || 'id';
-  });
-
-  // Update localStorage when language changes
-  useEffect(() => {
-    localStorage.setItem('almaqdisi_language', language);
-  }, [language]);
+  // Language - from global LanguageProvider
+  const { language, setLanguage, t } = useTranslation();
 
   // Close filter modal on ESC key press
   useEffect(() => {
@@ -164,8 +156,7 @@ function AppContent() {
     return () => window.removeEventListener('keydown', handleEscKey);
   }, [showFilterModal]);
 
-  // Get translations for current language
-  const t = getTranslation(language);
+  // t (translations) is now provided by useTranslation() hook above
 
   // ==============================
   // FASE 1: HANDLERS FOR STATE UPDATES
@@ -1186,8 +1177,6 @@ function AppContent() {
       }}
       activeNav={activeNav}
       userRole={userRole}
-      language={language}
-      onLanguageChange={setLanguage}
     />;
   }
 
@@ -1442,7 +1431,6 @@ function AppContent() {
   }
 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, t }}>
       <ErrorBoundary>
       <Toaster position="top-center" richColors closeButton />
       <div className="flex min-h-screen relative bg-[#F8F9FA] overflow-x-hidden">
@@ -1475,7 +1463,7 @@ function AppContent() {
                 }}
               >
                 <span className="material-symbols-outlined text-xl">home</span>
-                <span className="tracking-wide text-sm font-semibold">Home</span>
+                <span className="tracking-wide text-sm font-semibold">{t.nav.home}</span>
               </a>
 
               <a
@@ -1491,7 +1479,7 @@ function AppContent() {
                 }}
               >
                 <span className="material-symbols-outlined text-xl">explore</span>
-                <span className="tracking-wide text-sm">Explore</span>
+                <span className="tracking-wide text-sm">{t.nav.explore}</span>
               </a>
 
               <a
@@ -1507,7 +1495,7 @@ function AppContent() {
                 }}
               >
                 <span className="material-symbols-outlined text-xl">chat_bubble</span>
-                <span className="tracking-wide text-sm">Pesan</span>
+                <span className="tracking-wide text-sm">{t.nav.messages}</span>
               </a>
 
               <a
@@ -1523,7 +1511,7 @@ function AppContent() {
                 }}
               >
                 <span className="material-symbols-outlined text-xl">settings</span>
-                <span className="tracking-wide text-sm">Settings</span>
+                <span className="tracking-wide text-sm">{t.nav.settings}</span>
               </a>
             </div>
           </nav>
@@ -1538,7 +1526,7 @@ function AppContent() {
               }}
             >
               <span className="material-symbols-outlined text-xl">admin_panel_settings</span>
-              <span className="tracking-wide text-sm font-semibold">Admin Panel</span>
+              <span className="tracking-wide text-sm font-semibold">{t.nav.adminPanel}</span>
             </button>
           </div>
 
@@ -1549,7 +1537,7 @@ function AppContent() {
               onClick={userRole === null ? () => setShowLoginWidget(true) : handleLogout}
             >
               <span className="material-symbols-outlined text-xl">{userRole === null ? 'login' : 'logout'}</span>
-              <span className="tracking-wide text-sm">{userRole === null ? 'Login' : 'Logout'}</span>
+              <span className="tracking-wide text-sm">{userRole === null ? t.home.login : t.nav.logout}</span>
             </button>
           </div>
         </div>
@@ -1580,7 +1568,7 @@ function AppContent() {
                 onClick={() => setShowLoginWidget(true)}
                 className="bg-gradient-to-r from-[#243D68] to-[#30518B] text-white font-bold py-2.5 px-4 rounded-lg text-sm hover:shadow-lg transition shadow-md uppercase tracking-wide whitespace-nowrap flex-shrink-0"
               >
-                Login
+                {t.home.login}
               </button>
             )}
           </div>
@@ -2107,7 +2095,7 @@ function AppContent() {
           {/* Gallery */}
           <section>
             <div className="flex justify-between items-end mb-6">
-              <h2 className="text-[20px] font-semibold text-[#0E1B33]">Galeri Project</h2>
+              <h2 className="text-[20px] font-semibold text-[#0E1B33]">{t.tabs.projectGallery}</h2>
               <button 
                 onClick={() => {
                   setExploreInitialTab('galeri');
@@ -2573,14 +2561,15 @@ function AppContent() {
         />
       )}
     </ErrorBoundary>
-    </LanguageContext.Provider>
   );
 }
 
 export default function App() {
   return (
-    <CampaignProvider>
-      <AppContent />
-    </CampaignProvider>
+    <LanguageProvider>
+      <CampaignProvider>
+        <AppContent />
+      </CampaignProvider>
+    </LanguageProvider>
   );
 }
