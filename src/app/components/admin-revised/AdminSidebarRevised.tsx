@@ -136,7 +136,7 @@ export function AdminSidebarRevised({
               <span className="material-symbols-outlined text-white text-xl">admin_panel_settings</span>
             </div>
             <div>
-              <h1 className="font-['Archivo_Black'] text-sm uppercase text-[#0E1B33]">
+              <h1 className="font-['Archivo_Black'] text-sm uppercase text-[#0E1B33] overflow-hidden text-ellipsis whitespace-nowrap">
                 AlMaqdisi
               </h1>
               <p className="text-xs text-[#6B7280]">Admin Panel</p>
@@ -227,7 +227,7 @@ export function AdminSidebarRevised({
                 <span className="material-symbols-outlined text-white text-xl">admin_panel_settings</span>
               </div>
               <div>
-                <h1 className="font-['Archivo_Black'] text-sm uppercase text-[#0E1B33]">
+                <h1 className="font-['Archivo_Black'] text-sm uppercase text-[#0E1B33] overflow-hidden text-ellipsis whitespace-nowrap">
                   AlMaqdisi
                 </h1>
                 <p className="text-xs text-[#6B7280]">Admin Panel</p>

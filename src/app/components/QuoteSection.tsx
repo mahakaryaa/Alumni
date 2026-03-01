@@ -37,7 +37,7 @@ export const QuoteSection = () => {
           <motion.button 
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
-            className="absolute right-2 top-12 z-20 w-12 h-12 bg-[#FAC06E] rounded-full flex items-center justify-center shadow-lg text-[#243D68] ring-4 ring-white"
+            className="absolute left-8 top-2 z-20 w-12 h-12 bg-[#FAC06E] rounded-full flex items-center justify-center shadow-lg text-[#243D68] ring-4 ring-white"
           >
             <span className="material-symbols-outlined text-3xl font-bold">pause</span>
           </motion.button>

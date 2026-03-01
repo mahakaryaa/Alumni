@@ -5,7 +5,15 @@ import { useTranslation } from '@/hooks/useTranslation';
 interface ExploreProjectProps {
   onBack?: () => void;
   initialTab?: 'open' | 'galeri' | 'campaign';
-  onNavigateToDetail?: () => void;
+  onNavigateToDetail?: (project: { 
+    id: number | string; 
+    title: string; 
+    imageUrl: string; 
+    category: string; 
+    type: 'open-volunteer' | 'galeri-with-funding' | 'galeri-documentation' | 'campaign';
+    isFunding?: boolean;
+    isVolunteerOpen?: boolean;
+  }) => void;
   onNavigateHome?: () => void;
   onNavigateExplore?: () => void;
   onNavigateMessages?: () => void;
@@ -43,6 +51,7 @@ export function ExploreProject({
   // Filter states
   const [filterStatus, setFilterStatus] = useState<string[]>([]);
   const [filterLocation, setFilterLocation] = useState<string[]>([]);
+  const [filterCategory, setFilterCategory] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
@@ -81,7 +90,7 @@ export function ExploreProject({
   };
 
   const categories = [
-    { id: 'semua', label: t.categories.all, icon: 'star' },
+    { id: 'semua', label: t.categories.all, icon: 'grid_view' },
     { id: 'sejarah', label: language === 'id' ? 'Sejarah' : 'History', icon: 'history_edu' },
     { id: 'budaya', label: language === 'id' ? 'Budaya' : 'Culture', icon: 'palette' },
     { id: 'kemanusiaan', label: language === 'id' ? 'Kemanusiaan' : 'Humanitarian', icon: 'volunteer_activism' },
@@ -90,30 +99,48 @@ export function ExploreProject({
   const projects = [
     {
       id: 1,
-      title: 'Sejarah Baitul Maqdis Virtual Tour',
-      description: 'Pelajari sejarah Masjid Al-Aqsa dan Kubah Shakhrah melalui virtual tour interaktif 360° yang menakjubkan!',
-      image: 'https://images.unsplash.com/photo-1584018307817-585ec727f94a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxkb21lJTIwcm9jayUyMGplcnVzYWxlbSUyMGFyY2hpdGVjdHVyZXxlbnwxfHx8fDE3Njk2NTI0MDR8MA&ixlib=rb-4.1.0&q=80&w=1080',
-      hashtag: '#SejarahPalestina',
+      title: 'Tim Konten Digital Al-Aqsa',
+      description: 'Buat konten media sosial edukatif tentang sejarah Baitul Maqdis untuk meningkatkan kesadaran generasi muda secara global.',
+      image: 'https://images.unsplash.com/photo-1517309561013-16f6e4020305?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3ZWIlMjBhcHAlMjBtb2JpbGUlMjBkZXZlbG9wbWVudCUyMGNvZGluZyUyMHRlYW18ZW58MXx8fHwxNzcyMzMwNDU3fDA&ixlib=rb-4.1.0&q=80&w=1080',
+      hashtag: '#KontenDigitalPalestina',
       category: 'sejarah',
+      slots: 5,
+      location: 'Remote / Online',
+      skills: ['Desain Grafis', 'Copywriting', 'Video Editing'],
       buttonText: language === 'id' ? 'Gabung Project' : 'Join Project',
+      type: 'open-volunteer', // NEW: Explicit type
+      isFunding: false, // NEW: No funding for volunteer projects
+      isVolunteerOpen: true, // NEW: Volunteer registration is open
     },
     {
       id: 2,
-      title: 'Belajar Bahasa Arab Palestina',
-      description: 'Kursus online bahasa Arab dialek Palestina untuk mengenal lebih dekat saudara-saudara kita di Baitul Maqdis.',
-      image: 'https://images.unsplash.com/photo-1628962691167-27b7db9997e0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhcmFiaWMlMjBjYWxsaWdyYXBoeSUyMHdvcmtzaG9wfGVufDF8fHx8MTc2OTY1MjEyOHww&ixlib=rb-4.1.0&q=80&w=1080',
-      hashtag: '#BahasaPalestina',
+      title: 'Pengajaran Bahasa Arab Dialek Palestina',
+      description: 'Jadilah pengajar sukarela untuk kelas daring bahasa Arab dialek Palestina bagi pelajar Indonesia yang ingin lebih dekat dengan saudara di Baitul Maqdis.',
+      image: 'https://images.unsplash.com/photo-1618285992209-a0d69673e7b7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhcmFiaWMlMjBsYW5ndWFnZSUyMHRlYWNoaW5nJTIwZWR1Y2F0aW9uJTIwY2xhc3N8ZW58MXx8fHwxNzcyMzMwNDUwfDA&ixlib=rb-4.1.0&q=80&w=1080',
+      hashtag: '#BahasaArabPalestina',
       category: 'budaya',
+      slots: 3,
+      location: 'Online',
+      skills: ['Bahasa Arab', 'Mengajar', 'Komunikasi'],
       buttonText: language === 'id' ? 'Gabung Project' : 'Join Project',
+      type: 'open-volunteer',
+      isFunding: false,
+      isVolunteerOpen: true,
     },
     {
       id: 3,
-      title: 'Dokumenter Kehidupan Gaza',
-      description: 'Saksikan dokumenter tentang kehidupan sehari-hari masyarakat Gaza dan perjuangan mereka untuk pendidikan.',
-      image: 'https://images.unsplash.com/photo-1633859253234-d0832f649800?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwYWxlc3RpbmlhbiUyMGZhbWlseSUyMGRvY3VtZW50YXJ5fGVufDF8fHx8MTc2OTY1MjQwNXww&ixlib=rb-4.1.0&q=80&w=1080',
-      hashtag: '#KehidupanGaza',
+      title: 'Tim Dokumentasi Kehidupan Gaza',
+      description: 'Bergabunglah sebagai jurnalis warga dan dokumentator untuk merekam dan menyebarluaskan kisah nyata perjuangan masyarakat Gaza dalam mempertahankan budaya dan harapan.',
+      image: 'https://images.unsplash.com/photo-1566321235232-b2822255b733?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwaG90b2dyYXBoeSUyMGRvY3VtZW50YXJ5JTIwam91cm5hbGlzbSUyMHRlYW18ZW58MXx8fHwxNzcyMzMwNDUwfDA&ixlib=rb-4.1.0&q=80&w=1080',
+      hashtag: '#SuaraGaza',
       category: 'kemanusiaan',
+      slots: 8,
+      location: 'Remote / Online',
+      skills: ['Fotografi', 'Penulisan', 'Penelitian'],
       buttonText: language === 'id' ? 'Gabung Project' : 'Join Project',
+      type: 'open-volunteer',
+      isFunding: false,
+      isVolunteerOpen: true,
     },
   ];
 
@@ -121,53 +148,50 @@ export function ExploreProject({
     {
       id: 1,
       title: 'Workshop Kaligrafi Arab Al-Quds',
-      description: 'Belajar seni kaligrafi Arab dengan tema ayat-ayat tentang Baitul Maqdis dan Palestina dari mentor berpengalaman.',
-      image: 'https://images.unsplash.com/photo-1628962691167-27b7db9997e0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhcmFiaWMlMjBjYWxsaWdyYXBoeSUyMHdvcmtzaG9wfGVufDF8fHx8MTc2OTY1MjEyOHww&ixlib=rb-4.1.0&q=80&w=1080',
+      description: 'Belajar seni kaligrafi Arab dengan tema ayat-ayat tentang Baitul Maqdis dan Palestina dari mentor berpengalaman. Hasil karya dipamerkan dan dijual untuk dana solidaritas.',
+      image: 'https://images.unsplash.com/photo-1636055308958-2914b559833f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxQYWxlc3RpbmUlMjBjdWx0dXJhbCUyMGFydCUyMHdvcmtzaG9wJTIwY29tbXVuaXR5fGVufDF8fHx8MTc3MjMzMDQ1OXww&ixlib=rb-4.1.0&q=80&w=1080',
       category: 'budaya',
-      status: 'upcoming',
-      statusColor: 'bg-amber-100 text-amber-800',
-      date: '25 Feb 2026',
-      participants: '45',
+      status: 'ongoing',
+      statusColor: 'bg-teal-100 text-teal-800',
+      date: '15 Mar 2026',
+      participants: '62',
       location: 'Jakarta Selatan',
-      currentAmount: 45000000,
-      targetAmount: 100000000,
+      currentAmount: 28000000,
+      targetAmount: 60000000,
+      type: 'galeri-with-funding', // NEW: Explicit type
+      isFunding: true, // NEW: This galeri project accepts donations
+      isVolunteerOpen: false, // NEW: No volunteer recruitment
     },
     {
       id: 2,
-      title: 'Webinar Arkeologi Baitul Maqdis',
-      description: 'Diskusi mendalam tentang penemuan arkeologi di sekitar kompleks Al-Aqsa dan makna historisnya.',
-      image: 'https://images.unsplash.com/photo-1763572361668-507e24085e8a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhcmNoYWVvbG9naWNhbCUyMGFuY2llbnQlMjBtaWRkbGUlMjBlYXN0fGVufDF8fHx8MTc2OTY1MjQwNXww&ixlib=rb-4.1.0&q=80&w=1080',
+      title: 'Webinar Arkeologi & Sejarah Baitul Maqdis',
+      description: 'Diskusi mendalam bersama para pakar arkeologi tentang penemuan bersejarah di sekitar kompleks Al-Aqsa dan makna spiritualnya bagi umat Muslim dunia.',
+      image: 'https://images.unsplash.com/photo-1768306444082-94ed8048ebe2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxJc2xhbWljJTIwYXJjaGl0ZWN0dXJlJTIwZG9tZSUyMEplcnVzYWxlbSUyMGhpc3RvcmljfGVufDF8fHx8MTc3MjMzMDQ1OXww&ixlib=rb-4.1.0&q=80&w=1080',
       category: 'sejarah',
-      status: 'ongoing',
-      statusColor: 'bg-teal-100 text-teal-800',
+      status: 'upcoming',
+      statusColor: 'bg-amber-100 text-amber-800',
       location: 'Online',
-      date: '28 Feb 2026',
-      participants: '128',
+      date: '28 Mar 2026',
+      participants: '215',
       completionStatus: language === 'id' ? 'Dana Terpenuhi' : 'Fully Funded',
+      type: 'galeri-documentation', // NEW: Documentation only
+      isFunding: false, // NEW: No funding (already completed or not needed)
+      isVolunteerOpen: false, // NEW: No volunteer recruitment
     },
     {
       id: 3,
-      title: 'Kuliner Palestina: Cooking Class',
-      description: 'Masak makanan tradisional Palestina seperti Musakhan, Maqluba, dan Knafeh bersama chef berpengalaman.',
-      image: 'https://images.unsplash.com/photo-1761828122856-8703baac8e86?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtaWRkbGUlMjBlYXN0ZXJuJTIwZm9vZCUyMHRyYWRpdGlvbmFsfGVufDF8fHx8MTc2OTY1MjQwNnww&ixlib=rb-4.1.0&q=80&w=1080',
-      category: 'budaya',
-      status: 'past',
-      statusColor: 'bg-slate-200 text-slate-700',
-      location: 'Bandung',
-      currentAmount: 28000000,
-      targetAmount: 50000000,
-    },
-    {
-      id: 4,
-      title: 'Dokumenter Kehidupan Sehari-hari di Al-Quds',
-      description: 'Film dokumenter singkat yang menggambarkan kehidupan warga Palestina sehari-hari di sekitar Baitul Maqdis dan perjuangan mereka.',
-      image: 'https://images.unsplash.com/photo-1695719572124-3a4ee34aa3c5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxkb2N1bWVudGFyeSUyMHBob3RvZ3JhcGh5JTIwcGFsZXN0aW5lJTIwaGVyaXRhZ2V8ZW58MXx8fHwxNzcyMjUwMjg2fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
+      title: 'Pameran Foto: Wajah-Wajah Palestina',
+      description: 'Pameran foto kolektif karya alumni yang mengabadikan kehidupan, harapan, dan keteguhan warga Palestina. Telah digelar di 4 kota besar Indonesia dan menyentuh ribuan hati.',
+      image: 'https://images.unsplash.com/photo-1700028285843-d19464592839?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx2b2x1bnRlZXIlMjBjb21tdW5pdHklMjBQYWxlc3RpbmUlMjBodW1hbml0YXJiYW4lMjBwcm9qZWN0fGVufDF8fHx8MTc3MjMzMDQ0N3ww&ixlib=rb-4.1.0&q=80&w=1080',
       category: 'kemanusiaan',
       status: 'past',
       statusColor: 'bg-slate-200 text-slate-700',
-      location: 'Online',
-      participants: '320',
-      completionStatus: language === 'id' ? 'Dokumentasi' : 'Documentation',
+      location: 'Jakarta, Bandung, Surabaya, Yogyakarta',
+      participants: '4.800',
+      completionStatus: language === 'id' ? 'Selesai' : 'Completed',
+      type: 'galeri-documentation', // NEW: Documentation only (past event)
+      isFunding: false, // NEW: No funding for past events
+      isVolunteerOpen: false, // NEW: No volunteer recruitment
     },
   ];
 
@@ -175,36 +199,45 @@ export function ExploreProject({
   const campaignProjects = [
     {
       id: 1,
-      title: 'Bantu Pendidikan Anak-anak Gaza',
-      description: 'Kampanye penggalangan dana untuk menyediakan buku, alat tulis, dan fasilitas pendidikan bagi anak-anak di Gaza.',
-      image: 'https://images.unsplash.com/photo-1771051027743-b09f223f64ae?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxpc2xhbWljJTIwZWR1Y2F0aW9uJTIwY2hpbGRyZW4lMjBib29rcyUyMGFyYWJpYyUyMGNhbGxpZ3JhcGh5fGVufDF8fHx8MTc3MjIzMzEwOHww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
+      title: 'Bantuan Pangan Darurat Gaza',
+      description: 'Kampanye mendesak pengiriman paket pangan untuk keluarga-keluarga yang terdampak konflik di Gaza. Setiap donasi langsung tersalurkan melalui mitra terpercaya di lapangan.',
+      image: 'https://images.unsplash.com/photo-1752010284872-76526682bfee?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxmb29kJTIwYWlkJTIwZGlzdHJpYnV0aW9uJTIwaHVtYW5pdGFyaWFuJTIwcmVsaWVmfGVufDF8fHx8MTc3MjMzMDQ1NHww&ixlib=rb-4.1.0&q=80&w=1080',
       category: 'kemanusiaan',
-      currentAmount: 45000000,
-      targetAmount: 100000000,
-      supporters: 1250,
-      daysLeft: 15,
+      currentAmount: 87500000,
+      targetAmount: 150000000,
+      supporters: 3420,
+      daysLeft: 8,
+      type: 'campaign', // NEW: Explicit type
+      isFunding: true, // NEW: Campaign accepts donations
+      isVolunteerOpen: true, // NEW: Campaign also accepts volunteers
     },
     {
       id: 2,
       title: 'Restorasi Masjid Bersejarah Al-Quds',
-      description: 'Kampanye untuk mendukung restorasi dan pemeliharaan masjid-masjid bersejarah di kawasan Baitul Maqdis.',
-      image: 'https://images.unsplash.com/photo-1597214792074-3a713fc1635b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtb3NxdWUlMjBhcmNoaXRlY3R1cmUlMjBpc2xhbWljJTIwaGVyaXRhZ2V8ZW58MXx8fHwxNzcyMjMxMzU3fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
+      description: 'Kampanye mendukung restorasi dan pemeliharaan masjid-masjid bersejarah di kawasan Baitul Maqdis yang mengalami kerusakan struktural akibat usia dan tekanan eksternal.',
+      image: 'https://images.unsplash.com/photo-1763144967746-dc8d5cc57630?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtb3NxdWUlMjByZXN0b3JhdGlvbiUyMGhlcml0YWdlJTIwYXJjaGl0ZWN0dXJlJTIwcmVub3ZhdGlvbnxlbnwxfHx8fDE3NzIzMzA0NTR8MA&ixlib=rb-4.1.0&q=80&w=1080',
       category: 'sejarah',
       currentAmount: 78000000,
-      targetAmount: 150000000,
+      targetAmount: 200000000,
       supporters: 2100,
-      daysLeft: 30,
+      daysLeft: 21,
+      type: 'campaign',
+      isFunding: true,
+      isVolunteerOpen: true,
     },
     {
       id: 3,
-      title: 'Program Beasiswa Budaya Palestina',
-      description: 'Kampanye beasiswa untuk pelajar yang ingin mempelajari budaya, bahasa, dan seni tradisional Palestina.',
-      image: 'https://images.unsplash.com/photo-1715458274209-61e261243b7c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwYWxlc3RpbmlhbiUyMHN0dWRlbnRzJTIwaGlqYWIlMjBncmFkdWF0aW9uJTIwY2VyZW1vbnl8ZW58MXx8fHwxNzcyMjMzMTA4fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
-      category: 'budaya',
-      currentAmount: 32000000,
-      targetAmount: 75000000,
-      supporters: 890,
-      daysLeft: 22,
+      title: 'Klinik Kesehatan Darurat Palestina',
+      description: 'Galang dana untuk mendirikan pos klinik darurat bergerak yang siap memberikan layanan kesehatan gratis bagi warga Palestina di daerah yang sulit dijangkau fasilitas medis.',
+      image: 'https://images.unsplash.com/photo-1659353885824-1199aeeebfc6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtZWRpY2FsJTIwaGVhbHRoJTIwY2xpbmljJTIwdm9sdW50ZXVyJTIwZG9jdG9yfGVufDF8fHx8MTc3MjMzMDQ1N3ww&ixlib=rb-4.1.0&q=80&w=1080',
+      category: 'kemanusiaan',
+      currentAmount: 42000000,
+      targetAmount: 120000000,
+      supporters: 1680,
+      daysLeft: 30,
+      type: 'campaign',
+      isFunding: true,
+      isVolunteerOpen: true,
     },
   ];
 
@@ -220,11 +253,42 @@ export function ExploreProject({
     ? campaignProjects 
     : campaignProjects.filter(p => p.category === selectedCategory);
 
-  // Apply filters
+  // Apply filters for Open Volunteer
+  const appliedFilterOpenProjects = filteredProjects
+    .filter(p => filterLocation.length === 0 || filterLocation.some(loc => p.location.includes(loc)))
+    .filter(p => p.title.toLowerCase().includes(searchQuery.toLowerCase()));
+
+  // Apply filters for Galeri
   const appliedFilterGaleriProjects = filteredGaleriProjects
     .filter(p => filterStatus.length === 0 || filterStatus.includes(p.status))
-    .filter(p => filterLocation.length === 0 || filterLocation.includes(p.location))
+    .filter(p => filterLocation.length === 0 || filterLocation.some(loc => p.location.includes(loc)))
     .filter(p => p.title.toLowerCase().includes(searchQuery.toLowerCase()));
+
+  // Apply filters for Campaign
+  const appliedFilterCampaignProjects = filteredCampaignProjects
+    .filter(p => filterStatus.length === 0 || filterStatus.includes(p.status))
+    .filter(p => filterLocation.length === 0 || filterLocation.some(loc => p.location.includes(loc)))
+    .filter(p => p.title.toLowerCase().includes(searchQuery.toLowerCase()));
+
+  // Determine which projects to show based on category filter
+  let displayedProjects = {
+    open: appliedFilterOpenProjects,
+    galeri: appliedFilterGaleriProjects,
+    campaign: appliedFilterCampaignProjects
+  };
+
+  // Apply category filter if any selected
+  if (filterCategory.length > 0) {
+    if (!filterCategory.includes('open-volunteer')) {
+      displayedProjects.open = [];
+    }
+    if (!filterCategory.includes('galeri')) {
+      displayedProjects.galeri = [];
+    }
+    if (!filterCategory.includes('campaign')) {
+      displayedProjects.campaign = [];
+    }
+  }
 
   return (
     <div className="flex min-h-screen relative bg-[#E5E8EC] overflow-x-hidden">
@@ -348,16 +412,16 @@ export function ExploreProject({
 
         {/* Tab Navigation */}
         {userRole !== 'donatur' && (
-          <div className={`bg-white border-b border-[#D6DCE8] px-6 sticky z-30 shadow-sm transition-all duration-300 ${showHeader ? 'top-[168px]' : 'top-0'}`}>
+          <div className={`bg-white border-b border-[#D6DCE8] sticky z-30 shadow-sm transition-all duration-300 ${showHeader ? 'top-[168px]' : 'top-0'}`}>
             <div className="flex w-full">
               {userRole !== 'donatur' && (
                 <button
                   onClick={() => setSelectedTab('open')}
-                  className={`flex-1 py-3.5 font-semibold text-[15px] transition-colors relative ${
+                  className={`flex-1 py-3.5 font-semibold text-[13px] transition-colors relative flex items-center justify-center ${
                     selectedTab === 'open' ? 'text-[#243D68]' : 'text-[#61728F]'
                   }`}
                 >
-                  Open Volunteer
+                  <span className="whitespace-nowrap">Open Volunteer</span>
                   {selectedTab === 'open' && (
                     <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#243D68] rounded-full"></span>
                   )}
@@ -366,11 +430,11 @@ export function ExploreProject({
 
               <button
                 onClick={() => setSelectedTab('galeri')}
-                className={`flex-1 py-3.5 font-semibold text-[15px] transition-colors relative ${
+                className={`flex-1 py-3.5 font-semibold text-[13px] transition-colors relative flex items-center justify-center ${
                   selectedTab === 'galeri' ? 'text-[#243D68]' : 'text-[#61728F]'
                 }`}
               >
-                {t.tabs.projectGallery}
+                <span className="whitespace-nowrap">{t.tabs.projectGallery}</span>
                 {selectedTab === 'galeri' && (
                   <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#243D68] rounded-full"></span>
                 )}
@@ -378,11 +442,11 @@ export function ExploreProject({
 
               <button
                 onClick={() => setSelectedTab('campaign')}
-                className={`flex-1 py-3.5 font-semibold text-[15px] transition-colors relative ${
+                className={`flex-1 py-3.5 font-semibold text-[13px] transition-colors relative flex items-center justify-center ${
                   selectedTab === 'campaign' ? 'text-[#243D68]' : 'text-[#61728F]'
                 }`}
               >
-                {t.tabs.campaign}
+                <span className="whitespace-nowrap">{t.tabs.campaign}</span>
                 {selectedTab === 'campaign' && (
                   <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#243D68] rounded-full"></span>
                 )}
@@ -416,7 +480,7 @@ export function ExploreProject({
           {selectedTab === 'galeri' && (
             <div className="max-w-4xl">
               <div className="flex items-start gap-4">
-                <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg">
+                <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-[#243D68] to-[#1a2e52] flex items-center justify-center shadow-lg">
                   <span className="material-symbols-outlined text-white text-[20px]">photo_library</span>
                 </div>
                 <div className="flex-1">
@@ -436,7 +500,7 @@ export function ExploreProject({
           {selectedTab === 'campaign' && (
             <div className="max-w-4xl">
               <div className="flex items-start gap-4">
-                <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center shadow-lg">
+                <div className="flex-shrink-0 w-10 h-10 rounded-full bg-[#FAC06E] flex items-center justify-center shadow-lg">
                   <span className="material-symbols-outlined text-white text-[20px]">campaign</span>
                 </div>
                 <div className="flex-1">
@@ -457,7 +521,7 @@ export function ExploreProject({
         {/* Projects List */}
         <div className="px-6 pt-6 pb-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {selectedTab === 'open' ? (
-            filteredProjects.map((project) => (
+            displayedProjects.open.map((project) => (
               <div
                 key={project.id}
                 className="bg-white rounded-[16px] overflow-hidden shadow-[0_8px_24px_rgba(22,36,63,0.08)] border border-[#D6DCE8] hover:shadow-lg transition-all duration-300"
@@ -482,28 +546,79 @@ export function ExploreProject({
                     {project.title}
                   </h3>
 
-                  <p className="text-sm text-[#61728F] mb-5 line-clamp-2 leading-relaxed">
+                  <p className="text-sm text-[#61728F] mb-4 line-clamp-2 leading-relaxed">
                     {project.description}
                   </p>
 
+                  {/* Skills Tags */}
+                  <div className="flex flex-wrap gap-1.5 mb-4">
+                    {project.skills.map((skill) => (
+                      <span key={skill} className="bg-[#EEF1F7] text-[#243D68] text-[11px] font-semibold px-2.5 py-1 rounded-full">
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
+
+                  {/* Meta info */}
+                  <div className="flex items-center justify-between text-[12px] text-[#61728F] mb-4 border-t border-[#E8ECF0] pt-3">
+                    <div className="flex items-center gap-1">
+                      <span className="material-symbols-outlined text-[15px]">location_on</span>
+                      <span>{project.location}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <span className="material-symbols-outlined text-[15px]">person_add</span>
+                      <span>{project.slots} {language === 'id' ? 'slot tersisa' : 'slots left'}</span>
+                    </div>
+                  </div>
+
                   <button 
-                    onClick={onNavigateToDetail}
-                    className="bg-[#243D68] text-white text-sm font-semibold py-2.5 px-6 rounded-full hover:bg-[#1a2e52] active:scale-[0.98] transition-all duration-200 shadow-sm hover:shadow-md inline-flex items-center justify-center"
+                    onClick={() => {
+                      // DEBUG: Log dari Open Volunteer tab
+                      console.log('🎯 [ExploreProject - Open Tab] Card clicked:', project.title);
+                      console.log('📊 Project data:', { type: project.type, isFunding: project.isFunding, isVolunteerOpen: project.isVolunteerOpen });
+                      
+                      onNavigateToDetail?.({
+                        id: project.id,
+                        title: project.title,
+                        imageUrl: project.image,
+                        category: project.category,
+                        type: project.type, // Dynamic: 'open-volunteer'
+                        isFunding: project.isFunding, // Dynamic: false
+                        isVolunteerOpen: project.isVolunteerOpen, // Dynamic: true
+                      });
+                    }}
+                    className="w-full bg-[#243D68] text-white text-sm font-semibold py-2.5 px-6 rounded-xl hover:bg-[#1a2e52] active:scale-[0.98] transition-all duration-200 shadow-sm hover:shadow-md flex items-center justify-center gap-2"
                   >
-                    {language === 'id' ? 'Lihat Detail' : 'View Details'}
+                    <span className="material-symbols-outlined text-[18px]">group_add</span>
+                    <span>{language === 'id' ? 'Join Project' : 'Join Project'}</span>
                   </button>
                 </div>
               </div>
             ))
           ) : selectedTab === 'galeri' ? (
-            appliedFilterGaleriProjects.map((project) => {
-              const hasFunding = project.currentAmount !== undefined && project.targetAmount !== undefined;
-              const percentage = hasFunding ? (project.currentAmount / project.targetAmount) * 100 : 0;
+            displayedProjects.galeri.map((project) => {
+              // hasAmounts untuk display progress bar (butuh angka aktual)
+              const hasAmounts = project.currentAmount !== undefined && project.targetAmount !== undefined;
+              const percentage = hasAmounts ? (project.currentAmount / project.targetAmount) * 100 : 0;
               
               return (
                 <div
                   key={project.id}
-                  onClick={onNavigateToDetail}
+                  onClick={() => {
+                    // DEBUG: Log dari Galeri tab
+                    console.log('🎨 [ExploreProject - Galeri Tab] Card clicked:', project.title);
+                    console.log('📊 Project data:', { type: project.type, isFunding: project.isFunding, isVolunteerOpen: project.isVolunteerOpen });
+                    
+                    onNavigateToDetail?.({
+                      id: project.id,
+                      title: project.title,
+                      imageUrl: project.image,
+                      category: project.category,
+                      type: project.type, // Dynamic: 'galeri-with-funding' or 'galeri-documentation'
+                      isFunding: project.isFunding, // Dynamic: true or false
+                      isVolunteerOpen: project.isVolunteerOpen, // Dynamic: false
+                    });
+                  }}
                   className="group bg-white rounded-[16px] overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_32px_rgba(36,61,104,0.12)] border border-[#E8ECF0] hover:border-[#243D68]/20 transition-all duration-300 cursor-pointer"
                 >
                   {/* Project Image with Gradient Overlay */}
@@ -537,8 +652,8 @@ export function ExploreProject({
                       {project.description}
                     </p>
 
-                    {/* Progress Bar - Only show if project has funding */}
-                    {hasFunding ? (
+                    {/* Progress Bar - Berbasis project.isFunding (data-driven) */}
+                    {project.isFunding && hasAmounts ? (
                       <div className="space-y-1.5 pb-2">
                         <div className="flex justify-between text-xs text-[#61728F]">
                           <span>{language === 'id' ? 'Terkumpul' : 'Raised'}</span>
@@ -595,7 +710,8 @@ export function ExploreProject({
                         </div>
                       </div>
                       
-                      {!hasFunding && (
+                      {/* Lihat Detail link - hanya untuk galeri-documentation (isFunding=false) */}
+                      {!project.isFunding && (
                         <div className="flex items-center gap-2 text-[#243D68] text-[13px] font-semibold group-hover:gap-2 transition-all">
                           <span>{language === 'id' ? 'Lihat Detail' : 'View Details'}</span>
                           <span className="material-symbols-outlined text-[18px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
@@ -603,12 +719,24 @@ export function ExploreProject({
                       )}
                     </div>
 
-                    {/* CTA Button - Only for projects with funding (donation) */}
-                    {hasFunding && (
+                    {/* CTA Button - Berbasis project.isFunding (data-driven, bukan derived dari amount fields) */}
+                    {project.isFunding && (
                       <button 
                         onClick={(e) => {
                           e.stopPropagation();
-                          onNavigateToDetail?.();
+                          // DEBUG: Log dari Galeri tab (funding projects)
+                          console.log('💰 [ExploreProject - Galeri Tab Funding] Button clicked:', project.title);
+                          console.log('📊 Project data:', { type: project.type, isFunding: project.isFunding, isVolunteerOpen: project.isVolunteerOpen });
+                          
+                          onNavigateToDetail?.({
+                            id: project.id,
+                            title: project.title,
+                            imageUrl: project.image,
+                            category: project.category,
+                            type: project.type, // Dynamic from data
+                            isFunding: project.isFunding,
+                            isVolunteerOpen: project.isVolunteerOpen,
+                          });
                         }}
                         className="w-full bg-gradient-to-r from-[#FAC06E] to-[#E5A84E] text-[#243D68] text-sm font-bold py-3 px-5 rounded-xl shadow-[4px_4px_0px_0px_rgba(250,192,110,0.5)] hover:shadow-[6px_6px_0px_0px_rgba(250,192,110,0.5)] active:shadow-none active:translate-x-1 active:translate-y-1 transition-all duration-200 flex items-center justify-center gap-2"
                       >
@@ -621,12 +749,26 @@ export function ExploreProject({
               );
             })
           ) : (
-            filteredCampaignProjects.map((project) => {
+            displayedProjects.campaign.map((project) => {
               const percentage = (project.currentAmount / project.targetAmount) * 100;
               return (
                 <div
                   key={project.id}
-                  onClick={() => onCampaignClick?.(project.id.toString())}
+                  onClick={() => {
+                    // DEBUG: Log dari Campaign tab
+                    console.log('📣 [ExploreProject - Campaign Tab] Card clicked:', project.title);
+                    console.log('📊 Project data:', { type: project.type, isFunding: project.isFunding, isVolunteerOpen: project.isVolunteerOpen });
+                    
+                    onNavigateToDetail?.({
+                      id: project.id,
+                      title: project.title,
+                      imageUrl: project.image,
+                      category: project.category,
+                      type: project.type, // Dynamic: 'campaign'
+                      isFunding: project.isFunding, // Dynamic: true
+                      isVolunteerOpen: project.isVolunteerOpen, // Dynamic: true
+                    });
+                  }}
                   className="group bg-white rounded-[16px] overflow-hidden shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_32px_rgba(36,61,104,0.12)] border border-[#E8ECF0] hover:border-[#243D68]/20 transition-all duration-300 cursor-pointer"
                 >
                   {/* Project Image with Gradient Overlay */}
@@ -693,21 +835,107 @@ export function ExploreProject({
                       </div>
                     </div>
 
-                    {/* CTA Button */}
-                    <button 
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onNavigateToDetail?.();
-                      }}
-                      className="w-full mt-4 bg-gradient-to-r from-[#243D68] to-[#1a2e52] text-white text-sm font-bold py-3 px-5 rounded-xl shadow-[4px_4px_0px_0px_rgba(250,192,110,1)] hover:shadow-[6px_6px_0px_0px_rgba(250,192,110,1)] active:shadow-none active:translate-x-1 active:translate-y-1 transition-all duration-200 flex items-center justify-center gap-2 group"
-                    >
-                      <span>{language === 'id' ? 'Gabung Project' : 'Join Project'}</span>
-                      <span className="material-symbols-outlined text-[18px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
-                    </button>
+                    {/* CTA Buttons - Campaign: "Donasi Project" + "Join Project" (dual CTA) */}
+                    <div className="flex gap-2 mt-4">
+                      {/* Donasi Project Button */}
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          console.log('💰 [ExploreProject - Campaign Tab] Donasi clicked:', project.title);
+                          console.log('📊 Project data:', { type: project.type, isFunding: project.isFunding, isVolunteerOpen: project.isVolunteerOpen });
+                          
+                          onNavigateToDetail?.({
+                            id: project.id,
+                            title: project.title,
+                            imageUrl: project.image,
+                            category: project.category,
+                            type: 'campaign',
+                            isFunding: project.isFunding,
+                            isVolunteerOpen: project.isVolunteerOpen,
+                          });
+                        }}
+                        className="flex-1 bg-gradient-to-r from-[#FAC06E] to-[#E5A84E] text-[#243D68] text-sm font-bold py-3 px-3 rounded-xl shadow-[3px_3px_0px_0px_rgba(250,192,110,0.5)] hover:shadow-[4px_4px_0px_0px_rgba(250,192,110,0.5)] active:shadow-none active:translate-x-0.5 active:translate-y-0.5 transition-all duration-200 flex items-center justify-center gap-1.5"
+                      >
+                        <span className="material-symbols-outlined text-[16px]">volunteer_activism</span>
+                        <span>{language === 'id' ? 'Donasi Project' : 'Donate Project'}</span>
+                      </button>
+                      
+                      {/* Join Project Button */}
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          console.log('🚀 [ExploreProject - Campaign Tab] Join clicked:', project.title);
+                          console.log('📊 Project data:', { type: project.type, isFunding: project.isFunding, isVolunteerOpen: project.isVolunteerOpen });
+                          
+                          onNavigateToDetail?.({
+                            id: project.id,
+                            title: project.title,
+                            imageUrl: project.image,
+                            category: project.category,
+                            type: 'campaign',
+                            isFunding: project.isFunding,
+                            isVolunteerOpen: project.isVolunteerOpen,
+                          });
+                        }}
+                        className="flex-1 bg-gradient-to-r from-[#243D68] to-[#1a2e52] text-white text-sm font-bold py-3 px-3 rounded-xl shadow-[3px_3px_0px_0px_rgba(36,61,104,0.4)] hover:shadow-[4px_4px_0px_0px_rgba(36,61,104,0.4)] active:shadow-none active:translate-x-0.5 active:translate-y-0.5 transition-all duration-200 flex items-center justify-center gap-1.5"
+                      >
+                        <span className="material-symbols-outlined text-[16px]">group_add</span>
+                        <span>{language === 'id' ? 'Join Project' : 'Join Project'}</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
               );
             })
+          )}
+          
+          {/* Empty State - When no projects match filters */}
+          {selectedTab === 'open' && displayedProjects.open.length === 0 && (
+            <div className="col-span-full flex flex-col items-center justify-center py-16 px-6">
+              <div className="w-20 h-20 rounded-full bg-[#F8F9FB] flex items-center justify-center mb-4">
+                <span className="material-symbols-outlined text-4xl text-[#61728F]">filter_list_off</span>
+              </div>
+              <h3 className="text-lg font-bold text-[#0E1B33] mb-2">
+                {language === 'id' ? 'Tidak Ada Project yang Sesuai' : 'No Matching Projects'}
+              </h3>
+              <p className="text-sm text-[#61728F] text-center max-w-md">
+                {language === 'id' 
+                  ? 'Coba ubah filter atau kata kunci pencarian untuk menemukan project lainnya.' 
+                  : 'Try adjusting your filters or search keywords to find other projects.'}
+              </p>
+            </div>
+          )}
+          
+          {selectedTab === 'galeri' && displayedProjects.galeri.length === 0 && (
+            <div className="col-span-full flex flex-col items-center justify-center py-16 px-6">
+              <div className="w-20 h-20 rounded-full bg-[#F8F9FB] flex items-center justify-center mb-4">
+                <span className="material-symbols-outlined text-4xl text-[#61728F]">filter_list_off</span>
+              </div>
+              <h3 className="text-lg font-bold text-[#0E1B33] mb-2">
+                {language === 'id' ? 'Tidak Ada Project yang Sesuai' : 'No Matching Projects'}
+              </h3>
+              <p className="text-sm text-[#61728F] text-center max-w-md">
+                {language === 'id' 
+                  ? 'Coba ubah filter atau kata kunci pencarian untuk menemukan project lainnya.' 
+                  : 'Try adjusting your filters or search keywords to find other projects.'}
+              </p>
+            </div>
+          )}
+          
+          {selectedTab === 'campaign' && displayedProjects.campaign.length === 0 && (
+            <div className="col-span-full flex flex-col items-center justify-center py-16 px-6">
+              <div className="w-20 h-20 rounded-full bg-[#F8F9FB] flex items-center justify-center mb-4">
+                <span className="material-symbols-outlined text-4xl text-[#61728F]">filter_list_off</span>
+              </div>
+              <h3 className="text-lg font-bold text-[#0E1B33] mb-2">
+                {language === 'id' ? 'Tidak Ada Project yang Sesuai' : 'No Matching Projects'}
+              </h3>
+              <p className="text-sm text-[#61728F] text-center max-w-md">
+                {language === 'id' 
+                  ? 'Coba ubah filter atau kata kunci pencarian untuk menemukan project lainnya.' 
+                  : 'Try adjusting your filters or search keywords to find other projects.'}
+              </p>
+            </div>
           )}
         </div>
       </main>
@@ -776,6 +1004,57 @@ export function ExploreProject({
           </div>
 
           <div className="space-y-4">
+            {/* Kategori Filter */}
+            <div>
+              <h3 className="text-sm font-semibold text-[#243D68]">
+                {language === 'id' ? 'Kategori' : 'Category'}
+              </h3>
+              <div className="flex flex-wrap gap-2 mt-2">
+                <button
+                  className={`px-3 py-1.5 rounded-full text-sm font-semibold ${
+                    filterCategory.includes('open-volunteer') ? 'bg-[#243D68] text-white' : 'bg-gray-200 text-gray-700'
+                  }`}
+                  onClick={() => {
+                    if (filterCategory.includes('open-volunteer')) {
+                      setFilterCategory(filterCategory.filter(cat => cat !== 'open-volunteer'));
+                    } else {
+                      setFilterCategory([...filterCategory, 'open-volunteer']);
+                    }
+                  }}
+                >
+                  Open Volunteer
+                </button>
+                <button
+                  className={`px-3 py-1.5 rounded-full text-sm font-semibold ${
+                    filterCategory.includes('galeri') ? 'bg-[#243D68] text-white' : 'bg-gray-200 text-gray-700'
+                  }`}
+                  onClick={() => {
+                    if (filterCategory.includes('galeri')) {
+                      setFilterCategory(filterCategory.filter(cat => cat !== 'galeri'));
+                    } else {
+                      setFilterCategory([...filterCategory, 'galeri']);
+                    }
+                  }}
+                >
+                  {language === 'id' ? 'Galeri Project' : 'Gallery Project'}
+                </button>
+                <button
+                  className={`px-3 py-1.5 rounded-full text-sm font-semibold ${
+                    filterCategory.includes('campaign') ? 'bg-[#243D68] text-white' : 'bg-gray-200 text-gray-700'
+                  }`}
+                  onClick={() => {
+                    if (filterCategory.includes('campaign')) {
+                      setFilterCategory(filterCategory.filter(cat => cat !== 'campaign'));
+                    } else {
+                      setFilterCategory([...filterCategory, 'campaign']);
+                    }
+                  }}
+                >
+                  Campaign
+                </button>
+              </div>
+            </div>
+
             <div>
               <h3 className="text-sm font-semibold text-[#243D68]">
                 {language === 'id' ? 'Status' : 'Status'}

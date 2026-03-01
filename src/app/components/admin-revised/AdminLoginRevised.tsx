@@ -107,14 +107,14 @@ export function AdminLoginRevised({ onLoginSuccess, onBack }: AdminLoginRevisedP
         {/* Login Card */}
         <div className="bg-white rounded-2xl shadow-2xl p-8">
           {/* Header */}
-          <div className="text-center mb-8">
+          <div className="text-center mb-8 overflow-hidden">
             <div className="w-16 h-16 bg-gradient-to-br from-[#243D68] to-[#FAC06E] rounded-full flex items-center justify-center mx-auto mb-4">
               <span className="material-symbols-outlined text-white text-3xl">admin_panel_settings</span>
             </div>
             <h1 className="font-['Archivo_Black'] text-2xl uppercase text-[#0E1B33] mb-2">
               Admin Panel
             </h1>
-            <p className="text-[#6B7280] text-sm">
+            <p className="text-[#6B7280] text-sm overflow-hidden text-ellipsis whitespace-nowrap px-4">
               AlMaqdisi Project Management System
             </p>
           </div>

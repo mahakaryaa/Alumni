@@ -15,10 +15,32 @@ interface ProjectDetailProps {
   projectType?: 'open-volunteer' | 'galeri-with-funding' | 'galeri-documentation' | 'campaign';
   availablePositions?: AvailablePositionDonatur[];
   onJoinRequestSubmitted?: (joinRequest: JoinRequest) => void;
+  projectTitle?: string; // NEW: Dynamic project title
+  projectCategory?: string; // NEW: Dynamic project category
+  projectId?: string; // NEW: Dynamic project ID
+  projectImageUrl?: string; // NEW: Dynamic project image
 }
 
-export function ProjectDetail({ onBack, projectType = 'open-volunteer', availablePositions = [], onJoinRequestSubmitted }: ProjectDetailProps) {
+export function ProjectDetail({ 
+  onBack, 
+  projectType = 'open-volunteer', 
+  availablePositions = [], 
+  onJoinRequestSubmitted,
+  projectTitle = 'Bantuan Pangan Gaza', // Default for backward compatibility
+  projectCategory = 'Kemanusiaan', // Default for backward compatibility
+  projectId = 'bantuan-pangan-gaza',
+  projectImageUrl
+}: ProjectDetailProps) {
   const { language } = useTranslation();
+  
+  // DEBUG: Log props yang diterima
+  console.log('📄 [ProjectDetail - Donatur] Component rendered with props:', {
+    projectId,
+    projectTitle,
+    projectCategory,
+    projectType
+  });
+  
   const [activeTab, setActiveTab] = useState<'overview' | 'progress'>('overview');
   const [showDonation, setShowDonation] = useState(false);
   
@@ -57,8 +79,8 @@ export function ProjectDetail({ onBack, projectType = 'open-volunteer', availabl
 
     const joinRequest: JoinRequest = {
       id: `join-${Date.now()}`,
-      projectId: 'current-project-id',
-      projectTitle: 'Bantuan Pangan Gaza',
+      projectId: projectId, // Dynamic from props
+      projectTitle: projectTitle, // Dynamic from props
       alumniId: 'current-user-id',
       alumniName: 'Donatur User',
       alumniEmail: 'donatur@example.com',
@@ -88,9 +110,7 @@ export function ProjectDetail({ onBack, projectType = 'open-volunteer', availabl
     });
   };
 
-  // Project info for donation
-  const projectTitle = "Bantuan Pangan Gaza";
-  const projectCategory = "Kemanusiaan";
+  // Project info for donation - removed hardcoded values, now using props
 
   if (showDonation) {
     return (
@@ -114,12 +134,12 @@ export function ProjectDetail({ onBack, projectType = 'open-volunteer', availabl
         <div className="relative z-10 flex flex-col h-full">
           {/* Logo */}
           <div className="p-5">
-            <div className="bg-[#FAC06E] p-3 flex items-center gap-3 shadow-md rounded-[15px]">
-              <div className="w-8 h-8 border-2 border-[#2B4468] flex items-center justify-center">
-                <span className="material-symbols-outlined text-[#2B4468] text-xl font-bold">mosque</span>
+            <div className="bg-[#FAC06E] px-4 py-3 flex items-center gap-3 shadow-md rounded-[20px]">
+              <div className="w-8 h-8 bg-[#2B4468] rounded-[8px] flex items-center justify-center flex-shrink-0">
+                <span className="material-symbols-outlined text-white text-lg">mosque</span>
               </div>
-              <span className="font-['Archivo_Black'] text-base uppercase tracking-tight text-[#2B4468]">
-                PROJEKKITA
+              <span className="font-['Archivo_Black'] text-sm uppercase tracking-tight text-[#2B4468] whitespace-nowrap overflow-hidden text-ellipsis">
+                ALMAQDISI PROJECT
               </span>
             </div>
           </div>
@@ -188,11 +208,11 @@ export function ProjectDetail({ onBack, projectType = 'open-volunteer', availabl
         {/* Content */}
         <div className="flex-1 pb-24 lg:pb-24">
           {/* Hero Image */}
-          <div className="px-6 md:px-8 pt-6 pb-4">
+          <div className="px-0 md:px-8 pt-6 pb-4">
             <div
-              className="w-full bg-cover bg-center flex flex-col justify-end overflow-hidden rounded-2xl min-h-[200px] md:min-h-[320px] relative shadow-lg"
+              className="w-full bg-cover bg-center flex flex-col justify-end overflow-hidden rounded-none md:rounded-2xl min-h-[200px] md:min-h-[320px] relative shadow-none md:shadow-lg"
               style={{
-                backgroundImage: "url('https://images.unsplash.com/photo-1637826397913-68af81f4d14a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwYWxlc3RpbmUlMjBmb29kJTIwYWlkJTIwaHVtYW5pdGFyaWFufGVufDF8fHx8MTc2OTY1MjEyN3ww&ixlib=rb-4.1.0&q=80&w=1080')"
+                backgroundImage: `url('${projectImageUrl || 'https://images.unsplash.com/photo-1637826397913-68af81f4d14a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwYWxlc3RpbmUlMjBmb29kJTIwYWlkJTIwaHVtYW5pdGFyaWFufGVufDF8fHx8MTc2OTY1MjEyN3ww&ixlib=rb-4.1.0&q=80&w=1080'}')`
               }}
               aria-label="Project cover image"
             >
@@ -202,7 +222,7 @@ export function ProjectDetail({ onBack, projectType = 'open-volunteer', availabl
           {/* Title, Tags & Project Lead */}
           <div className="px-6 md:px-8 pb-4">
             <h1 className="text-[#333333] tracking-normal text-2xl md:text-4xl font-['Archivo_Black'] leading-tight mb-3 uppercase">
-              Bantuan Pangan Gaza
+              {projectTitle}
             </h1>
             <div className="flex gap-2 mb-4">
               <div className="flex h-7 shrink-0 items-center justify-center gap-x-2 rounded-full bg-[#243D68]/10 px-3 border border-[#243D68]/20">

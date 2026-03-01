@@ -22,6 +22,7 @@ import { AdminLoginRevised } from './components/admin-revised/AdminLoginRevised'
 import { AdminPanelRevised } from './components/admin-revised/AdminPanelRevised';
 import { MyDonations } from './components/MyDonations';
 import { MyJoinRequests } from './components/MyJoinRequests';
+import { BookmarkedProjects } from './components/BookmarkedProjects';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { Logo } from './components/Logo';
 import { LoginWidget } from './components/LoginWidget';
@@ -53,7 +54,7 @@ const toastMessages = {
 
 function AppContent() {
   const [activeNav, setActiveNav] = useState('home');
-  const [currentView, setCurrentView] = useState<'home' | 'project-detail' | 'explore' | 'alumni-story' | 'login' | 'event-detail' | 'messages' | 'settings' | 'donation' | 'admin-panel-revised' | 'admin-login-revised' | 'my-donations' | 'my-join-requests' | 'notification-center' | 'campaigns' | 'admin-campaigns' | 'campaign-detail'>('home');
+  const [currentView, setCurrentView] = useState<'home' | 'project-detail' | 'explore' | 'alumni-story' | 'login' | 'event-detail' | 'messages' | 'settings' | 'donation' | 'admin-panel-revised' | 'admin-login-revised' | 'my-donations' | 'my-join-requests' | 'notification-center' | 'campaigns' | 'admin-campaigns' | 'campaign-detail' | 'bookmarks'>('home');
   const [exploreInitialTab, setExploreInitialTab] = useState<'open' | 'galeri' | 'campaign'>('open');
   const [projectDetailInitialTab, setProjectDetailInitialTab] = useState<'overview' | 'progress' | 'team' | 'members' | 'discussion' | 'wallet'>('overview');
   const [selectedCampaignId, setSelectedCampaignId] = useState<string | null>(null);
@@ -67,6 +68,21 @@ function AppContent() {
 
   // Login widget state
   const [showLoginWidget, setShowLoginWidget] = useState(false);
+
+  // Bookmarked projects state - for alumni
+  const [bookmarkedProjects, setBookmarkedProjects] = useState<Map<string, {
+    id: string | number;
+    title: string;
+    imageUrl: string;
+    category: string;
+    type: 'open-volunteer' | 'galeri-with-funding' | 'galeri-documentation' | 'campaign';
+    isFunding?: boolean;
+    isVolunteerOpen?: boolean;
+    location?: string;
+    targetAmount?: number;
+    collectedAmount?: number;
+    progress?: number;
+  }>>(new Map());
 
   // Notification count - dynamic dari notifications state (dihitung saat render)
 
@@ -88,15 +104,16 @@ function AppContent() {
   const [hasJoinedProjects, setHasJoinedProjects] = useState(false); // Default: false agar CTA Join Project terlihat
 
   // Selected project state - untuk pass gambar ke detail
+  // FIXED: Changed from hardcoded default to null - should only be set when user clicks a project
   const [selectedProject, setSelectedProject] = useState<{
+    id?: number | string;
     title: string;
     imageUrl: string;
     category: string;
-  } | null>({
-    title: 'Pengembangan Aplikasi AlumniConnect',
-    imageUrl: 'https://images.unsplash.com/photo-1757165792338-b4e8a88ae1c7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtb2JpbGUlMjBhcHAlMjBkZXZlbG9wbWVudCUyMGNvZGluZyUyMHRlY2hub2xvZ3l8ZW58MXx8fHwxNzcyMTg2MDk1fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral',
-    category: 'Pendidikan'
-  });
+    type?: 'open-volunteer' | 'galeri-with-funding' | 'galeri-documentation' | 'campaign';
+    isFunding?: boolean;
+    isVolunteerOpen?: boolean;
+  } | null>(null);
 
   // ==============================
   // FASE 1 & 2: GLOBAL STATE MANAGEMENT
@@ -708,6 +725,58 @@ function AppContent() {
   };
 
   // ==============================
+  // BOOKMARK HANDLERS
+  // ==============================
+
+  // Handler: Toggle bookmark for a project
+  const handleToggleBookmark = (projectId: string, isBookmarked: boolean) => {
+    if (isBookmarked) {
+      // Add to bookmarks - need to get project data from selectedProject
+      if (selectedProject && String(selectedProject.id) === projectId) {
+        // Mock data untuk demo - dalam produksi ini akan dari API
+        const mockProjectDetails: {
+          [key: string]: { location?: string; targetAmount?: number; collectedAmount?: number; progress?: number }
+        } = {
+          '1': { location: 'Gaza, Palestine', targetAmount: 500000000, collectedAmount: 325000000, progress: 65 },
+          '2': { location: 'Jakarta, Indonesia', targetAmount: 250000000, collectedAmount: 187500000, progress: 75 },
+          '3': { location: 'Bandung, Indonesia' },
+          '4': { location: 'West Bank, Palestine', targetAmount: 400000000, collectedAmount: 280000000, progress: 70 },
+        };
+
+        const additionalData = mockProjectDetails[String(projectId)] || { location: 'Indonesia' };
+
+        const bookmarkData = {
+          id: projectId,
+          title: selectedProject.title,
+          imageUrl: selectedProject.imageUrl,
+          category: selectedProject.category,
+          type: selectedProject.type || 'open-volunteer',
+          isFunding: selectedProject.isFunding,
+          isVolunteerOpen: selectedProject.isVolunteerOpen,
+          ...additionalData,
+        };
+        setBookmarkedProjects(prev => new Map(prev).set(projectId, bookmarkData));
+      }
+    } else {
+      // Remove from bookmarks
+      setBookmarkedProjects(prev => {
+        const newMap = new Map(prev);
+        newMap.delete(projectId);
+        return newMap;
+      });
+    }
+  };
+
+  // Handler: Remove bookmark
+  const handleRemoveBookmark = (projectId: string | number) => {
+    setBookmarkedProjects(prev => {
+      const newMap = new Map(prev);
+      newMap.delete(String(projectId));
+      return newMap;
+    });
+  };
+
+  // ==============================
   // FASE 4: POLLING NOTIFICATION HANDLERS
   // ==============================
 
@@ -824,6 +893,13 @@ function AppContent() {
   const handleLogin = (role: 'donatur' | 'alumni' | 'alumni-guest') => {
     setUserRole(role);
     localStorage.setItem(STORAGE_KEYS.USER_ROLE, role);
+    // Set hasJoinedProjects based on alumni type:
+    // 'alumni' (sudah join) vs 'alumni-guest' (belum join)
+    if (role === 'alumni') {
+      setHasJoinedProjects(true);
+    } else if (role === 'alumni-guest') {
+      setHasJoinedProjects(false);
+    }
     setCurrentView('home');
     setActiveNav('home');
   };
@@ -845,10 +921,17 @@ function AppContent() {
     ];
 
     // Show different detail page based on user role
-    if (userRole === 'alumni') {
+    // Both 'alumni' (sudah join) and 'alumni-guest' (belum join) use ProjectDetailAlumni
+    if (userRole === 'alumni' || userRole === 'alumni-guest') {
       return <ProjectDetailAlumni 
         hasJoinedProjects={hasJoinedProjects}
+        projectTitle={selectedProject?.title}
+        projectCategory={selectedProject?.category}
+        projectId={typeof selectedProject?.id === 'string' ? selectedProject.id : selectedProject?.title.toLowerCase().replace(/\s+/g, '-')}
         projectImageUrl={selectedProject?.imageUrl || "https://images.unsplash.com/photo-1757165792338-b4e8a88ae1c7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtb2JpbGUlMjBhcHAlMjBkZXZlbG9wbWVudCUyMGNvZGluZyUyMHRlY2hub2xvZ3l8ZW58MXx8fHwxNzcyMTg2MDk1fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"}
+        projectType={selectedProject?.type || 'open-volunteer'}
+        isFunding={selectedProject?.isFunding ?? false}
+        isVolunteerOpen={selectedProject?.isVolunteerOpen ?? true}
         availablePositions={mockAvailablePositions}
         onBack={() => {
           if (projectDetailOrigin === 'explore') {
@@ -879,11 +962,17 @@ function AppContent() {
         onLogout={handleLogout}
         activeNav={activeNav}
         onJoinRequestSubmitted={handleJoinRequestSubmitted}
+        isBookmarked={selectedProject?.id ? bookmarkedProjects.has(String(selectedProject.id)) : false}
+        onBookmark={handleToggleBookmark}
       />;
     }
     
     return <ProjectDetail 
       projectType="campaign"
+      projectTitle={selectedProject?.title}
+      projectCategory={selectedProject?.category}
+      projectId={typeof selectedProject?.id === 'string' ? selectedProject.id : selectedProject?.title?.toLowerCase().replace(/\s+/g, '-')}
+      projectImageUrl={selectedProject?.imageUrl}
       onBack={() => {
         if (projectDetailOrigin === 'explore') {
           setCurrentView('explore');
@@ -906,8 +995,27 @@ function AppContent() {
         setActiveNav('home');
       }} 
       initialTab={exploreInitialTab} 
-      onNavigateToDetail={() => {
-        setProjectDetailOrigin('explore'); // Set origin to explore
+      onNavigateToDetail={(project) => {
+        // DEBUG: Log project yang diklik
+        console.log('🔍 [ExploreProject → Detail] Project clicked:', {
+          id: project.id,
+          title: project.title,
+          category: project.category,
+          type: project.type,
+          isFunding: project.isFunding,
+          isVolunteerOpen: project.isVolunteerOpen
+        });
+        
+        setSelectedProject({
+          id: project.id,
+          title: project.title,
+          imageUrl: project.imageUrl,
+          category: project.category,
+          type: project.type,
+          isFunding: project.isFunding,
+          isVolunteerOpen: project.isVolunteerOpen,
+        });
+        setProjectDetailOrigin('explore');
         setCurrentView('project-detail');
       }}
       onNavigateHome={() => {
@@ -983,7 +1091,8 @@ function AppContent() {
 
   if (currentView === 'messages') {
     // Show different messages page based on user role
-    if (userRole === 'alumni') {
+    // Both 'alumni' and 'alumni-guest' use MessagesAlumni
+    if (userRole === 'alumni' || userRole === 'alumni-guest') {
       return <MessagesAlumni 
         hasJoinedProjects={hasJoinedProjects}
         onBack={() => {
@@ -1072,10 +1181,56 @@ function AppContent() {
       onNavigateMyJoinRequests={() => {
         setCurrentView('my-join-requests');
       }}
+      onNavigateBookmarks={() => {
+        setCurrentView('bookmarks');
+      }}
       activeNav={activeNav}
       userRole={userRole}
       language={language}
       onLanguageChange={setLanguage}
+    />;
+  }
+
+  if (currentView === 'bookmarks') {
+    return <BookmarkedProjects
+      onBack={() => {
+        setCurrentView('settings');
+        setActiveNav('settings');
+      }}
+      onNavigateHome={() => {
+        setCurrentView('home');
+        setActiveNav('home');
+      }}
+      onNavigateExplore={() => {
+        setCurrentView('explore');
+        setActiveNav('explore');
+      }}
+      onNavigateMessages={() => {
+        setCurrentView('messages');
+        setActiveNav('pesan');
+      }}
+      onNavigateSettings={() => {
+        setCurrentView('settings');
+        setActiveNav('settings');
+      }}
+      onProjectClick={(project) => {
+        setSelectedProject({
+          id: project.id,
+          title: project.title,
+          imageUrl: project.imageUrl,
+          category: project.category,
+          type: project.type,
+          isFunding: project.isFunding,
+          isVolunteerOpen: project.isVolunteerOpen,
+        });
+        setProjectDetailOrigin('explore');
+        setCurrentView('project-detail');
+        setActiveNav('explore');
+      }}
+      bookmarkedProjects={Array.from(bookmarkedProjects.values())}
+      onRemoveBookmark={handleRemoveBookmark}
+      activeNav={activeNav}
+      userRole={userRole}
     />;
   }
 
@@ -1353,7 +1508,6 @@ function AppContent() {
               >
                 <span className="material-symbols-outlined text-xl">chat_bubble</span>
                 <span className="tracking-wide text-sm">Pesan</span>
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
               </a>
 
               <a
@@ -1631,10 +1785,17 @@ function AppContent() {
                   </p>
                   <button
                     onClick={() => {
+                      // DEBUG: Log project yang diklik dari Home carousel
+                      console.log('🏠 [Home Carousel → Detail] Project clicked: Bantuan Pangan Gaza');
+                      
                       setSelectedProject({
+                        id: 'bantuan-pangan-gaza',
                         title: 'Bantuan Pangan Gaza',
                         imageUrl: 'https://images.unsplash.com/photo-1637826397913-68af81f4d14a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwYWxlc3RpbmUlMjBmb29kJTIwYWlkJTIwaHVtYW5pdGFyaWFufGVufDF8fHx8MTc2OTY1MjEyN3ww&ixlib=rb-4.1.0&q=80&w=1080',
-                        category: 'Kemanusiaan'
+                        category: 'Kemanusiaan',
+                        type: 'campaign',
+                        isFunding: true,
+                        isVolunteerOpen: true,
                       });
                       setProjectDetailOrigin('home'); // Set origin to home
                       setProjectDetailInitialTab('overview');
@@ -1670,7 +1831,10 @@ function AppContent() {
                       setSelectedProject({
                         title: 'Sekolah Online Anak Gaza',
                         imageUrl: 'https://images.unsplash.com/photo-1661860890799-ae6cac7c71b0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjaGlsZHJlbiUyMGxlYXJuaW5nJTIwYXJhYmljJTIwZWR1Y2F0aW9ufGVufDF8fHx8MTc2OTY1MjEyN3ww&ixlib=rb-4.1.0&q=80&w=1080',
-                        category: 'Pendidikan'
+                        category: 'Pendidikan',
+                        type: 'open-volunteer',
+                        isFunding: false,
+                        isVolunteerOpen: true,
                       });
                       setProjectDetailOrigin('home'); // Set origin to home
                       setProjectDetailInitialTab('overview');

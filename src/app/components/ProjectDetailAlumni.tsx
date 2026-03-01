@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { HandHeart, UserPlus, HeartHandshake } from 'lucide-react';
 import { Logo } from './Logo';
 import type { JoinRequest } from '@/types';
 
@@ -12,7 +13,13 @@ export interface AvailablePosition {
 interface ProjectDetailAlumniProps {
   hasJoinedProjects?: boolean; // NEW: Indicate if alumni has joined any projects
   projectImageUrl?: string; // Project cover image
+  projectTitle?: string; // NEW: Project title for display
+  projectCategory?: string; // NEW: Project category
+  projectId?: string; // NEW: Project ID for join request
   availablePositions?: AvailablePosition[]; // NEW: Available positions for the project
+  projectType?: 'open-volunteer' | 'galeri-with-funding' | 'galeri-documentation' | 'campaign'; // NEW: Explicit project type
+  isFunding?: boolean; // NEW: Flag for whether project accepts donations
+  isVolunteerOpen?: boolean; // NEW: Flag for whether project accepts volunteers
   onBack: () => void;
   initialTab?: 'overview' | 'progress' | 'team' | 'wallet';
   onNavigateHome?: () => void;
@@ -22,12 +29,20 @@ interface ProjectDetailAlumniProps {
   onLogout?: () => void;
   activeNav?: string;
   onJoinRequestSubmitted?: (joinRequest: JoinRequest) => void; // NEW: Handler for join request submission
+  isBookmarked?: boolean; // NEW: Bookmark state from parent
+  onBookmark?: (projectId: string, bookmarked: boolean) => void; // NEW: Bookmark handler
 }
 
 export function ProjectDetailAlumni({ 
   hasJoinedProjects = false, // NEW: Default false
   projectImageUrl,
+  projectTitle = 'Pengembangan Aplikasi AlumniConnect', // NEW: Default value
+  projectCategory = 'Pendidikan', // NEW: Default value
+  projectId = 'default-project-id', // NEW: Default value
   availablePositions = [],
+  projectType = 'open-volunteer', // NEW: Default open-volunteer
+  isFunding = false, // NEW: Default no funding
+  isVolunteerOpen = true, // NEW: Default volunteer open
   onBack, 
   initialTab = 'overview',
   onNavigateHome,
@@ -36,8 +51,33 @@ export function ProjectDetailAlumni({
   onNavigateSettings,
   onLogout,
   activeNav = 'home',
-  onJoinRequestSubmitted
+  onJoinRequestSubmitted,
+  isBookmarked: initialBookmarked = false,
+  onBookmark
 }: ProjectDetailAlumniProps) {
+  // DEBUG: Log props yang diterima
+  console.log('📄 [ProjectDetailAlumni] Component rendered with props:', {
+    projectId,
+    projectTitle,
+    projectCategory,
+    projectType,
+    isFunding,
+    isVolunteerOpen,
+    hasJoinedProjects
+  });
+
+  // Bookmark state
+  const [isBookmarked, setIsBookmarked] = useState(initialBookmarked);
+
+  const handleToggleBookmark = () => {
+    const newVal = !isBookmarked;
+    setIsBookmarked(newVal);
+    onBookmark?.(projectId, newVal);
+    toast.success(newVal ? 'Project disimpan ke bookmark' : 'Bookmark dihapus', {
+      description: newVal ? `"${projectTitle}" berhasil ditambahkan ke daftar bookmark Anda.` : `"${projectTitle}" dihapus dari daftar bookmark Anda.`,
+    });
+  };
+
   // Project membership state - true jika user sudah diterima PIC ke project
   // Initialize with hasJoinedProjects prop for demo purposes
   const [isProjectMember, setIsProjectMember] = useState(hasJoinedProjects);
@@ -55,6 +95,9 @@ export function ProjectDetailAlumni({
   const [message, setMessage] = useState('');
   const [expandedMessages, setExpandedMessages] = useState<number[]>([]);
   const [walletFilter, setWalletFilter] = useState<'all' | 'internal' | 'donation' | 'expense'>('all');
+
+  // Campaign-specific tab state
+  const [activeCampaignTab, setActiveCampaignTab] = useState<'overview' | 'deadline' | 'alumni-apply' | 'anggaran'>('overview');
   
   // Voting states
   const [showVotingModal, setShowVotingModal] = useState(false);
@@ -86,7 +129,7 @@ export function ProjectDetailAlumni({
   };
 
   const handleJoinSubmit = () => {
-    console.log('🚀 Join Submit Started');
+    console.log('���� Join Submit Started');
     console.log('Selected Position:', selectedPosition);
     console.log('Commitment Duration:', commitmentDuration);
     console.log('Join Reason:', joinReason);
@@ -134,8 +177,8 @@ export function ProjectDetailAlumni({
     // Create join request object
     const joinRequest: JoinRequest = {
       id: `join-${Date.now()}`,
-      projectId: 'current-project-id', // In real app, get from project data
-      projectTitle: 'Bantuan Pangan Gaza', // In real app, get from project data
+      projectId: projectId, // Dynamic from props
+      projectTitle: projectTitle, // Dynamic from props
       alumniId: 'current-user-id', // In real app, get from auth context
       alumniName: 'John Doe Alumni', // In real app, get from auth context
       alumniEmail: 'alumni@example.com', // In real app, get from auth context
@@ -380,9 +423,9 @@ export function ProjectDetailAlumni({
         {/* Content */}
         <div className="flex-1 pb-24 overflow-x-hidden max-w-full">
           {/* Hero Image */}
-          <div className="px-4 md:px-6 lg:px-8 pt-6 pb-4">
+          <div className="px-0 md:px-6 lg:px-8 pt-6 pb-4">
             <div
-              className="w-full flex flex-col justify-end overflow-hidden rounded-2xl min-h-[180px] p-4 relative shadow-lg"
+              className="w-full flex flex-col justify-end overflow-hidden rounded-none md:rounded-2xl min-h-[180px] p-4 relative shadow-none md:shadow-lg"
             >
               <div
                 className="absolute inset-0 z-0"
@@ -393,39 +436,545 @@ export function ProjectDetailAlumni({
                   backgroundRepeat: 'no-repeat',
                 }}
               ></div>
+              {/* Bookmark Button */}
+              <button
+                onClick={handleToggleBookmark}
+                className="absolute top-3 right-3 z-10 w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200 bg-white/80 backdrop-blur-sm hover:bg-white shadow-md hover:shadow-lg active:scale-95"
+                aria-label={isBookmarked ? 'Hapus bookmark' : 'Tambah bookmark'}
+              >
+                <span
+                  className="material-symbols-outlined text-2xl transition-colors duration-200"
+                  style={{
+                    fontVariationSettings: isBookmarked ? "'FILL' 1" : "'FILL' 0",
+                    color: isBookmarked ? '#FAC06E' : '#243D68',
+                  }}
+                >
+                  bookmark
+                </span>
+              </button>
             </div>
           </div>
 
           {/* Title */}
           <div className="px-4 md:px-6 lg:px-8 pb-4">
             <h1 className="text-[#333333] tracking-normal text-xl md:text-2xl lg:text-3xl font-['Archivo_Black'] leading-tight uppercase">
-              Pengembangan Aplikasi AlumniConnect
+              {projectTitle}
             </h1>
           </div>
 
           {/* Tabs */}
           <div className="sticky top-[73px] z-10 bg-white border-b border-[#E5E7EB] shadow-sm overflow-x-auto scrollbar-hide">
             <div className="flex items-center justify-start min-w-full px-2 md:px-6 lg:px-8">
-              {([
-                { key: 'overview' as const, label: 'Overview' },
-                { key: 'progress' as const, label: 'Progress' },
-                { key: 'team' as const, label: 'Team' },
-                { key: 'wallet' as const, label: 'Wallet' },
-              ]).map((tab) => (
-                <button
-                  key={tab.key}
-                  className={`text-center font-semibold transition-colors whitespace-nowrap flex-shrink-0 ${ activeTab === tab.key ? 'text-[#243D68] border-b-2 border-[#243D68]' : 'text-[#6B7280] hover:text-[#333333]' } text-[15px] px-[18px] py-[12px]`}
-                  onClick={() => setActiveTab(tab.key)}
-                >
-                  {tab.label}
-                </button>
-              ))}
+              {projectType === 'campaign' ? (
+                // ===== CAMPAIGN TABS =====
+                ([
+                  { key: 'overview' as const, label: 'Overview' },
+                  { key: 'deadline' as const, label: 'Deadline' },
+                  { key: 'alumni-apply' as const, label: 'Jumlah Alumni Apply' },
+                  { key: 'anggaran' as const, label: 'Kebutuhan Anggaran' },
+                ] as { key: 'overview' | 'deadline' | 'alumni-apply' | 'anggaran'; label: string }[]).map((tab) => (
+                  <button
+                    key={tab.key}
+                    className={`text-center font-semibold transition-colors whitespace-nowrap flex-shrink-0 ${ activeCampaignTab === tab.key ? 'text-[#243D68] border-b-2 border-[#243D68]' : 'text-[#6B7280] hover:text-[#333333]' } text-[15px] px-[18px] py-[12px]`}
+                    onClick={() => setActiveCampaignTab(tab.key)}
+                  >
+                    {tab.label}
+                  </button>
+                ))
+              ) : (
+                // ===== NON-CAMPAIGN TABS =====
+                (projectType === 'galeri-with-funding' || projectType === 'galeri-documentation' ? [
+                  { key: 'overview' as const, label: 'Overview' },
+                  { key: 'progress' as const, label: 'Progress' },
+                  { key: 'team' as const, label: 'Team' },
+                ] : [
+                  { key: 'overview' as const, label: 'Overview' },
+                  { key: 'progress' as const, label: 'Progress' },
+                  { key: 'team' as const, label: 'Team' },
+                  { key: 'wallet' as const, label: 'Wallet' },
+                ]).map((tab) => (
+                  <button
+                    key={tab.key}
+                    className={`text-center font-semibold transition-colors whitespace-nowrap flex-shrink-0 ${ activeTab === tab.key ? 'text-[#243D68] border-b-2 border-[#243D68]' : 'text-[#6B7280] hover:text-[#333333]' } text-[15px] px-[18px] py-[12px]`}
+                    onClick={() => setActiveTab(tab.key as any)}
+                  >
+                    {tab.label}
+                  </button>
+                ))
+              )}
             </div>
           </div>
 
+          {/* ===== CAMPAIGN TAB CONTENT ===== */}
+          {projectType === 'campaign' && (
+            <>
+              {/* CAMPAIGN: Tab Overview */}
+              {activeCampaignTab === 'overview' && (
+                <div className="px-4 md:px-6 lg:px-8 py-6 space-y-6">
+                  {/* Campaign Description */}
+                  <div className="bg-[#F8F9FA] rounded-xl p-5 border border-[#E5E7EB]">
+                    <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2 bg-[#FAC06E] rounded-lg px-3 py-2 shadow-sm w-fit">
+                      <span className="material-symbols-outlined text-white">campaign</span>
+                      Tentang Campaign
+                    </h3>
+                    <p className="text-[#6B7280] text-sm leading-relaxed">
+                      Campaign ini bertujuan mengumpulkan dana dan dukungan nyata bagi saudara-saudara kita di Gaza yang membutuhkan bantuan pangan mendesak. Setiap kontribusi Anda akan disalurkan langsung melalui mitra terpercaya di lapangan.
+                    </p>
+                  </div>
+
+                  {/* Campaign Goals */}
+                  <div className="bg-[#F8F9FA] rounded-xl p-5 border border-[#E5E7EB]">
+                    <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2 bg-[#FAC06E] rounded-lg px-3 py-2 shadow-sm w-fit">
+                      <span className="material-symbols-outlined text-white">flag</span>
+                      Tujuan Campaign
+                    </h3>
+                    <ul className="space-y-3 text-[#6B7280] text-sm leading-relaxed">
+                      {[
+                        'Mengumpulkan dana untuk 1.000 paket sembako bagi keluarga terdampak.',
+                        'Menggalang partisipasi alumni lintas angkatan untuk aksi nyata.',
+                        'Menyalurkan bantuan secara transparan dan terverifikasi.',
+                        'Membangun solidaritas alumni dalam isu kemanusiaan global.',
+                      ].map((goal, i) => (
+                        <li key={i} className="flex items-start gap-2">
+                          <span className="material-symbols-outlined text-[#4CAF50] text-lg mt-0.5">check_circle</span>
+                          <span>{goal}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  {/* Campaign Progress */}
+                  <div className="bg-[#F8F9FA] rounded-xl p-5 border border-[#E5E7EB]">
+                    <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2 bg-[#243D68] rounded-lg px-3 py-2 shadow-sm w-fit">
+                      <span className="material-symbols-outlined text-white">trending_up</span>
+                      Progress Penggalangan Dana
+                    </h3>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-sm text-[#6B7280]">Terkumpul</span>
+                      <div className="text-right">
+                        <span className="text-xl font-black text-[#243D68]">Rp 75.000.000</span>
+                        <span className="text-sm text-[#6B7280] ml-1">/ Rp 150.000.000</span>
+                      </div>
+                    </div>
+                    <div className="w-full bg-[#E5E7EB] rounded-full h-3 overflow-hidden mb-2">
+                      <div className="bg-gradient-to-r from-[#243D68] to-[#FAC06E] h-3 rounded-full transition-all duration-700" style={{ width: '50%' }}></div>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-[#6B7280]">50% tercapai</span>
+                      <span className="text-xs font-semibold text-[#FAC06E] bg-[#FFF9F0] px-2 py-0.5 rounded-full border border-[#FAC06E]/20">
+                        Rp 75.000.000 lagi
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Organizer */}
+                  <div className="bg-white rounded-xl p-5 border border-[#E5E7EB] shadow-sm">
+                    <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2 bg-[#FAC06E] rounded-lg px-3 py-2 shadow-sm w-fit">
+                      <span className="material-symbols-outlined text-white">shield_person</span>
+                      Penyelenggara Campaign
+                    </h3>
+                    <div className="flex items-center gap-4">
+                      <div
+                        className="bg-center bg-no-repeat aspect-square bg-cover rounded-full h-14 w-14 shrink-0 ring-2 ring-[#FAC06E]/30"
+                        style={{
+                          backgroundImage: 'url("https://images.unsplash.com/photo-1651596082255-bcb4993cee27?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwcm9mZXNzaW9uYWwlMjBtdXNsaW0lMjBtYW4lMjBoZWFkc2hvdCUyMHBvcnRyYWl0fGVufDF8fHx8MTc3MjI1MDcyNnww&ixlib=rb-4.1.0&q=80&w=400")',
+                        }}
+                      ></div>
+                      <div className="flex-1">
+                        <p className="text-[11px] text-[#FAC06E] font-semibold uppercase tracking-wider mb-0.5">Koordinator Campaign</p>
+                        <p className="text-base font-semibold text-[#0E1B33]">Ahmad Zulfikar</p>
+                        <p className="text-sm text-[#6B7280]">Hubungan Internasional '14</p>
+                      </div>
+                      <span className="material-symbols-outlined text-[#4A90E2] text-xl">verified</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* CAMPAIGN: Tab Deadline */}
+              {activeCampaignTab === 'deadline' && (
+                <div className="px-4 md:px-6 lg:px-8 py-6 space-y-6">
+                  {/* Countdown Banner */}
+                  <div className="bg-gradient-to-br from-[#243D68] to-[#1a2d4d] rounded-2xl p-6 shadow-xl relative overflow-hidden">
+                    <div className="absolute inset-0 opacity-5">
+                      <div className="absolute top-0 right-0 w-48 h-48 bg-white rounded-full -translate-y-1/2 translate-x-1/2"></div>
+                      <div className="absolute bottom-0 left-0 w-32 h-32 bg-white rounded-full translate-y-1/2 -translate-x-1/2"></div>
+                    </div>
+                    <div className="relative z-10 text-center">
+                      <div className="flex items-center justify-center gap-2 mb-3">
+                        <span className="material-symbols-outlined text-[#FAC06E] text-2xl">schedule</span>
+                        <p className="text-white/80 text-sm font-semibold uppercase tracking-wider">Sisa Waktu Campaign</p>
+                      </div>
+                      <div className="flex items-center justify-center gap-3 mt-2">
+                        {[
+                          { value: '14', label: 'Hari' },
+                          { value: '08', label: 'Jam' },
+                          { value: '32', label: 'Menit' },
+                        ].map((item, i) => (
+                          <div key={i} className="flex flex-col items-center">
+                            <div className="bg-white/15 backdrop-blur-sm rounded-xl px-4 py-3 min-w-[64px]">
+                              <span className="text-3xl font-black text-white">{item.value}</span>
+                            </div>
+                            <span className="text-xs text-white/60 mt-1.5 font-medium">{item.label}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Tanggal Mulai */}
+                  <div className="bg-white rounded-xl p-5 border border-[#E5E7EB] shadow-sm">
+                    <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2 bg-[#4CAF50] rounded-lg px-3 py-2 shadow-sm w-fit">
+                      <span className="material-symbols-outlined text-white">event_available</span>
+                      Tanggal Mulai Campaign
+                    </h3>
+                    <div className="flex items-center gap-4">
+                      <div className="w-14 h-14 bg-[#E8F5E9] rounded-xl flex flex-col items-center justify-center shrink-0">
+                        <span className="text-xs font-bold text-[#4CAF50] uppercase tracking-wider">Feb</span>
+                        <span className="text-xl font-black text-[#2E7D32]">15</span>
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-bold text-[#0E1B33] text-base">Sabtu, 15 Februari 2026</p>
+                        <p className="text-sm text-[#6B7280] mt-0.5">Pukul 08.00 WIB</p>
+                        <div className="flex items-center gap-1.5 mt-2">
+                          <span className="w-2 h-2 rounded-full bg-[#4CAF50] inline-block"></span>
+                          <span className="text-xs font-semibold text-[#4CAF50]">Campaign Sedang Berjalan</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Tanggal Berakhir */}
+                  <div className="bg-white rounded-xl p-5 border border-[#E5E7EB] shadow-sm">
+                    <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2 bg-[#EF5350] rounded-lg px-3 py-2 shadow-sm w-fit">
+                      <span className="material-symbols-outlined text-white">event_busy</span>
+                      Tanggal Berakhir Campaign
+                    </h3>
+                    <div className="flex items-center gap-4">
+                      <div className="w-14 h-14 bg-[#FFF3F3] rounded-xl flex flex-col items-center justify-center shrink-0">
+                        <span className="text-xs font-bold text-[#EF5350] uppercase tracking-wider">Mar</span>
+                        <span className="text-xl font-black text-[#C62828]">15</span>
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-bold text-[#0E1B33] text-base">Minggu, 15 Maret 2026</p>
+                        <p className="text-sm text-[#6B7280] mt-0.5">Pukul 23.59 WIB</p>
+                        <div className="flex items-center gap-1.5 mt-2">
+                          <span className="w-2 h-2 rounded-full bg-[#EF5350] inline-block"></span>
+                          <span className="text-xs font-semibold text-[#EF5350]">14 hari lagi</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Timeline Visual */}
+                  <div className="bg-[#F8F9FA] rounded-xl p-5 border border-[#E5E7EB]">
+                    <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2 bg-[#243D68] rounded-lg px-3 py-2 shadow-sm w-fit">
+                      <span className="material-symbols-outlined text-white">timeline</span>
+                      Durasi Campaign
+                    </h3>
+                    <div className="relative">
+                      {/* Timeline bar */}
+                      <div className="flex items-center gap-0 mb-3">
+                        <div className="flex flex-col items-center">
+                          <div className="w-4 h-4 rounded-full bg-[#4CAF50] border-2 border-white shadow-md z-10"></div>
+                        </div>
+                        <div className="flex-1 h-2 bg-[#E5E7EB] rounded-full overflow-hidden mx-1">
+                          <div className="h-2 bg-gradient-to-r from-[#4CAF50] to-[#FAC06E] rounded-full" style={{ width: '50%' }}></div>
+                        </div>
+                        <div className="flex flex-col items-center">
+                          <div className="w-4 h-4 rounded-full bg-[#EF5350] border-2 border-white shadow-md z-10"></div>
+                        </div>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-xs font-semibold text-[#4CAF50]">15 Feb 2026</span>
+                        <span className="text-xs font-semibold text-[#6B7280]">50% berlalu</span>
+                        <span className="text-xs font-semibold text-[#EF5350]">15 Mar 2026</span>
+                      </div>
+                      <p className="text-xs text-center text-[#6B7280] mt-2">Total durasi campaign: <span className="font-semibold text-[#243D68]">28 hari</span></p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* CAMPAIGN: Tab Jumlah Alumni Apply */}
+              {activeCampaignTab === 'alumni-apply' && (
+                <div className="px-4 md:px-6 lg:px-8 py-6 space-y-6">
+                  {/* Total Counter Card */}
+                  <div className="bg-gradient-to-br from-[#243D68] to-[#1a2d4d] rounded-2xl p-6 shadow-xl relative overflow-hidden">
+                    <div className="absolute inset-0 opacity-5">
+                      <div className="absolute top-0 right-0 w-48 h-48 bg-white rounded-full -translate-y-1/2 translate-x-1/2"></div>
+                    </div>
+                    <div className="relative z-10 text-center">
+                      <span className="material-symbols-outlined text-[#FAC06E] text-4xl mb-2">group</span>
+                      <p className="text-white/70 text-sm font-semibold uppercase tracking-wider mb-1">Total Alumni yang Sudah Apply</p>
+                      <p className="text-6xl font-black text-white mt-2">142</p>
+                      <p className="text-white/60 text-sm mt-2">alumni telah mendaftar</p>
+                      <div className="flex items-center justify-center gap-1.5 mt-3">
+                        <span className="w-2 h-2 rounded-full bg-[#4CAF50] animate-pulse inline-block"></span>
+                        <span className="text-xs font-semibold text-[#4CAF50]">+12 alumni baru hari ini</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Breakdown by Status */}
+                  <div className="bg-white rounded-xl p-5 border border-[#E5E7EB] shadow-sm">
+                    <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2 bg-[#FAC06E] rounded-lg px-3 py-2 shadow-sm w-fit">
+                      <span className="material-symbols-outlined text-white">bar_chart</span>
+                      Breakdown Status Alumni
+                    </h3>
+                    <div className="space-y-4">
+                      {[
+                        { label: 'Diterima & Aktif', count: 89, total: 142, color: '#4CAF50', bgColor: '#E8F5E9', icon: 'check_circle' },
+                        { label: 'Menunggu Review', count: 38, total: 142, color: '#FAC06E', bgColor: '#FFF9F0', icon: 'pending' },
+                        { label: 'Ditolak', count: 15, total: 142, color: '#EF5350', bgColor: '#FFF3F3', icon: 'cancel' },
+                      ].map((item, i) => (
+                        <div key={i} className="flex items-center gap-3">
+                          <div className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: item.bgColor }}>
+                            <span className="material-symbols-outlined text-lg" style={{ color: item.color }}>{item.icon}</span>
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="text-sm font-semibold text-[#333333]">{item.label}</span>
+                              <span className="text-sm font-black" style={{ color: item.color }}>{item.count} orang</span>
+                            </div>
+                            <div className="w-full bg-[#F3F4F6] rounded-full h-2 overflow-hidden">
+                              <div
+                                className="h-2 rounded-full transition-all duration-700"
+                                style={{ width: `${(item.count / item.total) * 100}%`, backgroundColor: item.color }}
+                              ></div>
+                            </div>
+                            <span className="text-xs text-[#6B7280] mt-0.5 block">{Math.round((item.count / item.total) * 100)}% dari total</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Breakdown by Angkatan */}
+                  <div className="bg-[#F8F9FA] rounded-xl p-5 border border-[#E5E7EB]">
+                    <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2 bg-[#243D68] rounded-lg px-3 py-2 shadow-sm w-fit">
+                      <span className="material-symbols-outlined text-white">school</span>
+                      Distribusi per Angkatan
+                    </h3>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                      {[
+                        { angkatan: "'15", count: 28 },
+                        { angkatan: "'16", count: 34 },
+                        { angkatan: "'17", count: 22 },
+                        { angkatan: "'18", count: 19 },
+                        { angkatan: "'19", count: 25 },
+                        { angkatan: "Lainnya", count: 14 },
+                      ].map((item, i) => (
+                        <div key={i} className="bg-white rounded-xl p-3.5 border border-[#E5E7EB] text-center">
+                          <p className="text-xs text-[#6B7280] font-medium mb-1">Angkatan {item.angkatan}</p>
+                          <p className="text-2xl font-black text-[#243D68]">{item.count}</p>
+                          <p className="text-xs text-[#6B7280]">alumni</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Recent Applicants */}
+                  <div className="bg-white rounded-xl p-5 border border-[#E5E7EB] shadow-sm">
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-sm font-bold text-white flex items-center gap-2 bg-[#FAC06E] rounded-lg px-3 py-2 shadow-sm w-fit">
+                        <span className="material-symbols-outlined text-white">person_add</span>
+                        Apply Terbaru
+                      </h3>
+                      <span className="text-xs text-[#6B7280] bg-[#F3F4F6] px-2.5 py-1 rounded-full">5 terbaru</span>
+                    </div>
+                    <div className="space-y-0">
+                      {[
+                        { name: 'Siti Aminah', angkatan: "'17", time: '2 jam lalu', color: 'from-rose-400 to-pink-500' },
+                        { name: 'Rizky Pratama', angkatan: "'18", time: '4 jam lalu', color: 'from-blue-400 to-indigo-500' },
+                        { name: 'Dewi Lestari', angkatan: "'16", time: '6 jam lalu', color: 'from-emerald-400 to-teal-500' },
+                        { name: 'Hasan Abdullah', angkatan: "'15", time: '8 jam lalu', color: 'from-amber-400 to-orange-500' },
+                        { name: 'Nurul Hidayah', angkatan: "'19", time: '1 hari lalu', color: 'from-purple-400 to-purple-600' },
+                      ].map((applicant, idx, arr) => (
+                        <div key={idx} className={`flex items-center gap-3 py-3 ${idx < arr.length - 1 ? 'border-b border-[#F3F4F6]' : ''}`}>
+                          <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${applicant.color} flex items-center justify-center shrink-0`}>
+                            <span className="text-white text-xs font-bold">{applicant.name.split(' ').map(n => n[0]).join('').slice(0, 2)}</span>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-semibold text-[#0E1B33] truncate">{applicant.name}</p>
+                            <p className="text-xs text-[#6B7280]">Angkatan {applicant.angkatan}</p>
+                          </div>
+                          <span className="text-xs text-[#6B7280] whitespace-nowrap">{applicant.time}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* CAMPAIGN: Tab Kebutuhan Anggaran */}
+              {activeCampaignTab === 'anggaran' && (
+                <div className="px-4 md:px-6 lg:px-8 py-6 space-y-6">
+                  {/* Target Dana Card */}
+                  <div className="bg-gradient-to-br from-[#243D68] to-[#1a2d4d] rounded-2xl p-6 shadow-xl relative overflow-hidden">
+                    <div className="absolute inset-0 opacity-5">
+                      <div className="absolute top-0 right-0 w-64 h-64 bg-white rounded-full -translate-y-1/2 translate-x-1/2"></div>
+                      <div className="absolute bottom-0 left-0 w-48 h-48 bg-white rounded-full translate-y-1/2 -translate-x-1/2"></div>
+                    </div>
+                    <div className="relative z-10">
+                      <div className="flex items-start justify-between mb-5">
+                        <div>
+                          <p className="text-white/70 text-sm font-semibold mb-1">Target Dana Campaign</p>
+                          <p className="text-4xl font-black text-white">Rp 150.000.000</p>
+                          <p className="text-xs text-white/50 mt-1">Target yang perlu dicapai</p>
+                        </div>
+                        {/* Circular Progress */}
+                        <div className="relative w-20 h-20 shrink-0">
+                          <svg className="w-full h-full transform -rotate-90">
+                            <circle cx="50%" cy="50%" r="36" stroke="rgba(255,255,255,0.15)" strokeWidth="8" fill="none" />
+                            <circle
+                              cx="50%" cy="50%" r="36"
+                              stroke="#FAC06E" strokeWidth="8" fill="none"
+                              strokeDasharray="226.19"
+                              strokeDashoffset="113.1"
+                              strokeLinecap="round"
+                            />
+                          </svg>
+                          <div className="absolute inset-0 flex items-center justify-center">
+                            <span className="text-xl font-black text-[#FAC06E]">50%</span>
+                          </div>
+                        </div>
+                      </div>
+                      {/* Stats Row */}
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3.5">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="material-symbols-outlined text-green-400 text-lg">volunteer_activism</span>
+                            <span className="text-white/70 text-xs font-semibold">Terkumpul</span>
+                          </div>
+                          <p className="text-lg font-black text-white">Rp 75.000.000</p>
+                        </div>
+                        <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3.5">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="material-symbols-outlined text-[#FAC06E] text-lg">savings</span>
+                            <span className="text-white/70 text-xs font-semibold">Sisa Target</span>
+                          </div>
+                          <p className="text-lg font-black text-white">Rp 75.000.000</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Breakdown Kebutuhan Dana */}
+                  <div className="bg-white rounded-xl p-5 border border-[#E5E7EB] shadow-sm">
+                    <h3 className="text-sm font-bold text-white mb-4 flex items-center gap-2 bg-[#FAC06E] rounded-lg px-3 py-2 shadow-sm w-fit">
+                      <span className="material-symbols-outlined text-white">receipt_long</span>
+                      Breakdown Kebutuhan Dana
+                    </h3>
+                    <div className="space-y-3">
+                      {[
+                        { label: 'Paket Sembako (1.000 paket)', amount: 100000000, percent: 67, color: '#243D68', icon: 'inventory_2' },
+                        { label: 'Biaya Logistik & Pengiriman', amount: 25000000, percent: 17, color: '#4A90E2', icon: 'local_shipping' },
+                        { label: 'Koordinasi Lapangan & SDM', amount: 15000000, percent: 10, color: '#FAC06E', icon: 'groups' },
+                        { label: 'Dokumentasi & Pelaporan', amount: 7500000, percent: 5, color: '#4CAF50', icon: 'camera_alt' },
+                        { label: 'Biaya Operasional Admin', amount: 2500000, percent: 2, color: '#9E9E9E', icon: 'admin_panel_settings' },
+                      ].map((item, i) => (
+                        <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-[#F8F9FA] border border-[#E5E7EB]">
+                          <div className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: `${item.color}15` }}>
+                            <span className="material-symbols-outlined text-lg" style={{ color: item.color }}>{item.icon}</span>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="text-sm font-semibold text-[#333333] truncate pr-2">{item.label}</span>
+                              <span className="text-xs font-bold whitespace-nowrap" style={{ color: item.color }}>{item.percent}%</span>
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <div className="flex-1 bg-[#E5E7EB] rounded-full h-1.5 overflow-hidden mr-3">
+                                <div
+                                  className="h-1.5 rounded-full transition-all duration-700"
+                                  style={{ width: `${item.percent}%`, backgroundColor: item.color }}
+                                ></div>
+                              </div>
+                              <span className="text-xs text-[#6B7280] whitespace-nowrap font-medium">
+                                Rp {(item.amount / 1000000).toFixed(0)} jt
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Total */}
+                    <div className="mt-4 pt-4 border-t border-[#E5E7EB] flex items-center justify-between">
+                      <span className="text-sm font-bold text-[#333333]">Total Kebutuhan Dana</span>
+                      <span className="text-base font-black text-[#243D68]">Rp 150.000.000</span>
+                    </div>
+                  </div>
+
+                  {/* Dana Stats Summary */}
+                  <div className="grid grid-cols-3 gap-3">
+                    {[
+                      { label: 'Donatur', value: '247', icon: 'people', color: '#243D68', bgColor: '#E8EDF5' },
+                      { label: 'Rata-rata Donasi', value: 'Rp 304 rb', icon: 'trending_up', color: '#4CAF50', bgColor: '#E8F5E9' },
+                      { label: 'Donasi Terbesar', value: 'Rp 5 jt', icon: 'workspace_premium', color: '#FAC06E', bgColor: '#FFF9F0' },
+                    ].map((stat, i) => (
+                      <div key={i} className="bg-white rounded-xl p-3.5 border border-[#E5E7EB] shadow-sm text-center">
+                        <div className="w-9 h-9 rounded-lg flex items-center justify-center mx-auto mb-2" style={{ backgroundColor: stat.bgColor }}>
+                          <span className="material-symbols-outlined text-lg" style={{ color: stat.color }}>{stat.icon}</span>
+                        </div>
+                        <p className="text-sm font-black text-[#0E1B33]">{stat.value}</p>
+                        <p className="text-xs text-[#6B7280] mt-0.5">{stat.label}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </>
+          )}
+
+          {/* ===== VOLUNTEER TAB CONTENT (DO NOT MODIFY) ===== */}
+          {projectType !== 'campaign' && (
+            <>
           {/* Other tabs... */}
           {activeTab === 'overview' && (
             <div className="px-4 md:px-6 lg:px-8 py-6 space-y-6">
+              {/* Financial Progress Bar - Only for Galeri Projects */}
+              {(projectType === 'galeri-with-funding' || projectType === 'galeri-documentation') && (
+                <div className="bg-white rounded-xl p-5 border border-[#E5E7EB] shadow-sm">
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-sm font-bold text-[#243D68] flex items-center gap-2">
+                      <span className="material-symbols-outlined text-[#243D68]">account_balance_wallet</span>
+                      Kebutuhan Keuangan
+                    </h3>
+                    <span className="text-xs font-semibold text-white bg-[#243D68] px-2.5 py-1 rounded-full">
+                      {projectType === 'galeri-with-funding' ? '67%' : '0%'}
+                    </span>
+                  </div>
+                  <div className="w-full bg-[#E5E7EB] rounded-full h-3.5 overflow-hidden mb-3">
+                    <div 
+                      className="h-3.5 rounded-full transition-all duration-700 bg-gradient-to-r from-[#243D68] to-[#3a5a8f]" 
+                      style={{ width: projectType === 'galeri-with-funding' ? '67%' : '0%' }}
+                    ></div>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <div>
+                      <span className="text-[#6B7280]">Terkumpul: </span>
+                      <span className="font-bold text-[#243D68]">
+                        {projectType === 'galeri-with-funding' ? 'Rp 33.500.000' : 'Rp 0'}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-[#6B7280]">Target: </span>
+                      <span className="font-bold text-[#333333]">
+                        {projectType === 'galeri-with-funding' ? 'Rp 50.000.000' : 'Rp 0'}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 mt-3 text-xs text-[#6B7280]">
+                    <span className="material-symbols-outlined text-sm">people</span>
+                    <span>{projectType === 'galeri-with-funding' ? '24 Donatur' : '0 Donatur'}</span>
+                    <span className="mx-1">•</span>
+                    <span className="material-symbols-outlined text-sm">schedule</span>
+                    <span>{projectType === 'galeri-with-funding' ? '18 hari tersisa' : '-'}</span>
+                  </div>
+                </div>
+              )}
+
               {/* Description & Goals */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="bg-[#F8F9FA] rounded-xl p-5 border border-[#E5E7EB]">
@@ -863,23 +1412,7 @@ export function ProjectDetailAlumni({
                 </div>
               </div>
 
-              {/* Posisi Tersedia */}
-              {availablePositions.length > 0 && (
-                <div className="bg-[#FFF9F0] rounded-xl p-5 border border-[#FAC06E]/20 shadow-sm">
-                  <h3 className="text-sm font-bold text-[#243D68] mb-3 flex items-center gap-2">
-                    <span className="material-symbols-outlined text-[#FAC06E]">work</span>
-                    Posisi Masih Tersedia
-                  </h3>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                    {availablePositions.map((pos) => (
-                      <div key={pos.id} className="flex items-center justify-between bg-white rounded-lg px-3.5 py-2.5 border border-[#FAC06E]/15">
-                        <span className="text-sm text-[#333333] font-medium">{pos.title}</span>
-                        <span className="text-xs text-[#FAC06E] font-bold bg-[#FFF3E0] px-2 py-0.5 rounded-full">{pos.slots} slot</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+
             </div>
           )}
           
@@ -1060,6 +1593,8 @@ export function ProjectDetailAlumni({
                 </>
               )}
             </div>
+          )}
+            </>
           )}
         </div>
       </div>
@@ -1258,16 +1793,24 @@ export function ProjectDetailAlumni({
         </div>
       )}
 
-      {/* Fixed Join Project Button - Only visible if user is not a project member */}
-      {!isProjectMember && (
+      {/* ===== BOTTOM CTA SECTION ===== */}
+      {/* CTA Logic 100% berbasis data (type, isFunding, isVolunteerOpen):
+          - open-volunteer: hanya "Join Project" (jika isVolunteerOpen=true)
+          - galeri-with-funding: hanya "Donasi Project" (jika isFunding=true)
+          - galeri-documentation: tanpa CTA (read-only)
+          - campaign: "Donasi Project" + "Join Project" (jika isFunding=true && isVolunteerOpen=true)
+      */}
+      
+      {/* CASE 1: Open Volunteer - Only Join CTA */}
+      {projectType === 'open-volunteer' && isVolunteerOpen && !isProjectMember && (
         <div className="fixed bottom-0 left-0 right-0 lg:left-64 bg-white border-t border-[#E5E7EB] px-4 md:px-6 lg:px-8 py-4 z-40 shadow-[0_-4px_12px_rgba(0,0,0,0.08)]">
           <div className="max-w-4xl mx-auto">
             {applicationStatus === 'none' ? (
               <button 
                 onClick={() => setShowJoinModal(true)}
-                className="w-full flex items-center justify-center gap-3 rounded-xl h-14 bg-gradient-to-r from-[#243D68] to-[#30518B] text-white text-base font-bold leading-normal tracking-widest shadow-[6px_6px_0px_0px_rgba(250,192,110,1)] hover:shadow-[8px_8px_0px_0px_rgba(250,192,110,1)] active:shadow-none active:translate-x-1 active:translate-y-1 transition-all uppercase"
+                className="w-full flex items-center justify-center gap-3 rounded-full h-14 bg-[#243D68] text-white text-base font-bold tracking-widest shadow-[0px_6px_0px_0px_#FAC06E] hover:shadow-[0px_8px_0px_0px_#FAC06E] hover:-translate-y-0.5 active:shadow-[0px_2px_0px_0px_#FAC06E] active:translate-y-1 transition-all uppercase"
               >
-                <span className="material-symbols-outlined text-2xl">group_add</span>
+                <UserPlus className="w-6 h-6" />
                 <span>Join Project</span>
               </button>
             ) : (
@@ -1294,6 +1837,77 @@ export function ProjectDetailAlumni({
           </div>
         </div>
       )}
+
+      {/* CASE 2: Galeri with Funding - Only Donation CTA */}
+      {projectType === 'galeri-with-funding' && isFunding && (
+        <div className="fixed bottom-0 left-0 right-0 lg:left-64 bg-white border-t border-[#E5E7EB] px-4 md:px-6 lg:px-8 py-4 z-40 shadow-[0_-4px_12px_rgba(0,0,0,0.08)]">
+          <div className="max-w-4xl mx-auto">
+            <button 
+              className="w-full flex items-center justify-center gap-3 rounded-full h-14 bg-[#FAC06E] text-[#243D68] text-base font-bold tracking-widest shadow-[0px_6px_0px_0px_#243D68] hover:shadow-[0px_8px_0px_0px_#243D68] hover:-translate-y-0.5 active:shadow-[0px_2px_0px_0px_#243D68] active:translate-y-1 transition-all uppercase"
+            >
+              <HandHeart className="w-6 h-6" />
+              <span>Donasi Project</span>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* CASE 3: Campaign - Dual CTA (Donation + Join) */}
+      {projectType === 'campaign' && (isFunding || isVolunteerOpen) && (
+        <div className="fixed bottom-0 left-0 right-0 lg:left-64 bg-white border-t border-[#E5E7EB] px-4 md:px-6 lg:px-8 py-4 z-40 shadow-[0_-4px_12px_rgba(0,0,0,0.08)]">
+          <div className="max-w-4xl mx-auto">
+            {!isProjectMember && applicationStatus === 'none' ? (
+              <div className="flex flex-row gap-3 sm:gap-6">
+                {/* Donation Button - Stacked Text */}
+                {isFunding && (
+                  <button 
+                    className="flex-1 flex items-center justify-center gap-2 sm:gap-4 rounded-2xl min-h-[60px] sm:min-h-[68px] bg-[#FAC06E] text-[#243D68] shadow-[0px_4px_0px_0px_#FBECC5] sm:shadow-[0px_6px_0px_0px_#FBECC5] hover:shadow-[0px_6px_0px_0px_#FBECC5] hover:-translate-y-0.5 active:shadow-[0px_2px_0px_0px_#FBECC5] active:translate-y-1 transition-all group"
+                  >
+                    <HandHeart className="w-6 h-6 sm:w-8 sm:h-8 stroke-[2.5px] group-hover:scale-110 transition-transform" />
+                    <div className="flex flex-col items-start leading-none gap-0.5">
+                      <span className="text-xs sm:text-sm font-extrabold tracking-wide">Donasi</span>
+                      <span className="text-xs sm:text-sm font-extrabold tracking-wide">Project</span>
+                    </div>
+                  </button>
+                )}
+                
+                {/* Join Project Button - Single Line */}
+                {isVolunteerOpen && (
+                  <button 
+                    onClick={() => setShowJoinModal(true)}
+                    className="flex-1 flex items-center justify-center gap-2 sm:gap-3 rounded-2xl min-h-[60px] sm:min-h-[68px] bg-[#243D68] text-white shadow-[0px_4px_0px_0px_#4A6085] sm:shadow-[0px_6px_0px_0px_#4A6085] hover:shadow-[0px_6px_0px_0px_#4A6085] hover:-translate-y-0.5 active:shadow-[0px_2px_0px_0px_#4A6085] active:translate-y-1 transition-all group"
+                  >
+                    <UserPlus className="w-6 h-6 sm:w-7 sm:h-7 stroke-[2.5px] group-hover:scale-110 transition-transform" />
+                    <span className="text-sm sm:text-lg font-bold tracking-wide">Join Project</span>
+                  </button>
+                )}
+              </div>
+            ) : applicationStatus === 'pending' && isVolunteerOpen ? (
+              <div className="flex items-center gap-3">
+                <div className="flex-1 flex items-center gap-3 px-4 py-3 bg-[#FFF9F0] border-2 border-[#FAC06E] rounded-xl">
+                  <div className="w-10 h-10 bg-[#FAC06E] rounded-full flex items-center justify-center flex-shrink-0">
+                    <span className="material-symbols-outlined text-[#243D68] text-xl">pending</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-bold text-[#243D68]">Pengajuan Tertunda</p>
+                    <p className="text-xs text-[#6B7280]">Menunggu persetujuan dari PIC</p>
+                  </div>
+                </div>
+                <button
+                  onClick={handleApproveApplication}
+                  className="px-4 py-3 bg-green-600 hover:bg-green-700 text-white rounded-xl font-semibold text-sm transition-colors whitespace-nowrap"
+                  title="Simulasi: Approve oleh PIC"
+                >
+                  ✓ Approve
+                </button>
+              </div>
+            ) : null}
+          </div>
+        </div>
+      )}
+
+      {/* CASE 4: Galeri Documentation - No CTA (read-only) */}
+      {/* projectType === 'galeri-documentation' → No CTA rendered */}
 
       {/* Modal: Join Project Form */}
       {showJoinModal && (

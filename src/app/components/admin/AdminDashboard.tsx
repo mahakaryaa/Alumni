@@ -83,13 +83,13 @@ export function AdminDashboard({ onBack }: AdminDashboardProps) {
       {/* Main Content */}
       <div className="flex-1 lg:ml-64 flex flex-col min-h-screen">
         {/* Header */}
-        <div className="sticky top-0 z-20 bg-white px-6 md:px-8 py-4 border-b border-[#E5E7EB] shadow-sm">
+        <div className="sticky top-0 z-20 bg-white px-6 md:px-8 py-4 border-b border-[#E5E7EB] shadow-sm overflow-hidden">
           <div className="flex items-center justify-between">
-            <div>
+            <div className="overflow-hidden">
               <h1 className="font-['Archivo_Black'] text-xl uppercase text-[#0E1B33]">
                 Admin Panel
               </h1>
-              <p className="text-sm text-[#6B7280]">AlMaqdisi Project Management System</p>
+              <p className="text-sm text-[#6B7280] overflow-hidden text-ellipsis whitespace-nowrap">AlMaqdisi Project Management System</p>
             </div>
             
             {/* Mobile Menu Toggle (if needed) */}

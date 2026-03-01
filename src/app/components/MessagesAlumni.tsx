@@ -30,7 +30,7 @@ export function MessagesAlumni({
 }: MessagesAlumniProps) {
   const { language } = useTranslation();
   const [activeTab, setActiveTab] = useState<'pesan' | 'laporan' | 'event'>('pesan');
-  const [activeSubTab, setActiveSubTab] = useState<'chats' | 'teams' | 'tasks' | 'voting'>('chats');
+  const [activeSubTab, setActiveSubTab] = useState<'messages' | 'tasks' | 'voting'>('messages');
   const [searchQuery, setSearchQuery] = useState('');
   const [votedPolls, setVotedPolls] = useState<{ [key: number]: number }>({});
 
@@ -441,15 +441,20 @@ export function MessagesAlumni({
                   {/* Sub Tab Navigation */}
                   <div className="flex border-b border-[#E5E7EB]">
                     <button
-                      onClick={() => setActiveSubTab('voting')}
+                      onClick={() => setActiveSubTab('messages')}
                       className={`px-4 py-3 font-semibold text-sm transition-colors relative ${
-                        activeSubTab === 'voting'
+                        activeSubTab === 'messages'
                           ? 'text-[#243D68]'
                           : 'text-[#6B7280] hover:text-[#243D68]'
                       }`}
                     >
-                      Voting
-                      {activeSubTab === 'voting' && (
+                      Pesan Personal
+                      {(conversations.filter(c => c.unread > 0).length + announcements.length) > 0 && (
+                        <span className="ml-2 bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
+                          {conversations.filter(c => c.unread > 0).length + announcements.length}
+                        </span>
+                      )}
+                      {activeSubTab === 'messages' && (
                         <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#243D68]"></div>
                       )}
                     </button>
@@ -472,39 +477,165 @@ export function MessagesAlumni({
                       )}
                     </button>
                     <button
-                      onClick={() => setActiveSubTab('chats')}
+                      onClick={() => setActiveSubTab('voting')}
                       className={`px-4 py-3 font-semibold text-sm transition-colors relative ${
-                        activeSubTab === 'chats'
+                        activeSubTab === 'voting'
                           ? 'text-[#243D68]'
                           : 'text-[#6B7280] hover:text-[#243D68]'
                       }`}
                     >
-                      Chats
-                      {conversations.filter(c => c.unread > 0).length > 0 && (
-                        <span className="ml-2 bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
-                          {conversations.filter(c => c.unread > 0).length}
-                        </span>
-                      )}
-                      {activeSubTab === 'chats' && (
-                        <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#243D68]"></div>
-                      )}
-                    </button>
-                    <button
-                      onClick={() => setActiveSubTab('teams')}
-                      className={`px-4 py-3 font-semibold text-sm transition-colors relative ${
-                        activeSubTab === 'teams'
-                          ? 'text-[#243D68]'
-                          : 'text-[#6B7280] hover:text-[#243D68]'
-                      }`}
-                    >
-                      Teams
-                      {activeSubTab === 'teams' && (
+                      Voting
+                      {activeSubTab === 'voting' && (
                         <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#243D68]"></div>
                       )}
                     </button>
                   </div>
 
                   {/* Sub Tab Content */}
+                  {/* Messages Tab - Gabungan Personal + Pengumuman */}
+                  {activeSubTab === 'messages' && (
+                    <div className="space-y-6">
+                      {/* Section: Pengumuman */}
+                      <div>
+                        <h3 className="text-lg font-bold text-[#0E1B33] mb-4 flex items-center gap-2">
+                          <span className="material-symbols-outlined text-[#243D68]">campaign</span>
+                          Pengumuman
+                        </h3>
+                        <div className="space-y-3">
+                          {announcements.map((announcement) => (
+                            <div
+                              key={announcement.id}
+                              className="bg-white rounded-xl p-4 border border-[#E5E7EB] hover:shadow-md transition-shadow"
+                            >
+                              <div className="flex gap-3">
+                                <div className={`shrink-0 w-10 h-10 ${announcement.bgColor} rounded-lg flex items-center justify-center`}>
+                                  <span className={`material-symbols-outlined text-lg ${announcement.color}`}>
+                                    {announcement.icon}
+                                  </span>
+                                </div>
+                                <div className="flex-1">
+                                  <div className="flex items-start justify-between mb-1">
+                                    <h4 className="font-bold text-[#0E1B33] text-sm">{announcement.title}</h4>
+                                    <span className="text-xs text-[#6B7280] whitespace-nowrap ml-2">
+                                      {announcement.date}
+                                    </span>
+                                  </div>
+                                  <p className="text-xs text-[#6B7280] leading-relaxed">{announcement.message}</p>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Section: Pesan Personal */}
+                      <div>
+                        <h3 className="text-lg font-bold text-[#0E1B33] mb-4 flex items-center gap-2">
+                          <span className="material-symbols-outlined text-[#243D68]">chat</span>
+                          Pesan Personal
+                        </h3>
+                        <div className="space-y-2">
+                          {conversations.map((conv) => (
+                            <div
+                              key={conv.id}
+                              className="bg-white rounded-xl p-4 hover:shadow-md transition-shadow cursor-pointer border border-[#E5E7EB] hover:border-[#243D68]/20"
+                            >
+                              <div className="flex items-start gap-3">
+                                <div className="relative shrink-0">
+                                  <div className={`w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold ${
+                                    conv.type === 'team' 
+                                      ? 'bg-blue-100 text-blue-600' 
+                                      : 'bg-[#FAC06E] text-[#243D68]'
+                                  }`}>
+                                    {conv.avatar}
+                                  </div>
+                                  {conv.online && (
+                                    <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
+                                  )}
+                                </div>
+
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-start justify-between gap-2 mb-1">
+                                    <h3 className="font-bold text-[#0E1B33] text-sm truncate">{conv.name}</h3>
+                                    <span className="text-xs text-[#6B7280] shrink-0">{conv.time}</span>
+                                  </div>
+                                  <div className="flex items-center justify-between gap-2">
+                                    <p className="text-sm text-[#6B7280] truncate">{conv.lastMessage}</p>
+                                    {conv.unread > 0 && (
+                                      <span className="bg-[#243D68] text-white text-xs font-bold px-2 py-0.5 rounded-full shrink-0">
+                                        {conv.unread}
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {activeSubTab === 'tasks' && (
+                    <div className="space-y-4">
+                      {tasks.map((task) => (
+                        <div
+                          key={task.id}
+                          className="bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 overflow-hidden border border-[#E5E7EB] hover:border-[#243D68]/20"
+                        >
+                          <div className={`h-1.5 ${
+                            task.priority === 'high' 
+                              ? 'bg-gradient-to-r from-red-500 to-red-600' 
+                              : 'bg-gradient-to-r from-amber-400 to-amber-500'
+                          }`}></div>
+                          
+                          <div className="p-5">
+                            <div className="flex items-start justify-between gap-3 mb-4">
+                              <div className="flex-1 min-w-0">
+                                <h3 className="font-bold text-[#0E1B33] text-base mb-1 leading-tight">{task.title}</h3>
+                                <div className="flex items-center gap-2 text-xs text-[#6B7280]">
+                                  <span className="material-symbols-outlined text-sm">folder</span>
+                                  <span className="font-medium">{task.project}</span>
+                                </div>
+                              </div>
+                              <span className={`px-3 py-1.5 rounded-full text-xs font-bold shrink-0 shadow-sm ${
+                                task.priority === 'high'
+                                  ? 'bg-red-500 text-white'
+                                  : 'bg-amber-500 text-white'
+                              }`}>
+                                {task.priority === 'high' ? 'High' : 'Medium'}
+                              </span>
+                            </div>
+                            
+                            <div className={`flex items-center gap-2 px-3 py-2 rounded-lg mb-4 ${
+                              task.priority === 'high' 
+                                ? 'bg-red-50' 
+                                : 'bg-amber-50'
+                            }`}>
+                              <span className={`material-symbols-outlined text-lg ${
+                                task.priority === 'high' 
+                                  ? 'text-red-600' 
+                                  : 'text-amber-600'
+                              }`}>schedule</span>
+                              <span className={`text-sm font-semibold ${
+                                task.priority === 'high' 
+                                  ? 'text-red-700' 
+                                  : 'text-amber-700'
+                              }`}>
+                                {task.dueDate}
+                              </span>
+                            </div>
+                            
+                            <button className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-[#243D68] to-[#30518B] text-white py-2.5 px-4 rounded-lg text-sm font-bold hover:shadow-lg transition-all">
+                              <span className="material-symbols-outlined text-lg">task_alt</span>
+                              <span>Lihat Detail Task</span>
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
                   {activeSubTab === 'voting' && (
                     <div className="space-y-4">
                       {pollsData.filter(p => p.status === 'active').map((poll) => {
@@ -640,95 +771,6 @@ export function MessagesAlumni({
                               <span className="material-symbols-outlined text-lg">task_alt</span>
                               <span>Lihat Detail Task</span>
                             </button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {activeSubTab === 'chats' && (
-                    <div className="space-y-1">
-                      {conversations.map((conv) => (
-                        <div
-                          key={conv.id}
-                          className="bg-white rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer border border-[#E5E7EB] hover:border-[#243D68]/20"
-                        >
-                          <div className="flex items-start gap-3">
-                            <div className="relative shrink-0">
-                              <div className={`w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold ${
-                                conv.type === 'team' 
-                                  ? 'bg-blue-100 text-blue-600' 
-                                  : 'bg-[#FAC06E] text-[#243D68]'
-                              }`}>
-                                {conv.avatar}
-                              </div>
-                              {conv.online && (
-                                <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
-                              )}
-                            </div>
-
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-start justify-between gap-2 mb-1">
-                                <h3 className="font-bold text-[#0E1B33] text-sm truncate">{conv.name}</h3>
-                                <span className="text-xs text-[#6B7280] shrink-0">{conv.time}</span>
-                              </div>
-                              <div className="flex items-center justify-between gap-2">
-                                <p className="text-sm text-[#6B7280] truncate">{conv.lastMessage}</p>
-                                {conv.unread > 0 && (
-                                  <span className="bg-[#243D68] text-white text-xs font-bold px-2 py-0.5 rounded-full shrink-0">
-                                    {conv.unread}
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {activeSubTab === 'teams' && (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {teams.map((team) => (
-                        <div
-                          key={team.id}
-                          onClick={onNavigateToProject}
-                          className="bg-white rounded-lg p-5 hover:shadow-lg transition-all cursor-pointer border border-[#E5E7EB] hover:border-[#243D68]/20"
-                        >
-                          <div className="flex items-start justify-between mb-4">
-                            <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-                              team.color === 'blue' ? 'bg-blue-100' :
-                              team.color === 'green' ? 'bg-green-100' :
-                              'bg-purple-100'
-                            }`}>
-                              <span className={`material-symbols-outlined text-2xl ${
-                                team.color === 'blue' ? 'text-blue-600' :
-                                team.color === 'green' ? 'text-green-600' :
-                                'text-purple-600'
-                              }`}>{team.icon}</span>
-                            </div>
-                            <span className={`px-2 py-1 rounded text-xs font-bold ${
-                              team.color === 'blue' ? 'bg-blue-100 text-blue-700' :
-                              team.color === 'green' ? 'bg-green-100 text-green-700' :
-                              'bg-purple-100 text-purple-700'
-                            }`}>
-                              {team.progress}%
-                            </span>
-                          </div>
-                          <h3 className="font-bold text-[#0E1B33] text-base mb-2">{team.name}</h3>
-                          <div className="flex items-center gap-2 text-sm text-[#6B7280] mb-3">
-                            <span className="material-symbols-outlined text-lg">group</span>
-                            <span>{team.members} anggota</span>
-                          </div>
-                          <div className="w-full bg-[#E5E7EB] rounded-full h-2">
-                            <div 
-                              className={`h-2 rounded-full transition-all ${
-                                team.color === 'blue' ? 'bg-blue-600' :
-                                team.color === 'green' ? 'bg-green-600' :
-                                'bg-purple-600'
-                              }`}
-                              style={{ width: `${team.progress}%` }}
-                            ></div>
                           </div>
                         </div>
                       ))}

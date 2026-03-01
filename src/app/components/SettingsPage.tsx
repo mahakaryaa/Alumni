@@ -11,6 +11,7 @@ interface SettingsPageProps {
   onLogout?: () => void;
   onNavigateMyDonations?: () => void;
   onNavigateMyJoinRequests?: () => void;
+  onNavigateBookmarks?: () => void;
   activeNav?: string;
   userRole?: 'donatur' | 'alumni' | 'alumni-guest' | null;
   language?: 'id' | 'en';
@@ -26,6 +27,7 @@ export function SettingsPage({
   onLogout,
   onNavigateMyDonations,
   onNavigateMyJoinRequests,
+  onNavigateBookmarks,
   activeNav = 'settings',
   userRole = 'alumni',
   language: externalLanguage,
@@ -301,22 +303,38 @@ export function SettingsPage({
                 </button>
 
                 {(userRole === 'alumni' || userRole === 'alumni-guest') && (
-                  <button
-                    onClick={() => {
-                      setEditProfileType('alumni');
-                      setShowEditProfile(true);
-                    }}
-                    className="w-full flex items-center gap-3 md:gap-4 p-4 md:p-5 hover:bg-[#F8F9FA] transition-colors"
-                  >
-                    <div className="w-10 h-10 bg-[#243D68]/10 rounded-full flex items-center justify-center flex-shrink-0">
-                      <span className="material-symbols-outlined text-[#243D68]">school</span>
-                    </div>
-                    <div className="flex-1 text-left min-w-0">
-                      <p className="text-sm font-semibold text-[#0E1B33]">{t.settings.alumniData}</p>
-                      <p className="text-xs text-[#6B7280]">{language === 'id' ? 'Skill, edukasi, batch Saladin Camp' : 'Skills, education, Saladin Camp batch'}</p>
-                    </div>
-                    <span className="material-symbols-outlined text-[#6B7280] flex-shrink-0">chevron_right</span>
-                  </button>
+                  <>
+                    <button
+                      onClick={() => {
+                        setEditProfileType('alumni');
+                        setShowEditProfile(true);
+                      }}
+                      className="w-full flex items-center gap-3 md:gap-4 p-4 md:p-5 hover:bg-[#F8F9FA] transition-colors border-b border-[#E5E7EB]"
+                    >
+                      <div className="w-10 h-10 bg-[#243D68]/10 rounded-full flex items-center justify-center flex-shrink-0">
+                        <span className="material-symbols-outlined text-[#243D68]">school</span>
+                      </div>
+                      <div className="flex-1 text-left min-w-0">
+                        <p className="text-sm font-semibold text-[#0E1B33]">{t.settings.alumniData}</p>
+                        <p className="text-xs text-[#6B7280]">{language === 'id' ? 'Skill, edukasi, batch Saladin Camp' : 'Skills, education, Saladin Camp batch'}</p>
+                      </div>
+                      <span className="material-symbols-outlined text-[#6B7280] flex-shrink-0">chevron_right</span>
+                    </button>
+
+                    <button
+                      onClick={onNavigateBookmarks}
+                      className="w-full flex items-center gap-3 md:gap-4 p-4 md:p-5 hover:bg-[#F8F9FA] transition-colors"
+                    >
+                      <div className="w-10 h-10 bg-[#243D68]/10 rounded-full flex items-center justify-center flex-shrink-0">
+                        <span className="material-symbols-outlined text-[#243D68]">bookmark</span>
+                      </div>
+                      <div className="flex-1 text-left min-w-0">
+                        <p className="text-sm font-semibold text-[#0E1B33]">{language === 'id' ? 'Project Tersimpan' : 'Saved Projects'}</p>
+                        <p className="text-xs text-[#6B7280]">{language === 'id' ? 'Lihat semua project yang di-bookmark' : 'View all bookmarked projects'}</p>
+                      </div>
+                      <span className="material-symbols-outlined text-[#6B7280] flex-shrink-0">chevron_right</span>
+                    </button>
+                  </>
                 )}
               </div>
             </div>

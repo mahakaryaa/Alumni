@@ -45,7 +45,7 @@ export function DonationSuccess({
               <ArrowLeft className="w-4 h-4 mr-2" />
               Beranda
             </Button>
-            <h1 className="font-['Archivo_Black'] text-lg text-primary">ALMAQDISI PROJECT</h1>
+            <h1 className="font-['Archivo_Black'] text-lg text-primary overflow-hidden text-ellipsis whitespace-nowrap">ALMAQDISI PROJECT</h1>
             <div className="w-20" /> {/* Spacer for centering */}
           </div>
         </div>

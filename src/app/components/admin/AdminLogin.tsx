@@ -70,11 +70,11 @@ export function AdminLogin({ onLoginSuccess, onBack }: AdminLoginProps) {
     <div className="min-h-screen bg-gradient-to-br from-[#243D68] to-[#30518B] flex items-center justify-center p-4">
       <div className="max-w-md w-full">
         {/* Logo Card */}
-        <div className="bg-white rounded-2xl p-6 mb-6 text-center shadow-xl">
+        <div className="bg-white rounded-2xl p-6 mb-6 text-center shadow-xl overflow-hidden">
           <div className="w-16 h-16 bg-[#FAC06E] rounded-full flex items-center justify-center mx-auto mb-3">
             <span className="material-symbols-outlined text-[#243D68] text-3xl">mosque</span>
           </div>
-          <h1 className="font-['Archivo_Black'] text-2xl uppercase text-[#243D68] mb-1">
+          <h1 className="font-['Archivo_Black'] text-2xl uppercase text-[#243D68] mb-1 overflow-hidden text-ellipsis whitespace-nowrap px-4">
             AlMaqdisi Project
           </h1>
           <p className="text-sm text-[#6B7280]">Admin Panel</p>
